@@ -1,7 +1,7 @@
 %define STAGE_0_1_SIGNATURE_VALUE   0xaa55
 %define STAGE_0_1_SIZE              512
-%define STAGE_0_SECTOR              0x07c0
-%define STAGE_1_SECTOR              0x8000
+%define STAGE_0_SEGMENT             0x07c0
+%define STAGE_1_SEGMENT             0x8000
 
 
     [bits   16]
@@ -21,14 +21,14 @@ DIGIT_VALUES                db  "0123456789ABCDEF"
 
 stage_0_start_16:
     ; Check the bootloader signature prior to moving
-    mov         ax, STAGE_0_SECTOR
+    mov         ax, STAGE_0_SEGMENT
     mov         ds, ax
     mov         ax, [STAGE_0_1_SIGNATURE]
     cmp         ax, STAGE_0_1_SIGNATURE_VALUE
     jne         short .fail
 
     ; Copy stages 0 and 1 to a new location
-    mov         ax, STAGE_1_SECTOR
+    mov         ax, STAGE_1_SEGMENT
     mov         es, ax
     xor         si, si
     xor         di, di
@@ -37,13 +37,13 @@ stage_0_start_16:
     rep movsw    
 
     ; Check the bootloader signature after moving
-    mov         ax, STAGE_1_SECTOR
+    mov         ax, STAGE_1_SEGMENT
     mov         ds, ax
     mov         ax, [STAGE_0_1_SIGNATURE]
     cmp         ax, STAGE_0_1_SIGNATURE_VALUE
     jne         short .fail
 
-    jmp         long STAGE_1_SECTOR:stage_1_start_16
+    jmp         long STAGE_1_SEGMENT:stage_1_start_16
 
 .fail:
     ; Print a solitary 'X' to denote our abject failure
