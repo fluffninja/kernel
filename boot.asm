@@ -27,16 +27,14 @@ DRIVE_LOGICAL_DRIVE_NUMBER          db  0
                                     db  0               ; Reserved
 DRIVE_EXTENDED_SIGNATURE            db  0x29
 DRIVE_VOLUME_SERIAL_NUMBER          dd  0x00000000
-DRIVE_VOLUME_LABEL                  db  "OS BOOTDISK"    ; 11 Characters
+DRIVE_VOLUME_LABEL                  db  "OS BOOTDISK"   ; 11 Characters
 DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters
 
-STR_STAGE_1_OK              db  "Entering Stage 1", 0
-STR_STAGE_1_FLOPPY_READ     db  "Reading Floppy", 0
-STR_STAGE_1_FLOPPY_OK       db  "Floppy OK", 0
-STR_STAGE_1_FLOPPY_ERROR    db  "Floppy Error: ", 0
-STR_STAGE_1_FLOPPY_FATAL    db  "Fatal Floppy Error", 0
+MSG_STAGE_0_FATAL                   db  'X'
+MSG_STAGE_1_OK                      db  "Loading, please wait...", 0
+MSG_HALT                            db  "[HALT]", 0
 
-DIGIT_VALUES                db  "0123456789ABCDEF"
+DIGIT_VALUES                        db  "0123456789ABCDEF"
 
 
 stage_0_start_16:
@@ -66,12 +64,10 @@ stage_0_start_16:
     jmp         long STAGE_1_SEGMENT:stage_1_start_16
 
 .fail:
-    ; Print a solitary 'X' to denote our abject failure
     mov         bx, 0x0007
     mov         ah, 0x0e
-    mov         al, 'X'
+    mov         al, MSG_STAGE_0_FATAL
     int         0x10
-    ; Wait for keyboard input and restart
     xor         ax, ax
     int         0x16
     int         0x19
@@ -87,10 +83,8 @@ stage_1_start_16:
     mov         ss, ax
     sti    
 
-    mov         si, STR_STAGE_1_OK
+    mov         si, MSG_STAGE_1_OK
     call        print_line_16
-
-    call        print_drive_status
  
     call        hang_16
 
@@ -153,28 +147,9 @@ print_line_16:
     ret
 
 
-; Print the current status of the drive
-; DL: Drive
-print_drive_status:
-    pusha
-    mov         ah, 0x01
-    int         0x13
-    jnc         short .no_error
-    mov         si, STR_STAGE_1_FLOPPY_ERROR
-    call        print_string_16
-    mov         cl, ah
-    call        print_hex_16
-    jmp         short .done
-.no_error:
-    mov         si, STR_STAGE_1_FLOPPY_OK
-    call        print_string_16
-.done:
-    call        move_to_new_line_16
-    popa
-    ret
-
-
 hang_16:
+    mov         si, MSG_HALT
+    call        print_line_16
     hlt
     jmp         $
 
