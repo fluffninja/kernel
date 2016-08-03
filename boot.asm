@@ -27,7 +27,7 @@ DRIVE_LOGICAL_DRIVE_NUMBER          db  0
                                     db  0               ; Reserved
 DRIVE_EXTENDED_SIGNATURE            db  0x29
 DRIVE_VOLUME_SERIAL_NUMBER          dd  0x00000000
-DRIVE_VOLUME_LABEL                  db  "OS DISK   "    ; 10 Characters
+DRIVE_VOLUME_LABEL                  db  "OS BOOTDISK"    ; 11 Characters
 DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters
 
 STR_STAGE_1_OK              db  "Entering Stage 1", 0
