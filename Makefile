@@ -1,16 +1,10 @@
-EMU			:= qemu-system-i386
-EMUFLAGS	:= -monitor stdio -m 128M -k en-gb
-CC			:= gcc
-CFLAGS		:= -ffreestanding -std=c11 -Wall -Wextra
-ASM 		:= nasm
-ASMFLAGS	:= -f bin
+boot.bin: boot.asm
+	nasm $< -o $@ -f bin
 
-%.bin: %.asm
-	$(ASM) $< -o $@ $(ASMFLAGS)
-
-%.flp: %.bin
-	dd if=$< of=$@ bs=512
+boot.img: boot.bin
+	dd if=$< of=$@ bs=512 count=1
 
 .PHONY: run
-run: boot.flp
-	$(EMU) -drive file=$<,media=disk,format=raw $(EMUFLAGS)
+run: boot.img
+	qemu-system-i386 -monitor stdio -k en-gb -m 128M -drive \
+		media=disk,format=raw,file=boot.img
