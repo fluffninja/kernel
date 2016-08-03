@@ -1,34 +1,25 @@
 %define STAGE_0_1_SIGNATURE_VALUE   0xaa55
-%define STAGE_2_SIGNATURE_VALUE     0x1337
 %define STAGE_0_1_SIZE              512
 %define STAGE_0_SECTOR              0x07c0
 %define STAGE_1_SECTOR              0x8000
-%define STAGE_2_SECTOR              (STAGE_1_SECTOR + STAGE_0_1_SIZE / 16)
-%define STAGE_1_FLOPPY_ATTEMPTS     5
 
 
     [bits   16]
     [org    0]
 
 
-    jmp         STAGE_0_SECTOR:stage_0_start_16
-
+    jmp         stage_0_start_16
 
 STR_STAGE_1_OK              db  "Entering Stage 1", 0
 STR_STAGE_1_FLOPPY_READ     db  "Reading Floppy", 0
 STR_STAGE_1_FLOPPY_OK       db  "Floppy OK", 0
 STR_STAGE_1_FLOPPY_ERROR    db  "Floppy Error: ", 0
 STR_STAGE_1_FLOPPY_FATAL    db  "Fatal Floppy Error", 0
-STR_STAGE_2_OK              db  "Entering Stage 2", 0
 
 DIGIT_VALUES                db  "0123456789ABCDEF"
 
-b_boot_drive_id             db  0x00
-
 
 stage_0_start_16:
-    mov         [b_boot_drive_id], dl
-
     ; Check the bootloader signature prior to moving
     mov         ax, STAGE_0_SECTOR
     mov         ds, ax
@@ -170,22 +161,3 @@ hang_16:
 
 times (512-2)-($-$$)                hlt
 STAGE_0_1_SIGNATURE                 dw  STAGE_0_1_SIGNATURE_VALUE
-
-
-stage_2_start_16:
-    cli
-    mov         ax, cs
-    mov         ds, ax
-    mov         es, ax
-    mov         sp, ax
-    xor         ax, ax
-    mov         ss, ax
-    sti    
-
-    mov         si, STR_STAGE_2_OK
-    call        print_string_16
-    call        hang_16
-
-
-times (512*2-2)-($-$$)              db  0
-STAGE_2_SIGNATURE                   dw  STAGE_2_SIGNATURE_VALUE
