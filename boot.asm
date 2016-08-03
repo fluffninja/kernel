@@ -10,6 +10,26 @@
 
     jmp         stage_0_start_16
 
+DRIVE_OEM                           db  "FLUFF OS"      ; 8 Characters
+DRIVE_BYTES_PER_SECTOR              dw  512
+DRIVE_SECTORS_PER_CLUSTER           db  1
+DRIVE_RESERVED_SECTOR_COUNT         dw  1
+DRIVE_FAT_COUNT                     db  2
+DRIVE_ROOT_ENTRY_COUNT              dw  224
+DRIVE_FILESYSTEM_SECTOR_COUNT       dw  2880
+DRIVE_MEDIA_DESCRIPTOR              db  0xf0
+DRIVE_SECTORS_PER_FAT               dw  9
+DRIVE_SECTORS_PER_TRACK             dw  12
+DRIVE_HEAD_COUNT                    dw  1
+DRIVE_HIDDEN_SECTOR_COUNT           dd  0
+DRIVE_FILESYSTEM_SECTOR_COUNT_32    dd  0               ; TODO
+DRIVE_LOGICAL_DRIVE_NUMBER          db  0
+                                    db  0               ; Reserved
+DRIVE_EXTENDED_SIGNATURE            db  0x29
+DRIVE_VOLUME_SERIAL_NUMBER          dd  0x00000000
+DRIVE_VOLUME_LABEL                  db  "OS DISK   "    ; 10 Characters
+DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters
+
 STR_STAGE_1_OK              db  "Entering Stage 1", 0
 STR_STAGE_1_FLOPPY_READ     db  "Reading Floppy", 0
 STR_STAGE_1_FLOPPY_OK       db  "Floppy OK", 0
