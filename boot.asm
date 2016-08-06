@@ -193,19 +193,19 @@ sector_to_hts_16:
     push        bx
     push        ax
 
-    mov         bx, ax
-    xor         dx, dx
-    div         word [DRIVE_SECTORS_PER_TRACK]
-    inc         dl
+    mov         bx, ax                          ; Save for later use
+
+    xor         dx, dx                          ; DIV remainder goes into DX
+    div         word [DRIVE_SECTORS_PER_TRACK]  ; DIV AX
+    inc         dl                              ; HTS sector no. counts from 1
     mov         cl, dl
 
-    mov         ax, bx
-    xor         dx, dx
-    div         word [DRIVE_SECTORS_PER_TRACK]
-    xor         dx, dx
+    mov         ax, bx                          ; Retrieve save value
+    div         word [DRIVE_SECTORS_PER_TRACK]  ; DIV AX (don't need remainder)
+    xor         dx, dx                          ; Ignore first remainder
     div         word [DRIVE_HEAD_COUNT]
-    mov         dh, dl
-    mov         ch, al
+    mov         ch, al                          ; Quotient is track no.
+    mov         dh, dl                          ; Remainder is head no.
 
     pop         ax
     pop         bx
