@@ -1,0 +1,10 @@
+// cstdbool for Isaac OS
+
+#ifndef _INC_CSTDBOOL
+#define _INC_CSTDBOOL 1
+
+#define __bool_true_false_are_defined 1
+
+#endif /* _INC_CSTDBOOL */
+
+
