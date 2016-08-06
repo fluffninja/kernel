@@ -3,6 +3,7 @@
 %define STAGE_0_SEGMENT             0x07c0
 %define STAGE_1_SEGMENT             0x8000
 %define PADDING_VALUE               hlt
+%define STAGE_2_FILENAME            "BOOT    BIN"
 
 
     [bits   16]
@@ -38,14 +39,21 @@ DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters
 
 
 MSG_STAGE_0_FATAL                   db  'X'
-MSG_STAGE_1_OK                      db  "Loading, please wait...", 0
-MSG_HALT                            db  "[HALT]", 0
 
+MSG_STAGE_1_OK                      db  "OK", 0
+MSG_HALT                            db  "HALT", 0
+
+STR_STAGE_2_FILENAME                db  STAGE_2_FILENAME, 0
 
 DIGIT_VALUES                        db  "0123456789ABCDEF"
 
+b_boot_device                       db  0
+
 
 stage_0_start_16:
+    ; Given to us by the BIOS; save it for later.
+    mov         [b_boot_device], dl 
+
     ; Check the bootloader signature prior to moving.
     ; If this check fails then the BIOS did something very wrongly.
     mov         ax, STAGE_0_SEGMENT
@@ -88,6 +96,7 @@ stage_0_start_16:
 
 
 stage_1_start_16:
+    ; Set up the segment registers and the stack. No interrupts during this...
     cli
     mov         ax, cs
     mov         ds, ax
@@ -170,6 +179,38 @@ hang_16:
     call        print_line_16
     hlt
     jmp         $
+
+
+; Convert a logical sector number into a head, track, and sector value as used
+; by the BIOS services. The output values are ready for use with INT 0x13.
+; IN:
+;   AX: Logical Sector (from 0)
+; OUT:
+;   CL: Sector
+;   CH: Track
+;   DH: Head
+sector_to_hts_16:
+    push        bx
+    push        ax
+
+    mov         bx, ax
+    xor         dx, dx
+    div         word [DRIVE_SECTORS_PER_TRACK]
+    inc         dl
+    mov         cl, dl
+
+    mov         ax, bx
+    xor         dx, dx
+    div         word [DRIVE_SECTORS_PER_TRACK]
+    xor         dx, dx
+    div         word [DRIVE_HEAD_COUNT]
+    mov         dh, dl
+    mov         ch, al
+
+    pop         ax
+    pop         bx
+
+    ret
 
 
 times ((512 - 2) - ($ - $$))        PADDING_VALUE
