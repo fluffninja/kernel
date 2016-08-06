@@ -11,5 +11,3 @@ namespace std
 }
 
 #endif /* _INC_CTIME */
-
-

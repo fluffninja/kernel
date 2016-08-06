@@ -44,5 +44,3 @@ size_t strftime(char *ptr, size_t maxsize, const char *format,
 #endif
 
 #endif /* _INC_TIME */
-
-

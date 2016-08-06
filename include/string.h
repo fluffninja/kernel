@@ -41,5 +41,3 @@ size_t strlen(const char *str);
 #endif
 
 #endif /* _INC_STRING */
-
-

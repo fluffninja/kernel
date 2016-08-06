@@ -84,4 +84,3 @@ void perror(const char *str);
 #endif
 
 #endif /* _INC_STDIO */
-

@@ -20,5 +20,3 @@ typedef unsigned char *va_list;
 #endif
 
 #endif /* _INC_STDARG */
-
-
