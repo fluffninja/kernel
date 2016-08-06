@@ -11,7 +11,7 @@
     jmp         stage_0_start_16
 
 
-    ; Fields for a standard FAT12 header
+    ; Fields for a standard FAT16 header
 DRIVE_OEM                           db  "ISAAC OS"      ; 8 Characters
 DRIVE_BYTES_PER_SECTOR              dw  512
 DRIVE_SECTORS_PER_CLUSTER           db  1
