@@ -2,6 +2,7 @@
 %define STAGE_0_1_SIZE              512
 %define STAGE_0_SEGMENT             0x07c0
 %define STAGE_1_SEGMENT             0x8000
+%define PADDING_VALUE               hlt
 
 
     [bits   16]
@@ -10,7 +11,8 @@
 
     jmp         stage_0_start_16
 
-times ((3) - ($ - $$))              hlt
+    ; Ensure that the FAT header is 3 bytes in
+times ((3) - ($ - $$))              PADDING_VALUE
 
 
     ; Fields for a standard FAT16 header
@@ -170,5 +172,5 @@ hang_16:
     jmp         $
 
 
-times ((512 - 2) - ($ - $$))        hlt
+times ((512 - 2) - ($ - $$))        PADDING_VALUE
 STAGE_0_1_SIGNATURE                 dw  STAGE_0_1_SIGNATURE_VALUE
