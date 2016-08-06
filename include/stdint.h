@@ -18,5 +18,3 @@ typedef unsigned long long  uint64_t;
 /* TODO: Add *least* and *fast* types */
 
 #endif /* _INC_STDINT */
-
-
