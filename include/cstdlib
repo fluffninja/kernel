@@ -1,0 +1,14 @@
+// cstdlib
+
+#ifndef _INC_CSTDLIB
+#define _INC_CSTDLIB
+
+namespace std
+{
+
+#include <stdlib.h>
+
+}
+
+#endif /* _INC_CSTDLIB */
+

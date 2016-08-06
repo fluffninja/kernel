@@ -1,0 +1,14 @@
+// cstdint
+
+#ifndef _INC_CSTDINT
+#define _INC_CSTDINT
+
+namespace std
+{
+
+#include <stdint.h>
+
+}
+
+#endif /* _INC_CSTDINT */
+

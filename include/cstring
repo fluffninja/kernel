@@ -1,0 +1,14 @@
+// cstring
+
+#ifndef _INC_CSTRING
+#define _INC_CSTRING
+
+namespace std
+{
+
+#include <string.h>
+
+}
+
+#endif /* _INC_CSTRING */
+

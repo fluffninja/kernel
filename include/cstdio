@@ -1,0 +1,14 @@
+// cstdio
+
+#ifndef _INC_CSTDIO
+#define _INC_CSTDIO
+
+namespace std
+{
+
+#include <stdio.h>
+
+}
+
+#endif /* _INC_CSTDIO */
+

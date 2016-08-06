@@ -3,6 +3,10 @@
 #ifndef _INC_STDIO
 #define _INC_STDIO
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 #include <stdarg.h>
 
@@ -67,6 +71,10 @@ int vscanf(const char *format, va_list arg);
 int vsnprintf(char *str, size_t n, const char *format, va_list arg);
 int vsprintf(char *str, const char *format, va_list arg);
 int vsscanf(const char *str, const char *format, va_list arg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _INC_STDIO */
 
