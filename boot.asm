@@ -10,6 +10,8 @@
 
     jmp         stage_0_start_16
 
+times ((3) - ($ - $$))              hlt
+
 
     ; Fields for a standard FAT16 header
 DRIVE_OEM                           db  "ISAAC OS"      ; 8 Characters
@@ -168,5 +170,5 @@ hang_16:
     jmp         $
 
 
-times (512-2)-($-$$)                hlt
+times ((512 - 2) - ($ - $$))        hlt
 STAGE_0_1_SIGNATURE                 dw  STAGE_0_1_SIGNATURE_VALUE
