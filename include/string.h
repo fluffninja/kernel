@@ -1,7 +1,7 @@
 // string.h
 
 #ifndef _INC_STRING
-#define _INC_STRING
+#define _INC_STRING 1
 
 #ifdef __cplusplus
 extern "C"{

@@ -1,7 +1,7 @@
 // stddef.h
 
 #ifndef _INC_STDDEF
-#define _INC_STDDEF
+#define _INC_STDDEF 1
 
 #define NULL    ((void *) 0)
 

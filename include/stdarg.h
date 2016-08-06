@@ -1,7 +1,7 @@
 // stdarg.h
 
 #ifndef _INC_STDARG
-#define _INC_STDARG
+#define _INC_STDARG 1
 
 #ifdef __cplusplus
 extern "C" {

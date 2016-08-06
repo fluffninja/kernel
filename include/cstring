@@ -1,7 +1,7 @@
 // cstring
 
 #ifndef _INC_CSTRING
-#define _INC_CSTRING
+#define _INC_CSTRING 1
 
 namespace std
 {

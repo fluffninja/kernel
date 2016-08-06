@@ -1,7 +1,7 @@
 // cstdio
 
 #ifndef _INC_CSTDIO
-#define _INC_CSTDIO
+#define _INC_CSTDIO 1
 
 namespace std
 {

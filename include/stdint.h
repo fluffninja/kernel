@@ -1,7 +1,7 @@
 // stdint.h
 
 #ifndef _INC_STDINT
-#define _INC_STDINT
+#define _INC_STDINT 1
 
 typedef long long           intmax_t;
 typedef unsigned long long  uintmax_t;
