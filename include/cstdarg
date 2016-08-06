@@ -1,7 +1,7 @@
 // cstdarg for Isaac OS
 
 #ifndef _INC_CSTDARG
-#define _INC_CSTDARG
+#define _INC_CSTDARG 1
 
 namespace std
 {

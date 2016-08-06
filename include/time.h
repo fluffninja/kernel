@@ -1,7 +1,7 @@
 // time.h for Isaac OS
 
 #ifndef _INC_TIME
-#define _INC_TIME
+#define _INC_TIME 1
 
 #ifdef __cplusplus
 extern "C" {

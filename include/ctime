@@ -1,7 +1,7 @@
 // ctime for Isaac OS
 
 #ifndef _INC_CTIME
-#define _INC_CTIME
+#define _INC_CTIME 1
 
 namespace std
 {

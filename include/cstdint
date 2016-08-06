@@ -1,7 +1,7 @@
 // cstdint for Isaac OS
 
 #ifndef _INC_CSTDINT
-#define _INC_CSTDINT
+#define _INC_CSTDINT 1
 
 namespace std
 {

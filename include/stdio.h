@@ -1,7 +1,7 @@
 // stdio.h for Isaac OS
 
 #ifndef _INC_STDIO
-#define _INC_STDIO
+#define _INC_STDIO 1
 
 #ifdef __cplusplus
 extern "C" {
