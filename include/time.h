@@ -13,7 +13,7 @@ typedef long long clock_t;
 typedef long long time_t;
 struct tm;
 
-#define CLOCKS_PER_SEC	((clock_t) 1) /* TODO */
+#define CLOCKS_PER_SEC  ((clock_t) 1) /* TODO */
 
 char *asctime(const struct tm *timeptr);
 clock_t clock(void);

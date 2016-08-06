@@ -14,12 +14,12 @@ typedef long fpos_t;
 
 typedef struct {} FILE;
 
-#define	BUFSIZ		512
-#define	EOF		(-1)
-#define	FILENAME_MAX	256		/* TODO */
-#define	FOPEN_MAX	8		/* TODO: Minumum allowed value */
-#define	L_tmpnam	FILENAME_MAX
-#define	TMP_MAX		25		/* TODO: Minimum allowed value */
+#define BUFSIZ          512
+#define EOF             (-1)
+#define FILENAME_MAX    256     /* TODO */
+#define FOPEN_MAX       8       /* TODO: Minumum allowed value */
+#define L_tmpnam        FILENAME_MAX
+#define TMP_MAX         25      /* TODO: Minimum allowed value */
 
 extern const FILE *stdin;
 extern const FILE *stdout;
