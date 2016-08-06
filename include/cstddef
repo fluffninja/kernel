@@ -1,0 +1,14 @@
+// cstddef for Isaac OS
+
+#ifndef _INC_CSTDDEF
+#define _INC_CSTDDEF
+
+namespace std
+{
+
+#include <stddef.h>
+
+}
+
+#endif /* _INC_CSTDDEF */
+

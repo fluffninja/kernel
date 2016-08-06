@@ -1,0 +1,15 @@
+// ctime for Isaac OS
+
+#ifndef _INC_CTIME
+#define _INC_CTIME
+
+namespace std
+{
+
+#include <time.h>
+
+}
+
+#endif /* _INC_CTIME */
+
+

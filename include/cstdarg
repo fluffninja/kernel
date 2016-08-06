@@ -1,0 +1,13 @@
+// cstdarg for Isaac OS
+
+#ifndef _INC_CSTDARG
+#define _INC_CSTDARG
+
+namespace std
+{
+
+#include <stdarg.h>
+
+}
+
+#endif /* _INC_CSTDARG */
