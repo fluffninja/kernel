@@ -1,0 +1,13 @@
+// cctype for Isaac OS
+
+#ifndef _INC_CCTYPE
+#define _INC_CCTYPE 1
+
+namespace std
+{
+
+#include <ctype.h>
+
+}
+
+#endif /* _INC_CCTYPE */
