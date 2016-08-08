@@ -6,7 +6,7 @@ I'm making a kernel.
 
 To build and run (using qemu, see below) `make run`.
 
-## Prerequesites
+## Prerequisites
 
 * nasm
 * gcc
