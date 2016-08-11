@@ -9,11 +9,11 @@ extern "C" {
 
 typedef unsigned char *va_list;
 
-// Code follows that of www.brokenthorn.com/Resources/OSDev14.html
-#define __VA_SIZE(type)     ((sizeof(type) + sizeof(int) - 1) & ~(sizeof(int) - 1))
-#define va_start(ap, arg)   (ap = ((va_list) &(arg) + __VA_SIZE(arg))
-#define va_end(ap)
-#define va_arg(ap, type)    (ap += __VA_SIZE(type), *((type *) (ap - __VA_SIZE(type)))
+#define _VA_SIZEOF(t)   ( (sizeof(t) + sizeof(int) - 1) & ~(sizeof(int) - 1) )
+
+#define va_start(ap, v) ( ap = (va_list) &(v) + __VA_SIZEOF(v) )
+#define va_end(ap)      ( ap = (va_list) 0 )
+#define va_arg(ap, t)   ( *(t *) ((ap += _VA_SIZEOF(t)) - _VA_SIZEOF(t))
 
 #ifdef __cplusplus
 }
