@@ -1,0 +1,16 @@
+#include <string.h>
+
+size_t
+strlen(const char *str) 
+{
+    if (!str) {
+        return 0;
+    }
+
+    register size_t i = 0;
+    while (str[i]) {
+        ++i;
+    }
+
+    return i;
+}
