@@ -127,7 +127,7 @@ stage0_start_16:
     mov         si, MSG_NO_DISK_EXTENSIONS
     call        print_line_16
 
-    jmp         short .quit
+    jmp         short .reboot
 
 .read_fail:    
     ; Check attempt count. If zero, quit.
@@ -156,6 +156,7 @@ stage0_start_16:
     mov         bl, ah
     call        print_string_hex_line_16
 
+.reboot:
     ; Fall-through to reboot_16
 
 
