@@ -1,6 +1,7 @@
 *.bin
 *.flp
 *.img
+*.o
 ./dump
 out/
 
