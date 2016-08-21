@@ -1,5 +1,5 @@
 ;
-;                       boot.asm - Booloader for Isaac OS
+;                      boot.asm - Bootloader for Isaac OS
 ;
 ; It does the following:
 ; * Stage 1 - Load stages 2 and 3 off disk.
