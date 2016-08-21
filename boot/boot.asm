@@ -342,7 +342,7 @@ logical_to_hcs_16:
 ; Error messages for our dear user
 ; Keep these brief, for we've only 512 bytes of space
 MSG_NO_DISK_EXTENSIONS  db "BIOS unsupported", 0
-MSG_ERRROR_CODE         db "Err: ", 0
+MSG_ERRROR_CODE         db "Code ", 0
 MSG_DISK_ID             db "Disk ", 0
 MSG_NO_BOOT_DUE_TO_DISK db "Disk issue preventing boot", 0
 MSG_KEY_TO_REBOOT       db "Press any key to reboot", 10, 13, 0
