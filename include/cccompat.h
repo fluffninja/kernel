@@ -1,0 +1,41 @@
+// C Compiler Compatibility
+
+#ifndef _INC_CCCOMPAT
+#define _INC_CCCOMPAT 1
+
+#ifdef __GNUC__
+    #define _COMP_GCC
+#endif /* __GNUC__ */
+
+#ifdef _MSC_VER
+    #define _COMP_MSVC
+#endif /* _MSC_VER */
+
+#ifdef _COMP_GCC
+    #ifdef _COMP_GCC_NO_ALWAYS_INLINE
+        #define INLINE      inline
+    #else
+        #define INLINE      __attribute__((always_inline))
+    #endif
+    #define NAKED           __attribute__((naked))
+    #define NO_INLINE       __attribute__((noinline))
+    #define NO_RETURN       __attribute__((noreturn))
+    #define NO_THROW        __attribute__((nothrow))
+    #define CDECL           __attribute__((__cdecl__))
+#elif _COMP_MSVC
+    #define INLINE          __declspec(inline)
+    #define NAKED           __declspec(naked)
+    #define NO_INLINE       __declspec(noinline)
+    #define NO_RETURN       __declspec(noreturn)
+    #define NO_THROW        __declspec(nothrow)
+    #define CDECL           __cdecl
+#else
+    #define INLINE
+    #define NAKED
+    #define NO_INLINE
+    #define NO_RETURN
+    #define NO_THROW
+    #define CDECL
+#endif
+
+#endif /* _INC_CCCOMPAT */
