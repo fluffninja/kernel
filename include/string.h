@@ -30,7 +30,7 @@ char *strpbrk(char *str1, const char *str2);
 char *strrchr(char *str, int c);
 size_t strspn(const char *str1, const char *str2);
 char *strstr(char *str1, const char *str2);
-char *strtok(char *str, const char *delimiters);
+char *strtok(char *str, const char *del);
 
 void *memset(void *ptr, int value, size_t len);
 char *strerror(int errnum);
