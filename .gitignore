@@ -1,6 +1,6 @@
 *.bin
 *.flp
 *.img
-dump/
-boot_disk/
+./dump
+out/
 
