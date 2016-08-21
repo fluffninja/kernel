@@ -1,5 +1,5 @@
 ;
-;                       boot.asm - Booloader
+;                      boot.asm - Bootloader
 ;
 ; It does the following:
 ; * Stage 1 - Load stages 2 and 3 off disk.
