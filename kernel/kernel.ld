@@ -1,10 +1,18 @@
 OUTPUT_FORMAT(binary)
+STARTUP(kernel/strap.o)
 SECTIONS
 {
     . = 0;
-    .main (1M) : { *(.main)   }
-    .text      : { *(.text)   }
-    .data      : { *(.data)   }
-    .rodata    : { *(.rodata) }
-    .bss       : { *(.bss)    }
+    .text (1M) : { 
+        *(.text)
+    }
+    .data : {
+        *(.data)   
+    }
+    .rodata : { 
+        *(.rodata)
+    }
+    .bss : { 
+        *(.bss)    
+    }
 }
