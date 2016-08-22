@@ -41,6 +41,8 @@
 ; Absolute index on-disk of first sector to be loaded by stage 0
 %define STAGE_0_READ_SECTOR_INDEX   (1)
 
+%define BOOT_SECTOR_SIGNATURE       (0xaa55)
+
 
     [bits   16]                     ; Stages 1 and 2 are 16-bit
     [org    STAGE_0_ADDRESS]        ; Offset added to all symbol addresses
@@ -368,7 +370,7 @@ times ((512 - 2) - ($ - $$)) db 0
 
 
 ; ...the last word, which is the boot signature.
-g_sector_0_signature_w  dw 0xaa55
+g_sector_0_signature_w  dw BOOT_SECTOR_SIGNATURE
 
 
 ; --- End of first sector (512 bytes) --- ;
@@ -383,7 +385,7 @@ g_cursor_pos_y_b        db 0
 
 ; More strings
 MSG_LOADING             db "Loading, please wait...", 0
-MSG_NO_BOOT_DUE_TO_A20  db "A20 intialisation error", 0
+MSG_NO_BOOT_DUE_TO_A20  db "A20 not initialised", 0
 
 
 ; See https://www.win.tue.nl/~aeb/linux/kbd/A20.html
@@ -405,8 +407,23 @@ stage1_start_16:
     mov         cx, 0x2100
     int         0x10
 
-    mov         ax, 0x2403
-    int         0x15
+.test_a20:
+    ; Test the status of A20 by detecting memory wrap-around. We'll do this by
+    ; testing whether we can wraparound to the bootloader sector signature.
+    push        es
+    mov         ax, 0xffff
+    mov         es, ax
+    mov         ax, word [es:(g_sector_0_signature_w + 0x10)]
+    cmp         ax, BOOT_SECTOR_SIGNATURE
+    pop         es
+
+    ; If values aren't equal, then there's no memory wrap-around and the A20's
+    ; enabled.
+    jne         short .init_pm
+
+    ; QEMU already has A20 enabled! For now, only account for this being the
+    ; case.
+    jmp         short .quit
 
 .init_pm:
     cli
@@ -428,7 +445,6 @@ stage1_start_16:
     mov         si, MSG_NO_BOOT_DUE_TO_A20
     call        print_line_16
     call        reboot_16
-
 
 
 clear_kb_cmd_queue:
