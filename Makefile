@@ -7,14 +7,13 @@ MOUNT_DIR			:= $(OUTPUT_DIR)/bootdisk_mout/
 KERNEL_LINK_SCRIPT  := kernel/kernel.ld
 
 ASM 				:= nasm
-ASMFLAGS 			:= -f bin 
 
 CC 					:= gcc
-CFLAGS 				:= -nostdinc -nostdlib -ffreestanding -fno-builtin -m32 \
-						-std=c11 -Wall -Wextra -c -r -I .
+CFLAGS 				:= -nostdinc -m32 -std=c11 -Wall -Wextra -c -I .
+					# If broken, try -ffreestanding or -fno-builtin 
 	
 LD 					:= ld
-LDFLAGS 			:= -m elf_i386 -x -s -T $(KERNEL_LINK_SCRIPT)
+LDFLAGS 			:= -T $(KERNEL_LINK_SCRIPT) -nostdlib -m elf_i386 -x -s 
 
 EMU					:= qemu-system-i386
 EMUFLAGS			:= -monitor stdio -k en-gb -m 16M \
@@ -26,13 +25,16 @@ DDARGS				:= bs=512 conv=notrunc
 all: clean $(OUTPUT_IMAGE)
 
 boot/boot.bin: boot/boot.asm
-	$(ASM) $< -o $@ $(ASMFLAGS) 
+	$(ASM) $< -o $@ -f bin
+
+kernel/strap.o: kernel/strap.asm
+	$(ASM) $< -o $@ -f elf
 
 kernel/kmain.o: kernel/kmain.c
 	$(CC) $< -o $@ $(CFLAGS) 
 
-kernel/kernel.bin: kernel/kmain.o $(KERNEL_LINK_SCRIPT)
-	$(LD) $< -o $@ $(LDFLAGS)
+kernel/kernel.bin: kernel/strap.o kernel/kmain.o 
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 .PHONY: prepared_output_floppy
 prepared_output_floppy:
