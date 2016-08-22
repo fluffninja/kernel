@@ -2,75 +2,62 @@
 ;                      boot.asm - Bootloader
 ;
 ; It does the following:
-; * Stage 0 - Load stages 1 and 2 off disk.
-; * Stage 1 - Load the kernel image off-disk and enable 32-bit protected mode.
-; * Stage 2 - Move the kernel image above 1MB and jump to it.
+; * stage 2 - Load stage 2 and the kernel image off disk, jump to stage 2.
+; * Stage 2 - Switch to 32-bit mode, move kernel image to 1MB, jump to kernel.
 ;
 ; Sounds easy... right?
 ;
-; Specifically:
-; 0) Load the sectors following the bootloader sector and place them straight
-;    after this one in memory, then jump to the code contained within them.
-; 1) Try to enter protected mode:
-;    a) Enable the A20
-;    b) Install the GDT and IDT
-;    c) Enable protected mode
-; 2) Load the rest of the kernel off-disk to somewhere above 1MB and jump to it
-;
 ; Metrics:
-; * The size of the real-mode physical address space is 2^20 = 0x100000 = 1MB.
-; * Of this, RAM is mapped to just over half: 0x0A0000 = 640KB
-; * The BIOS loads stage 0 at 0x7C00, 1024B under 32K: 0x007C00 to 0x007E00.
-; * Loading stage 1/2 immediately above this brings us to 32K: 0x008000.
-; * Stage 1 will load the kernel between 0x008000 and 0x0A0000 (free to use).
-; * Stage 2 will move the kernel to 0x100000 (1MB).
-; 
+;  Real-mode Physical Address Space Size: 2^20 = 10 0000 = 1MB
+;  Real-mode Accessible RAM Size:                 A 0000 = 640KB
+;  stage 2 Location (Loaded by BIOS):               7C00 = 32KB - 512B * 2
+;  Stage 2 Location (Loaded by stage 2):            7E00 = 32KB - 512B
+;  Kernel Image Location (Loaded by stage 2 too):   8000 = 32KB
+;  Kernel Target Location (Moved by Stage 2):    10 0000 = 1MB
+;  Stack for Stages 1 and 2:                        7C00 (Grows Down)
+;  Stack for Kernel (Set by Stage 2):             A 0000 (Grows Down)
+;  Disk Sector Size:                                0200 = 512B
+;
 ; Useful Resources:
 ; * http://x86.renejeschke.de/            - x86 Instruction Set Reference
 ; * https://en.wikipedia.org/wiki/INT_10H - Low-level Text/Video Services/IO
 ; * https://en.wikipedia.org/wiki/INT_13H - Low-level Disk Services/IO
 ; * https://www.win.tue.nl/~aeb/linux/fs/fat/fat-1.html - FAT Stuff
 
-; Absolute address to which the BIOS loads the first sector of the bootloader
-%define STAGE_0_ADDRESS             (0x7c00)
 
-; Address to which stage 0 will load stage 1
-%define STAGE_1_ADDRESS             (STAGE_0_ADDRESS + 512)
-
-; Address to which stage 0 will also be loading the kernel image
-%define KERNEL_IMAGE_ADDRESS        (STAGE_1_ADDRESS + 512)
-
-; (Current) maximum size of the kernel image
-%define KERNEL_IMAGE_MAX_SECTORS    (0x8000 / 512 - 2)
-
-; Number of sectors to be read off-disk by stage 0 (aka the size of stage 1+)
-%define STAGE_0_READ_SECTOR_COUNT   (1 + KERNEL_IMAGE_MAX_SECTORS)
-
-; Absolute index on-disk of first sector to be loaded by stage 0
-%define STAGE_0_READ_SECTOR_INDEX   (1)
-
-%define KERNEL_IMAGE_TARGET_ADDRESS (0x100000)
-
-%define BOOT_SECTOR_SIGNATURE       (0xaa55)
+; Codification of the above metrics
+%define STAGE_1_LOCATION            (0x7c00)
+%define STAGE_1_SIZE                (512)
+%define STAGE_1_SECTORS             (STAGE_1_SIZE / 512)
+%define STAGE_2_LOCATION            (STAGE_1_LOCATION + STAGE_1_SIZE)
+%define STAGE_2_SIZE                (512)
+%define STAGE_2_SECTORS             (STAGE_2_SIZE / 512)
+%define KERNEL_IMAGE_LOCATION       (STAGE_2_LOCATION + STAGE_2_SIZE)
+%define KERNEL_IMAGE_SIZE           (0x010000 - KERNEL_IMAGE_LOCATION)
+%define KERNEL_IMAGE_SECTORS        (KERNEL_IMAGE_SIZE / 512)
+%define STAGE_1_PAYLOAD_START       (STAGE_1_SECTORS)
+%define STAGE_1_PAYLOAD_SECTORS     (STAGE_2_SECTORS + KERNEL_IMAGE_SECTORS)
+%define STAGE_1_SIGNATURE           (0xaa55)
+%define KERNEL_TARGET_LOCATION      (0x100000)
 
 
-    [bits   16]                     ; Stages 1 and 2 are 16-bit
-    [org    STAGE_0_ADDRESS]        ; Offset added to all symbol addresses
+    [bits   16]
+    [org    STAGE_1_LOCATION]
 
 
-    ; Jump over FAT header. We have room for no more than 3 bytes, so there's
-    ; only room for a relative jump.
-    jmp         short stage0_normalise_code_address_16
+    ; Jump over FAT header. 3 bytes are allowed before the header, which is
+    ; only enough room for a relative jump.
+    jmp         short stage_1_normalise_code_address_16
 
 
-; Pad out so that the header always starts at the third byte
+; Pad up to the third byte
 times (3 - ($ - $$))                db 0
 
 ; Fields for a standard FAT16 header
 DRIVE_OEM                           db  "FLUFF OS"      ; 8 Characters
 DRIVE_BYTES_PER_SECTOR              dw  512
 DRIVE_SECTORS_PER_CLUSTER           db  1
-DRIVE_RESERVED_SECTOR_COUNT         dw  2
+DRIVE_RESERVED_SECTOR_COUNT         dw  (STAGE_1_SECTORS + STAGE_2_SECTORS)
 DRIVE_FAT_COUNT                     db  0               ; TODO
 DRIVE_ROOT_ENTRY_COUNT              dw  0               ; TODO
 DRIVE_FILESYSTEM_SECTOR_COUNT       dw  0               ; TODO
@@ -88,14 +75,14 @@ DRIVE_VOLUME_LABEL                  db  "OS BOOTDISK"   ; 11 Characters
 DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters  
 
 
-stage0_normalise_code_address_16:
+stage_1_normalise_code_address_16:
     ; The BIOS can place us at 07c0:0000 or 0000:7c00 -- the same address, but 
     ; addressed using different schemes. The following long jump normalises 
     ; things to the latter.
-    jmp         long 0x0000:stage0_start_16
+    jmp         long 0x0000:stage_1_start_16
 
 
-stage0_start_16:
+stage_1_start_16:
     ; Set up segment registers and the stack.
     ; Don't allow interrupts whilst doing this.
     cli
@@ -135,18 +122,18 @@ stage0_start_16:
     int         0x13
     jc          .read_fail
 
-    jmp         long 0x0000:stage1_start_16
+    jmp         long 0x0000:stage_2_start_16
 
     ; Data Access Packet- for use with the BIOS extended disk functionality.
-    ; Currently set up and ready for use with stage 0, and later modified and 
-    ; reused by stage 1.
+    ; Currently set up and ready for use with stage 1, and later modified and 
+    ; reused by stage 2.
 .data_access_packet_struct:
                         db  0x10                        ; Size of packet
                         db  0                           ; Reserved
-.read_sector_count      dw  STAGE_0_READ_SECTOR_COUNT   ; Sectors to read
-.destination_offset     dw  STAGE_1_ADDRESS             ; Destination offset
+.read_sector_count      dw  STAGE_1_PAYLOAD_SECTORS   ; Sectors to read
+.destination_offset     dw  STAGE_2_LOCATION             ; Destination offset
 .destination_segment    dw  0                           ; Destination segment
-.read_sector_index      dq  STAGE_0_READ_SECTOR_INDEX   ; On-disk sector index
+.read_sector_index      dq  STAGE_1_PAYLOAD_START   ; On-disk sector index
 
 .no_disk_extensions:
     mov         si, MSG_NO_DISK_EXTENSIONS
@@ -379,7 +366,7 @@ times ((512 - 2) - ($ - $$)) db 0
 
 
 ; ...the last word, which is the boot signature.
-g_sector_0_signature_w  dw BOOT_SECTOR_SIGNATURE
+g_sector_0_signature_w  dw STAGE_1_SIGNATURE
 
 
 ; --- End of first sector (512 bytes) --- ;
@@ -400,7 +387,7 @@ MSG_NO_BOOT_DUE_TO_A20  db "A20 not initialised", 0
 ; See https://www.win.tue.nl/~aeb/linux/kbd/A20.html
 ; See http://wiki.osdev.org/A20_Line
 ; See http://kernelx.weebly.com/a20-address-line.html
-stage1_start_16:
+stage_2_start_16:
     mov         si, MSG_LOADING
     call        print_line_16
 
@@ -424,7 +411,7 @@ test_a20:
     mov         ax, 0xffff
     mov         es, ax
     mov         ax, word [es:(g_sector_0_signature_w + 0x10)]
-    cmp         ax, BOOT_SECTOR_SIGNATURE
+    cmp         ax, STAGE_1_SIGNATURE
     pop         es
 
     ; If values aren't equal, then there's no memory wrap-around and the A20's
@@ -451,7 +438,7 @@ init_pm:
     or          eax, 0x1
     mov         cr0, eax
 
-    jmp         0x08:stage2_start_32            ; Code segment is now 0x08 :-)
+    jmp         0x08:stage_2_start_32            ; Code segment is now 0x08 :-)
 
 
 %if 0
@@ -567,22 +554,22 @@ idt_description:
 
 ; We're no in 32-bit code land.
 ; Load the new data segment from the GDT.
-stage2_start_32:
+stage_2_start_32:
     mov         ax, 0x10                        
     mov         ds, ax                          ; Data segment is now 0x10 :-)
     mov         es, ax
     mov         ss, ax
-    mov         esp, 0x80000                    ; Grow downward from 640KB
+    mov         esp, 0xA0000                    ; Grow downward from 640KB
 
     ; Move the kernel to its target location (Above 1MB)
     cld
-    mov         esi, KERNEL_IMAGE_ADDRESS
-    mov         edi, KERNEL_IMAGE_TARGET_ADDRESS
-    mov         ecx, (KERNEL_IMAGE_MAX_SECTORS * 512 / 4)
+    mov         esi, KERNEL_IMAGE_LOCATION
+    mov         edi, KERNEL_TARGET_LOCATION
+    mov         ecx, KERNEL_IMAGE_SIZE
     rep movsd
 
     ; Jump to the kernel!
-    jmp         KERNEL_IMAGE_TARGET_ADDRESS
+    jmp         KERNEL_TARGET_LOCATION
 
 
 ; Pad out the rest of this sector 
