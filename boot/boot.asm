@@ -1,5 +1,5 @@
 ;
-;                      boot.asm - Bootloader for Isaac OS
+; boot.asm - Bootloader for Isaac OS
 ;
 ; It does the following:
 ; * stage 2 - Load stage 2 and the kernel image off disk, jump to stage 2.
@@ -41,8 +41,8 @@
 %define KERNEL_TARGET_LOCATION      (0x100000)
 
 
-    [bits   16]
-    [org    STAGE_1_LOCATION]
+    [bits       16]
+    [org        STAGE_1_LOCATION]
 
 
     ; Jump over FAT header. 3 bytes are allowed before the header, which is
