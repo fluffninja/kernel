@@ -2,19 +2,20 @@
 ;                      boot.asm - Bootloader
 ;
 ; It does the following:
-; * Stage 1 - Load stages 2 and 3 off disk.
-; * Stage 2 - Switch to 32-bit protected mode.
-; * Stage 3 - Jump to the kernel.
+; * Stage 0 - Load stages 1 and 2 off disk.
+; * Stage 1 - Switch to 32-bit protected mode.
+; * Stage 2 - Jump to the kernel.
 ;
 ; Sounds easy... right?
 ;
-; Specificially:
-; 1) Load the sectors following the bootloader sector and place them straight
+; Specifically:
+; 0) Load the sectors following the bootloader sector and place them straight
 ;    after this one in memory, then jump to the code contained within them.
-; 2) Try to enter protected mode:
+; 1) Try to enter protected mode:
 ;    a) Enable the A20
-;    b) Install the GDT
-; 3) Load the rest of the kernel off-disk to somewhere above 1MB and jump to it
+;    b) Install the GDT and IDT
+;    c) Enable protected mode
+; 2) Load the rest of the kernel off-disk to somewhere above 1MB and jump to it
 ;
 ; Metrics:
 ; * The size of the real-mode physical address space is 2^20 = 0x100000 = 1MB
@@ -26,10 +27,19 @@
 ; * https://en.wikipedia.org/wiki/INT_10H - Low-level Text/Video Services/IO
 ; * https://en.wikipedia.org/wiki/INT_13H - Low-level Disk Services/IO
 ; * https://www.win.tue.nl/~aeb/linux/fs/fat/fat-1.html - FAT Stuff
-;
 
+
+; Absolute address to which the BIOS loads the first sector of the bootloader
 %define STAGE_0_ADDRESS             (0x7c00)
+
+; Address to which stage 0 will load stage 1+
 %define STAGE_1_ADDRESS             (STAGE_0_ADDRESS + 512)
+
+; Number of sectors to be read off-disk by stage 0
+%define STAGE_0_READ_SECTOR_COUNT   (18)
+
+; Absolute index on-disk of first sector to be loaded by stage 0
+%define STAGE_0_READ_SECTOR_INDEX   (1)
 
 
     [bits   16]                     ; Stages 1 and 2 are 16-bit
@@ -73,6 +83,18 @@ stage0_normalise_code_address_16:
     jmp         long 0x0000:stage0_start_16
 
 
+; Data Access Packet (DAP) - for use with the BIOS extended disk functionality.
+; Currently set up and ready for use with stage 0, and later modified and 
+; reused by stage 1.
+data_access_packet_struct:
+                        db  0x10                        ; Size of packet
+                        db  0                           ; Reserved
+.read_sector_count      dw  STAGE_0_READ_SECTOR_COUNT   ; Sectors to read
+.destination_offset     dw  STAGE_1_ADDRESS             ; Destination offset
+.destination_segment    dw  0                           ; Destination segment
+.read_sector_index      dq  STAGE_0_READ_SECTOR_INDEX   ; On-disk sector index
+
+
 stage0_start_16:
     ; Set up segment registers and the stack.
     ; Don't allow interrupts whilst doing this.
@@ -108,20 +130,12 @@ stage0_start_16:
     ; Details of what to load are found in the disk address packed (DAP)
     ; - defined below.
     mov         ah, 0x42
-    mov         si, .disk_address_packet_data
+    mov         si, data_access_packet_struct
     stc 
     int         0x13
     jc          .read_fail
 
     jmp         long 0x0000:stage1_start_16
-
-.disk_address_packet_data:
-    db          0x10                ; Size of packet
-    db          0                   ; Reserved
-    dw          18                  ; Sectors to read
-    dw          STAGE_1_ADDRESS     ; Destination segment offet
-    dw          0                   ; Destination segment
-    dq          1                   ; On-disk sector index
 
 .no_disk_extensions:
     mov         si, MSG_NO_DISK_EXTENSIONS
@@ -348,8 +362,10 @@ MSG_DISK_ID             db "Disk ", 0
 MSG_NO_BOOT_DUE_TO_DISK db "Disk issue preventing boot", 0
 MSG_KEY_TO_REBOOT       db "Press any key to reboot", 10, 13, 0
 
+
 ; Pad the rest of this sector with zeroes, appart from...
 times ((512 - 2) - ($ - $$)) db 0
+
 
 ; ...the last word, which is the boot signature.
 g_sector_0_signature_w  dw 0xaa55
@@ -367,7 +383,7 @@ g_cursor_pos_y_b        db 0
 
 ; More strings
 MSG_LOADING             db "Loading, please wait...", 0
-MSG_NO_BOOT_DUE_TO_A20  db "A20 intiialisation error", 0
+MSG_NO_BOOT_DUE_TO_A20  db "A20 intialisation error", 0
 
 
 ; See https://www.win.tue.nl/~aeb/linux/kbd/A20.html
