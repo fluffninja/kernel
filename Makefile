@@ -1,25 +1,25 @@
-OUTPUT_DIR 			:= out
-OUTPUT_IMAGE 		:= $(OUTPUT_DIR)/bootdisk.img
+OUTPUT_DIR		:= out
+OUTPUT_IMAGE		:= $(OUTPUT_DIR)/bootdisk.img
 OUTPUT_IMAGE_SIZE	:= 1474560
 
-MOUNT_DIR			:= $(OUTPUT_DIR)/bootdisk_mout/
+MOUNT_DIR		:= $(OUTPUT_DIR)/bootdisk_mout/
 
-KERNEL_LINK_SCRIPT  := kernel/kernel.ld
+KERNEL_LINK_SCRIPT	:= kernel/kernel.ld
 
-ASM 				:= nasm
+ASM			:= nasm
 
-CC 					:= gcc
-CFLAGS 				:= -nostdinc -m32 -std=c11 -Wall -Wextra -c -I .
-					# If broken, try -ffreestanding or -fno-builtin 
+CC			:= gcc
+CFLAGS			:= -nostdinc -m32 -std=c11 -Wall -Wextra -c -I .
+			# If broken, try -ffreestanding or -fno-builtin
 	
-LD 					:= ld
-LDFLAGS 			:= -T $(KERNEL_LINK_SCRIPT) -nostdlib -m elf_i386 -x -s 
+LD			:= ld
+LDFLAGS			:= -T $(KERNEL_LINK_SCRIPT) -nostdlib -m elf_i386 -x -s
 
-EMU					:= qemu-system-i386
-EMUFLAGS			:= -monitor stdio -k en-gb -m 16M \
-						-drive media=disk,format=raw,file=$(OUTPUT_IMAGE)
+EMU			:= qemu-system-i386
+EMUFLAGS		:= -monitor stdio -k en-gb -m 16M \
+			-drive media=disk,format=raw,file=$(OUTPUT_IMAGE)
 
-DDARGS				:= bs=512 conv=notrunc
+DDARGS			:= bs=512 conv=notrunc
 
 .PHONY: all
 all: clean $(OUTPUT_IMAGE)
@@ -58,7 +58,7 @@ run: $(OUTPUT_IMAGE)
 .PHONY: mount
 mount: $(OUTPUT_IMAGE)
 	@if [ -d $(MOUNT_DIR) ]; then \
-		echo "Already mounted. If this is wrong, try 'make unmount'."; \
+		echo "Already mounted. If this is wrong, try 'make unmount'"; \
 	else \
 		mkdir -v $(MOUNT_DIR); \
 		sudo mount -v -t msdos -o loop $(OUTPUT_IMAGE) $(MOUNT_DIR); \
