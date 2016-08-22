@@ -45,11 +45,6 @@ $(OUTPUT_IMAGE): boot/boot.bin kernel/kernel.bin prepared_output_floppy
 	dd of=$@ if=boot/boot.bin seek=0 $(DDARGS)
 	dd of=$@ if=kernel/kernel.bin seek=2 $(DDARGS)
 
-boot.img: boot.bin
-	@rm -fv $@
-	dd if=/dev/zero of=$@ bs=1474560 count=1
-	dd if=$< of=$@ bs=512 count=$(BOOT_SECTOR_COUNT) seek=0 conv=notrunc
-
 .PHONY: clean
 clean:
 	@rm -frv **/*.img **/*.bin **/*.o $(OUTPUT_DIR)
@@ -59,7 +54,7 @@ run: $(OUTPUT_IMAGE)
 	$(EMU) $(EMUFLAGS)
 
 .PHONY: mount
-mount: boot.img
+mount: $(OUTPUT_IMAGE)
 	@if [ -d $(MOUNT_DIR) ]; then \
 		echo "Already mounted. If this is wrong, try 'make unmount'."; \
 	else \
