@@ -41,12 +41,11 @@ void init_conio(void)
 }
 
 
-__attribute__ ((section(".main")))
-void baz_main(void)
+void kmain(void)
 {
     init_conio();
 
-    print_str("Test");
+    print_str("Welcome to kernel land!");
 
     while (1);
 }
