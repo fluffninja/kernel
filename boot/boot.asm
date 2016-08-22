@@ -3,8 +3,8 @@
 ;
 ; It does the following:
 ; * Stage 0 - Load stages 1 and 2 off disk.
-; * Stage 1 - Switch to 32-bit protected mode.
-; * Stage 2 - Jump to the kernel.
+; * Stage 1 - Load the kernel image off-disk and enable 32-bit protected mode.
+; * Stage 2 - Move the kernel image above 1MB and jump to it.
 ;
 ; Sounds easy... right?
 ;
@@ -18,9 +18,12 @@
 ; 2) Load the rest of the kernel off-disk to somewhere above 1MB and jump to it
 ;
 ; Metrics:
-; * The size of the real-mode physical address space is 2^20 = 0x100000 = 1MB
-; * Of this, RAM is mapped to just over half:                  0x0A0000 = 640KB
-; * The BIOS loads us at 0x7C00, 512B under 32K (32K = 0x8000) 0x007C00
+; * The size of the real-mode physical address space is 2^20 = 0x100000 = 1MB.
+; * Of this, RAM is mapped to just over half: 0x0A0000 = 640KB
+; * The BIOS loads stage 0 at 0x7C00, 1024B under 32K: 0x007C00 to 0x007E00.
+; * Loading stage 1/2 immediately above this brings us to 32K: 0x008000.
+; * Stage 1 will load the kernel between 0x008000 and 0x0A0000 (free to use).
+; * Stage 2 will move the kernel to 0x100000 (1MB).
 ; 
 ; Useful Resources:
 ; * http://x86.renejeschke.de/            - x86 Instruction Set Reference
@@ -28,18 +31,25 @@
 ; * https://en.wikipedia.org/wiki/INT_13H - Low-level Disk Services/IO
 ; * https://www.win.tue.nl/~aeb/linux/fs/fat/fat-1.html - FAT Stuff
 
-
 ; Absolute address to which the BIOS loads the first sector of the bootloader
 %define STAGE_0_ADDRESS             (0x7c00)
 
-; Address to which stage 0 will load stage 1+
+; Address to which stage 0 will load stage 1
 %define STAGE_1_ADDRESS             (STAGE_0_ADDRESS + 512)
 
-; Number of sectors to be read off-disk by stage 0
-%define STAGE_0_READ_SECTOR_COUNT   (18)
+; Address to which stage 0 will also be loading the kernel image
+%define KERNEL_IMAGE_ADDRESS        (STAGE_1_ADDRESS + 512)
+
+; (Current) maximum size of the kernel image
+%define KERNEL_IMAGE_MAX_SECTORS    (0x8000 / 512 - 2)
+
+; Number of sectors to be read off-disk by stage 0 (aka the size of stage 1+)
+%define STAGE_0_READ_SECTOR_COUNT   (1 + KERNEL_IMAGE_MAX_SECTORS)
 
 ; Absolute index on-disk of first sector to be loaded by stage 0
 %define STAGE_0_READ_SECTOR_INDEX   (1)
+
+%define KERNEL_IMAGE_TARGET_ADDRESS (0x100000)
 
 %define BOOT_SECTOR_SIGNATURE       (0xaa55)
 
@@ -85,18 +95,6 @@ stage0_normalise_code_address_16:
     jmp         long 0x0000:stage0_start_16
 
 
-; Data Access Packet (DAP) - for use with the BIOS extended disk functionality.
-; Currently set up and ready for use with stage 0, and later modified and 
-; reused by stage 1.
-data_access_packet_struct:
-                        db  0x10                        ; Size of packet
-                        db  0                           ; Reserved
-.read_sector_count      dw  STAGE_0_READ_SECTOR_COUNT   ; Sectors to read
-.destination_offset     dw  STAGE_1_ADDRESS             ; Destination offset
-.destination_segment    dw  0                           ; Destination segment
-.read_sector_index      dq  STAGE_0_READ_SECTOR_INDEX   ; On-disk sector index
-
-
 stage0_start_16:
     ; Set up segment registers and the stack.
     ; Don't allow interrupts whilst doing this.
@@ -132,12 +130,23 @@ stage0_start_16:
     ; Details of what to load are found in the disk address packed (DAP)
     ; - defined below.
     mov         ah, 0x42
-    mov         si, data_access_packet_struct
+    mov         si, .data_access_packet_struct
     stc 
     int         0x13
     jc          .read_fail
 
     jmp         long 0x0000:stage1_start_16
+
+    ; Data Access Packet- for use with the BIOS extended disk functionality.
+    ; Currently set up and ready for use with stage 0, and later modified and 
+    ; reused by stage 1.
+.data_access_packet_struct:
+                        db  0x10                        ; Size of packet
+                        db  0                           ; Reserved
+.read_sector_count      dw  STAGE_0_READ_SECTOR_COUNT   ; Sectors to read
+.destination_offset     dw  STAGE_1_ADDRESS             ; Destination offset
+.destination_segment    dw  0                           ; Destination segment
+.read_sector_index      dq  STAGE_0_READ_SECTOR_INDEX   ; On-disk sector index
 
 .no_disk_extensions:
     mov         si, MSG_NO_DISK_EXTENSIONS
@@ -407,7 +416,8 @@ stage1_start_16:
     mov         cx, 0x2100
     int         0x10
 
-.test_a20:
+
+test_a20:
     ; Test the status of A20 by detecting memory wrap-around. We'll do this by
     ; testing whether we can wraparound to the bootloader sector signature.
     push        es
@@ -419,13 +429,16 @@ stage1_start_16:
 
     ; If values aren't equal, then there's no memory wrap-around and the A20's
     ; enabled.
-    jne         short .init_pm
+    jne         short init_pm
 
     ; QEMU already has A20 enabled! For now, only account for this being the
     ; case.
-    jmp         short .quit
+    mov         si, MSG_NO_BOOT_DUE_TO_A20
+    call        print_line_16
+    call        reboot_16
+    
 
-.init_pm:
+init_pm:
     cli
 
     ; Load the GDT and IDT descriptions - defined below
@@ -440,13 +453,8 @@ stage1_start_16:
 
     jmp         0x08:stage2_start_32            ; Code segment is now 0x08 :-)
 
-.quit:
-    sti
-    mov         si, MSG_NO_BOOT_DUE_TO_A20
-    call        print_line_16
-    call        reboot_16
 
-
+%if 0
 clear_kb_cmd_queue:
     push        ax
 .repeat:
@@ -505,6 +513,7 @@ enable_a20_fast_16:
 .done:
     pop         ax
     ret
+%endif
 
 
 ; GDT Entry Macro
@@ -563,10 +572,17 @@ stage2_start_32:
     mov         ds, ax                          ; Data segment is now 0x10 :-)
     mov         es, ax
     mov         ss, ax
-    mov         esp, 0x90000
+    mov         esp, 0x80000                    ; Grow downward from 640KB
+
+    ; Move the kernel to its target location (Above 1MB)
+    cld
+    mov         esi, KERNEL_IMAGE_ADDRESS
+    mov         edi, KERNEL_IMAGE_TARGET_ADDRESS
+    mov         ecx, (KERNEL_IMAGE_MAX_SECTORS * 512 / 4)
+    rep movsd
 
     ; Jump to the kernel!
-    jmp         0x7c00 + 512 * 2
+    jmp         KERNEL_IMAGE_TARGET_ADDRESS
 
 
 ; Pad out the rest of this sector 
