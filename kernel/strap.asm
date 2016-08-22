@@ -8,5 +8,4 @@
 
     [extern     kmain]
 
-    push        kmain
-    ret
+    jmp         kmain
