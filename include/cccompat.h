@@ -1,4 +1,4 @@
-// C Compiler Compatibility
+// C/C++ Compiler Compatibility
 
 #ifndef _INC_CCCOMPAT
 #define _INC_CCCOMPAT 1
@@ -12,11 +12,7 @@
 #endif /* _MSC_VER */
 
 #ifdef _COMP_GCC
-    #ifdef _COMP_GCC_NO_ALWAYS_INLINE
-        #define INLINE      inline
-    #else
-        #define INLINE      __attribute__((always_inline))
-    #endif
+    #define INLINE          extern inline
     #define NAKED           __attribute__((naked))
     #define NO_INLINE       __attribute__((noinline))
     #define NO_RETURN       __attribute__((noreturn))
