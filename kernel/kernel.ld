@@ -1,5 +1,5 @@
 OUTPUT_FORMAT(binary)
-STARTUP(kernel/strap.o)
+STARTUP(bootstrap.o)
 SECTIONS
 {
     . = 0;

@@ -1,5 +1,5 @@
 ;
-; strap.asm - Kernel Bootstrap for Isaac OS
+; bootstrap.asm - Kernel Bootstrap for Isaac OS
 ;
 ; Calls kmain
 
