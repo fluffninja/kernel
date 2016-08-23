@@ -1,5 +1,5 @@
 ;
-; strap.asm - Kernel Bootstrap
+; bootstrap.asm - Kernel Bootstrap
 ;
 ; Calls kmain
 
