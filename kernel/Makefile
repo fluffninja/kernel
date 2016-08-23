@@ -17,5 +17,8 @@ all: $(LDSCRIPT) kernel.bin
 %.o: %.c
 	$(CC) $< -o $@ $(CFLAGS)
 
-kernel.bin: bootstrap.o main.o
+kernel.bin: bootstrap.o kmain.o
 	$(LD) $^ -o $@ $(LDFLAGS)	
+
+bootstrap.o: bootstrap.asm
+kmain.o: kmain.c
