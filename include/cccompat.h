@@ -18,6 +18,7 @@
     #define NO_RETURN       __attribute__((noreturn))
     #define NO_THROW        __attribute__((nothrow))
     #define CDECL           __attribute__((__cdecl__))
+    #define ALIGN(A)        __attribute__((aligned(A)))
 #elif _COMP_MSVC
     #define INLINE          __declspec(inline)
     #define NAKED           __declspec(naked)
@@ -25,6 +26,7 @@
     #define NO_RETURN       __declspec(noreturn)
     #define NO_THROW        __declspec(nothrow)
     #define CDECL           __cdecl
+    #defome ALIGN(A)        __declspec(align(A))
 #else
     #define INLINE
     #define NAKED
@@ -32,6 +34,7 @@
     #define NO_RETURN
     #define NO_THROW
     #define CDECL
+    #define ALIGN(A)
 #endif
 
 #endif /* _INC_CCCOMPAT */
