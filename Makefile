@@ -15,12 +15,12 @@ EMUFLAGS		:= -monitor stdio -k en-gb -m 16M \
 DDFLAGS			:= bs=512 conv=notrunc
 
 .PHONY: all
-all: clean run
+all: clean $(OUTPUT_IMAGE)
 
 boot/boot.bin: boot/boot.asm
 	$(ASM) $< -o $@ -f bin
 
-kernel/kernel.bin:
+kernel/kernel.bin: kernel/
 	$(MAKE) -C kernel
 
 .PHONY: prepared_output_floppy
