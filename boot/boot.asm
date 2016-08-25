@@ -17,6 +17,10 @@
 ;  Stack for Stages 1 and 2:                        7C00 (Grows Down)
 ;  Stack for Kernel (Set by Stage 2):             A 0000 (Grows Down)
 ;  Disk Sector Size:                                0200 = 512B
+; Note that memory below 0500 is unusable, consisting of the IVT and BIOS
+; Data Area (BDA).
+; Note that the Extended BIOS Data Area (EBDA) sometimes sits below A 0000.
+; It's never more than 8KB (0400) in size.
 ;
 ; Useful Resources:
 ; * http://x86.renejeschke.de/            - x86 Instruction Set Reference
