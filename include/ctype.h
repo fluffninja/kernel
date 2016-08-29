@@ -16,6 +16,7 @@ int isgraph(int c);
 int islower(int c);
 int isupper(int c);
 int isprint(int c);
+int ispunct(int c);
 int isspace(int c);
 int isxdigit(int c); // Wreck our beautiful alignment, why don't you?
 

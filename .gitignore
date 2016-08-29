@@ -2,6 +2,7 @@
 *.flp
 *.img
 *.o
+*.a
+./out/
 ./dump
-out/
 
