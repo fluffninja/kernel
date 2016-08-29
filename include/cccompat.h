@@ -12,29 +12,31 @@
 #endif /* _MSC_VER */
 
 #ifdef _COMP_GCC
-    #define INLINE          extern inline
+    #define INLINE          inline
+    #define ALWAYS_INLINE   inline __attribute__((always_inline))
     #define NAKED           __attribute__((naked))
     #define NO_INLINE       __attribute__((noinline))
     #define NO_RETURN       __attribute__((noreturn))
     #define NO_THROW        __attribute__((nothrow))
     #define CDECL           __attribute__((__cdecl__))
     #define ALIGN(A)        __attribute__((aligned(A)))
-#elif _COMP_MSVC
-    #define INLINE          __declspec(inline)
-    #define NAKED           __declspec(naked)
-    #define NO_INLINE       __declspec(noinline)
-    #define NO_RETURN       __declspec(noreturn)
-    #define NO_THROW        __declspec(nothrow)
-    #define CDECL           __cdecl
-    #defome ALIGN(A)        __declspec(align(A))
+    #define PACKED          __attribute__((packed))
+    #define ASM             __asm__
+    #define ASM_VOLATILE    __asm__ volatile
+    #define ASM_GOTO        __asm__ goto
 #else
     #define INLINE
+    #define ALWAYS_INLINE
     #define NAKED
     #define NO_INLINE
     #define NO_RETURN
     #define NO_THROW
     #define CDECL
     #define ALIGN(A)
+    #define PACKED  
+    #define ASM     
+    #define ASM_VOLATILE
+    #define ASM_GOTO
 #endif
 
 #endif /* _INC_CCCOMPAT */

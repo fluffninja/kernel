@@ -1,9 +1,15 @@
 CC		:= gcc
-CFLAGS	:= -std=c11 -m32 
-CFLAGS  += -Wall -Wextra -pedantic
-CFLAGS  += -Os -S 
-CFLAGS  += -I ../../include
-CFLAGS  += -nodefaultlibs -nostdlib -nostdinc -fno-builtin -fno-ident
+CFLAGS		:= -nostdinc -m32 -std=c11 -Wall -Wextra -c -I ../include \
+		-fno-builtin -fno-stack-protector 	
+
+AR 		:= ar
+ARFLAGS		:= -rcs
+
+.PHONY: all
+all: libc.a
 
 %.o: %.c
-	$(CC) $< -o $@ -c -r $(CFLAGS)
+	$(CC) $< -o $@ $(CFLAGS)
+
+libc.a: ctype/ctype.o
+	$(AR) $(ARFLAGS) $@ $^
