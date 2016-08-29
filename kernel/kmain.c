@@ -185,6 +185,6 @@ void CDECL NO_RETURN
 kmain(void)
 { 
     con_init();
-    
+
     while (1);
 }

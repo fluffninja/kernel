@@ -6,7 +6,8 @@
 #include <cccompat.h>
 
 char *itoa10(int val, char *str);
-char *itoa16(int val, char *str, int nibble_count);
+char *itoa16(int val, char *str, unsigned int nibble_count);
+void kprintf(const char *format, ...);
 
 INLINE void
 kmemset32(void *ptr, size_t sz, uint32_t val)
