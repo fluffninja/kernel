@@ -384,7 +384,7 @@ g_cursor_pos_y_b        db 0
 
 
 ; More strings
-MSG_LOADING             db "Loading, please wait...", 0
+MSG_LOADING             db 10, 13, "Loading, please wait...", 0
 MSG_NO_BOOT_DUE_TO_A20  db "A20 not initialised", 0
 
 

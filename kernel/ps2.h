@@ -8,6 +8,7 @@
 #define _INC_PS2 1
 
 #include <stdint.h>
+#include <cccompat.h>
 
 // PS/2 Ports
 #define PS2_PORT_DATA                       0x60 // Data Port (Read/Write)
@@ -183,18 +184,6 @@ struct ps2_mouse_move_packet
 #define PS2_MOUSE_RESOLUTION_4              2
 #define PS2_MOUSE_RESOLUTION_8              3
 
-INLINE void
-ps2_flush_input(void)
-{
-    while (1) {
-        uint8_t status = inb(PS2_PORT_STATUS);
-        if (status & PS2_STATUS_INPUT_WAITING) {
-            inb(PS2_PORT_DATA);
-        } else {
-            return;
-        }
-    }
-}
-
+extern int ps2_init(void);
 
 #endif /* _INC_PS2 */
