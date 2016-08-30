@@ -10,6 +10,10 @@
 #define EMPLACEB16(V)   ((V) | ((V) << 8))
 #define EMPLACEW32(V)   ((V) | ((V) << 16))
 
+#ifndef ARRLEN
+#define ARRLEN(A)   (sizeof(A) / sizeof(*(A)))
+#endif
+
 char *itoa10(int val, char *str);
 char *itoa16(int val, char *str, unsigned int nibble_count);
 void kvprintf(const char *format, va_list args);
