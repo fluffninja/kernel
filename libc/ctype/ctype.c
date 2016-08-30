@@ -1,9 +1,5 @@
 #include <ctype.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int isalnum(int c)
 {
     return (isalpha(c) || isdigit(c));
@@ -86,9 +82,3 @@ int toupper(int c)
         return c;
     }
 }
-
-#ifdef __cplusplus
-}
-#endif
-
-
