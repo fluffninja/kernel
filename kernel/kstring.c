@@ -94,16 +94,12 @@ void kvprintf(const char *format, va_list args)
     while ((c = *(format++))) {
         if (c == '%') {
             switch (c = *(format++)) {
-            case '%':
-                putc_ptr('%');
+            default: // Includes '%%' escape case
+                putc_ptr(c);
                 break;
             case 's':
                 str = va_arg(args, const char *);
                 puts_ptr(str);
-                break;
-            case 'b':
-                i32 = va_arg(args, uint32_t);
-                puts_ptr(i32 ? "true" : "false");
                 break;
             case 'u':
             case 'i':

@@ -4,6 +4,8 @@
 #include "kstring.h"
 #include "con.h"
 
+#define TAB_WIDTH 4
+
 struct charinfo
 {
     char            c;
@@ -15,7 +17,6 @@ static int              screen_index;
 static int              screen_flags;
 static int              screen_width;
 static int              screen_height;
-static int              enable_escapes = 1;
 
 static void scroll_screen(unsigned int lines)
 {
@@ -76,8 +77,7 @@ int con_init(void)
     screen_index = cur_x + cur_y * screen_width;
     screen_flags = (int) (screen_ptr[screen_index].flags);
 
-    kprintf("Initialised console display %dx%d at %p\n", screen_width,
-        screen_height, screen_ptr);
+    kprintf("Console %dx%d at %p\n", screen_width, screen_height, screen_ptr);
 
     return 0;
 }
@@ -88,52 +88,47 @@ void con_clear(void)
     screen_index = 0;
 }
 
-void con_write_char(char c)
+int con_write_char(char c)
 {
-    static int in_escape = 0;
-    static int flag_push = 0;
-    static int old_flags = 0;
-
-    if (in_escape) {
-        if (c == '\x80') {
-            if (flag_push) {
-                flag_push = 0;
-                screen_flags = old_flags;
-                in_escape = 0;
-                return;
-            } else {
-                flag_push = 1;
-                old_flags = screen_flags;
-            }
-        } else {
-            screen_flags = c;
-            in_escape = 0;
-        }
-        return;
-    }
-
     // If this is a regular print character, 
     if (isprint(c)) {
         put_char(c);
+        return 1;
     } else if (c == '\n') {
         int count = screen_width - screen_index % screen_width;
         for (int i = 0; i < count; ++i) {
-            put_char(0);
+            put_char(0);            
         }
-    } else if (c == '\x7f' && enable_escapes) {
-        in_escape = 1;
+        return 0;
+    } else if (c == '\t') {
+        int count = TAB_WIDTH - screen_index % TAB_WIDTH;
+        for (int i = 0; i < count; ++i) {
+            put_char(' ');            
+        }
+        return count;
+    } else {        
+        char buff[3];
+        itoa16(c, buff, sizeof(buff) - 1);
+        put_char('~');
+        con_write_str(buff);
+        return 3;
     }
+
+    return 0;
 }
 
-void con_write_str(const char *str)
+int con_write_str(const char *str)
 {
     if (!str) {
-        return;
+        return 0;
     }
 
+    int char_count = 0;
     while (*str) {
-        con_write_char(*(str++));
+        char_count += con_write_char(*(str++));
     }
+
+    return char_count;
 }
 
 void con_set_bgcol(int col)

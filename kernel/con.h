@@ -20,8 +20,8 @@
 
 extern int con_init(void);
 extern void con_clear(void);
-extern void con_write_char(char c);
-extern void con_write_str(const char *str);
+extern int con_write_char(char c);
+extern int con_write_str(const char *str);
 extern void con_set_bgcol(int col);
 extern void con_set_fgcol(int col);
 
