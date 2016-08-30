@@ -105,17 +105,16 @@ ALWAYS_INLINE void sti(void)
     ASM_VOLATILE("sti");
 }
 
-PACKED struct gdt_entry
+START_PACK struct gdt_entry
 {
-
-};
+} END_PACK;
 
 // 48-bit GDT descriptor, for use with lgdt and sgdt
-PACKED struct gdt_descriptor
+START_PACK struct gdt_descriptor
 {
     uint16_t            size;
     struct gdt_entry    *base;
-};
+} END_PACK;
 
 // IDT Entry Flags
 #define IDT_PRESENT             0x80 // Interrupt entry should be used    
@@ -129,14 +128,14 @@ PACKED struct gdt_descriptor
 #define IDT_GATE_INTERRUPT_32   0x0e // This is a 32-bit interrupt gate
 #define IDT_GATE_TRAP_32        0x0f // This is a 32-bit trap gate
 
-PACKED struct idt_entry
+START_PACK struct idt_entry
 {
     uint16_t handler_offset_00_15;  // Offset of handler code in GDT segment
     uint16_t gdt_handler_selector;  // GDT segment - as table selector
     uint8_t  _reserved0;            // Reserved byte
     uint8_t  flags;                 // Flags detailing type and attributes
     uint16_t handler_offset_16_32;  // Upper word of handler offset
-};
+} END_PACK;
 
 #define DEF_IDT_ENTRY(HANDLER_OFFSET, GDT_SELECTOR, FLAGS)      \
     {                                                           \
@@ -148,11 +147,11 @@ PACKED struct idt_entry
     }
 
 // 48-bit IDT descriptor, for use with lidt and sidt
-PACKED struct idt_descriptor
+START_PACK struct idt_descriptor
 {
     uint16_t            size;
     struct idt_entry    *base;
-};
+} END_PACK;
 
 // Load IDT
 ALWAYS_INLINE void

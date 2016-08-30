@@ -20,7 +20,8 @@
     #define NO_THROW        __attribute__((nothrow))
     #define CDECL           __attribute__((__cdecl__))
     #define ALIGN(A)        __attribute__((aligned(A)))
-    #define PACKED          __attribute__((packed))
+    #define START_PACK      
+    #define END_PACK        __attribute__((packed))
     #define ASM             __asm__
     #define ASM_VOLATILE    __asm__ volatile
     #define ASM_GOTO        __asm__ goto
@@ -33,7 +34,8 @@
     #define NO_THROW
     #define CDECL
     #define ALIGN(A)
-    #define PACKED  
+    #define START_PACK      
+    #define END_PACK
     #define ASM     
     #define ASM_VOLATILE
     #define ASM_GOTO

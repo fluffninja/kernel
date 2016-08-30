@@ -18,10 +18,11 @@ all: kernel.bin
 %.o: %.c
 	$(CC) $< -o $@ $(CFLAGS)
 
-kernel.bin: bootstrap.o kmain.o kstring.o con.o ps2.o
+kernel.bin: bootstrap.o kmain.o kstring.o con.o ps2.o pic.o
 	$(LD) $^ -o $@ ../libc/libc.a $(LDFLAGS)
 
 kmain.c: kstring.h ps2.h con.h kstring.h
 kstring.c: kstring.h
 con.c: con.h kstring.h
 ps2.c: ps2.h kstring.h
+pic.c: pic.h kstring.h
