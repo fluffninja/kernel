@@ -18,11 +18,11 @@
 #define COL_BRYELLOW            0x0e
 #define COL_BRWHITE             0x0f
 
-void con_init(void);
-void con_clear(void);
-void con_write_char(char c);
-void con_write_str(const char *str);
-void con_set_bgcol(int col);
-void con_set_fgcol(int col);
+extern int con_init(void);
+extern void con_clear(void);
+extern void con_write_char(char c);
+extern void con_write_str(const char *str);
+extern void con_set_bgcol(int col);
+extern void con_set_fgcol(int col);
 
 #endif /* _INC_CON */

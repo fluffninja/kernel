@@ -15,6 +15,7 @@ static int              screen_index;
 static int              screen_flags;
 static int              screen_width;
 static int              screen_height;
+static int              enable_escapes = 1;
 
 static void scroll_screen(unsigned int lines)
 {
@@ -56,7 +57,7 @@ static void put_char(char c)
     screen_ptr[screen_index++] = info;
 }
 
-void con_init(void)
+int con_init(void)
 {
     screen_ptr = (struct charinfo *) 0xb8000;
     screen_width = 80;
@@ -75,7 +76,10 @@ void con_init(void)
     screen_index = cur_x + cur_y * screen_width;
     screen_flags = (int) (screen_ptr[screen_index].flags);
 
-    con_write_str("Console initialised\n");
+    kprintf("Initialised console display %dx%d at %p\n", screen_width,
+        screen_height, screen_ptr);
+
+    return 0;
 }
 
 void con_clear(void)
@@ -86,6 +90,28 @@ void con_clear(void)
 
 void con_write_char(char c)
 {
+    static int in_escape = 0;
+    static int flag_push = 0;
+    static int old_flags = 0;
+
+    if (in_escape) {
+        if (c == '\x80') {
+            if (flag_push) {
+                flag_push = 0;
+                screen_flags = old_flags;
+                in_escape = 0;
+                return;
+            } else {
+                flag_push = 1;
+                old_flags = screen_flags;
+            }
+        } else {
+            screen_flags = c;
+            in_escape = 0;
+        }
+        return;
+    }
+
     // If this is a regular print character, 
     if (isprint(c)) {
         put_char(c);
@@ -94,6 +120,8 @@ void con_write_char(char c)
         for (int i = 0; i < count; ++i) {
             put_char(0);
         }
+    } else if (c == '\x7f' && enable_escapes) {
+        in_escape = 1;
     }
 }
 
