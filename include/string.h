@@ -4,7 +4,7 @@
 #define _INC_STRING 1
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 #include <stddef.h>

@@ -8,6 +8,10 @@
 #include <cccompat.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 // Write a byte to the given port
 ALWAYS_INLINE void
 outb(uint16_t port, uint8_t value)
@@ -258,5 +262,9 @@ cpuid(uint32_t query)
 #define CPUID_FEATURE_MCE               BITFLAG(7)  // Machine-check Exceptions
 #define CPUID_FEATURE_APIC              BITFLAG(9)  // Advanced PIC
 #define CPUID_FEATURE_SYSENTER_SYSEXIT  BITFLAG(11) // SYSENTER and SYSEXIT
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif /* _INC_ASM */
