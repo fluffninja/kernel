@@ -10,17 +10,21 @@ LDSCRIPT	:= kernel.ld
 LDMAP		:= kernel.map
 LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386 -x -s
 
-%.o: %.asm
+%.bin: %.asm
 	$(ASM) $< -o $@ $(ASMFLAGS)
 
 %.o: %.c
 	$(CC) $< -o $@ $(CFLAGS)
 
-kernel.bin: bootstrap.o kmain.o kstring.o con.o ps2.o pic.o
-	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
+kernel.bin: bootstrap.bin kmain.o kstring.o con.o ps2.o pic.o idt.o isr.o irq.o
+	$(LD) *.o ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
 
-kmain.c: kstring.h ps2.h con.h kstring.h
+kmain.c: kstring.h ps2.h con.h
 kstring.c: kstring.h
 con.c: con.h kstring.h
 ps2.c: ps2.h kstring.h
 pic.c: pic.h kstring.h
+idt.c: idt.h kstring.h
+isr.c: isr.h idt.h kstring.h
+irq.c: irq.h isr.h kstring.h
+
