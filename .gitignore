@@ -3,6 +3,7 @@
 *.img
 *.o
 *.a
+*.map
 ./out/
 dump
 

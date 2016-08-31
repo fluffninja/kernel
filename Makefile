@@ -2,6 +2,8 @@ OUTPUT_DIR		:= out
 OUTPUT_IMAGE		:= $(OUTPUT_DIR)/bootdisk.img
 OUTPUT_IMAGE_SIZE	:= 1474560
 
+DIRTY_FILES		:= a o bin map
+
 MOUNT_DIR		:= $(OUTPUT_DIR)/bootdisk_mout/
 
 KERNEL_LINK_SCRIPT	:= kernel/kernel.ld
@@ -20,11 +22,11 @@ all: clean $(OUTPUT_IMAGE)
 boot/boot.bin: boot/boot.asm
 	$(ASM) $< -o $@ -f bin
 
-kernel/kernel.bin: kernel/
-	@$(MAKE) -C kernel
+kernel/kernel.bin:
+	@$(MAKE) -C $(@D) $(@F)
 
-libc/libc.a: libc/
-	@$(MAKE) -C libc
+libc/libc.a:
+	@$(MAKE) -C $(@D) $(@F)
 
 .PHONY: bootloader
 bootloader: boot/boot.bin
@@ -50,9 +52,9 @@ $(OUTPUT_IMAGE): bootloader kernel prepared_output_floppy
 clean:
 	@rm -frv $(OUTPUT_DIR)
 	@echo "Deleting files:"
-	@find . -type f -name '*.bin' -print -delete
-	@find . -type f -name '*.o'   -print -delete
-	@find . -type f -name '*.a'   -print -delete
+	@for ext in $(DIRTY_FILES); do \
+		find . -type f -name "*.$$ext" -print -delete; \
+	done
 	@echo "Done"
 
 .PHONY: run
