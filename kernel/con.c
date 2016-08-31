@@ -77,7 +77,7 @@ int con_init(void)
     screen_index = cur_x + cur_y * screen_width;
     screen_flags = (int) (screen_ptr[screen_index].flags);
 
-    kprintf("Console initialised: %dx%d at %p\n", screen_width, screen_height,
+    kprintf("con: initialised %dx%d at %p\n", screen_width, screen_height,
         screen_ptr);
 
     return 0;

@@ -21,32 +21,32 @@ void ps2_log(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
-    kprintf("[PS2] ");
+    kprintf("ps2: ");
     kvprintf(format, args);
     va_end(args);
 }
 
 void ps2_ch1_enable(void)
 {
-    ps2_log("Enabling channel 1\n");
+    ps2_log("enabling channel 1\n");
     outportb(PS2_PORT_CMD, PS2_CMD_CH1_ENABLE);
 }
 
 void ps2_ch2_enable(void)
 {
-    ps2_log("Enabling channel 2\n");
+    ps2_log("enabling channel 2\n");
     outportb(PS2_PORT_CMD, PS2_CMD_CH2_ENABLE);
 }
 
 void ps2_ch1_disable(void)
 {
-    ps2_log("Disabling channel 1\n");
+    ps2_log("disabling channel 1\n");
     outportb(PS2_PORT_CMD, PS2_CMD_CH1_DISABLE);
 }
 
 void ps2_ch2_disable(void)
 {
-    ps2_log("Disabling channel 2\n");
+    ps2_log("disabling channel 2\n");
     outportb(PS2_PORT_CMD, PS2_CMD_CH2_DISABLE);
 }
 
@@ -55,13 +55,13 @@ uint8_t ps2_get_config(void)
     ps2_flush_input_data();
     outportb(PS2_PORT_CMD, PS2_CMD_GET_CONFIG);
     uint8_t ps2_config = inportb(PS2_PORT_DATA);    
-    ps2_log("Config retrieved: %x\n", ps2_config);
+    ps2_log("config retrieved: %x\n", ps2_config);
     return ps2_config;
 }
 
 void ps2_set_config(uint8_t ps2_config)
 {
-    ps2_log("Config set: %x\n", ps2_config);
+    ps2_log("config set: %x\n", ps2_config);
     outportb(PS2_PORT_CMD, PS2_CMD_SET_CONFIG);
     outportb(PS2_PORT_DATA, ps2_config);
 }
@@ -75,7 +75,7 @@ int ps2_controller_test(void)
     outportb(PS2_PORT_CMD, PS2_CMD_CONTROLLER_TEST);
     uint8_t status = inportb(PS2_PORT_DATA);
     int passed = (status == PS2_RESP_CONTROLLER_TEST_PASSED);
-    ps2_log("Controller self-test %s\n", passed ? str_passed : str_failed);
+    ps2_log("controller self-test %s\n", passed ? str_passed : str_failed);
     return passed;
 }
 
@@ -85,7 +85,7 @@ int ps2_ch1_test(void)
     outportb(PS2_PORT_CMD, PS2_CMD_CH1_TEST);
     uint8_t status = inportb(PS2_PORT_DATA);
     int passed = (status == PS2_RESP_CH_TEST_PASSED);
-    ps2_log("Channel 1 self-test %s\n", passed ? str_passed : str_failed);
+    ps2_log("channel 1 self-test %s\n", passed ? str_passed : str_failed);
     return passed;
 }
 
@@ -95,7 +95,7 @@ int ps2_ch2_test(void)
     outportb(PS2_PORT_CMD, PS2_CMD_CH2_TEST);
     uint8_t status = inportb(PS2_PORT_DATA);
     int passed = (status == PS2_RESP_CH_TEST_PASSED);
-    ps2_log("Channel 2 self-test %s\n", passed ? str_passed : str_failed);
+    ps2_log("channel 2 self-test %s\n", passed ? str_passed : str_failed);
     return passed;
 }
 
@@ -105,7 +105,7 @@ int ps2_init(void)
     int ch1_ok = 0;
     int ch2_ok = 0;
 
-    ps2_log("Initialising...\n");
+    ps2_log("initialising...\n");
 
     // Disable both devices
     ps2_ch1_disable();
@@ -124,11 +124,10 @@ int ps2_init(void)
 
     // Perform controller self-test
     if (!ps2_controller_test()) {
-        ps2_log("Cancelling initialisation\n");
-        return 1;
+        goto error;
     }    
 
-    ps2_log("Testing for dual-channel\n");
+    ps2_log("testing for dual-channel\n");
     // Potentially dual-channel
     if(ps2_config & PS2_CONFIG_CH2_CLOCK_HIGH) {
         // Re-enable second PS2 port
@@ -146,7 +145,7 @@ int ps2_init(void)
         }
     }
 
-    ps2_log("Dual channel: %b\n", is_dual_channel);
+    ps2_log("dual channel: %b\n", is_dual_channel);
 
     ch1_ok = ps2_ch1_test();
     if (is_dual_channel) {
@@ -168,10 +167,13 @@ int ps2_init(void)
 
     // Perform controller self-test
     if (!ps2_controller_test()) {
-        ps2_log("Cancelling initialisation\n");
-        return 1;
+        goto error;
     }    
 
+    ps2_ch1_enable();
+    ps2_ch2_enable();
+
+#if 0
     if (ch1_ok) {
         // Flush input buffer
         ps2_flush_input_data();
@@ -206,6 +208,11 @@ int ps2_init(void)
             ps2_log("Channel 2 device unknown response: %x\n", resp);
         }   
     }
+#endif
 
     return 0;
+
+error:
+    ps2_log("cancelling initialisation\n");
+    return 1;
 }

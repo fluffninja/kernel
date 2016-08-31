@@ -12,12 +12,13 @@
 #endif /* _MSC_VER */
 
 #ifdef _COMP_GCC
-    #define INLINE          inline
-    #define ALWAYS_INLINE   inline __attribute__((always_inline))
+    #define INLINE          __inline__
+    #define ALWAYS_INLINE   __inline__ __attribute__((always_inline))
     #define NAKED           __attribute__((naked))
     #define NO_INLINE       __attribute__((noinline))
     #define NO_RETURN       __attribute__((noreturn))
     #define NO_THROW        __attribute__((nothrow))
+    #define NO_OPTIMISE     __attribute__((optimize("O0")))
     #define CDECL           __attribute__((__cdecl__))
     #define ALIGN(A)        __attribute__((aligned(A)))
     #define START_PACK      
@@ -32,6 +33,7 @@
     #define NO_INLINE
     #define NO_RETURN
     #define NO_THROW
+    #define NO_OPTIMISE
     #define CDECL
     #define ALIGN(A)
     #define START_PACK      

@@ -96,13 +96,13 @@ portwait(void)
 // Disable interrupts
 ALWAYS_INLINE void cli(void)
 {
-    ASM_VOLATILE("cli");
+    ASM("cli");
 }
 
 // Enable interrupts
 ALWAYS_INLINE void sti(void)
 {
-    ASM_VOLATILE("sti");
+    ASM("sti");
 }
 
 START_PACK struct gdt_entry
@@ -116,69 +116,12 @@ START_PACK struct gdt_descriptor
     struct gdt_entry    *base;
 } END_PACK;
 
-// IDT Entry Flags
-#define IDT_PRESENT             0x80 // Interrupt entry should be used    
-#define IDT_PRIVILEGE_0         0x00 // Highest ring that can use interrupt
-#define IDT_PRIVILEGE_1         0x20 // ^
-#define IDT_PRIVILEGE_2         0x40 // ^
-#define IDT_PRIVILEGE_3         0x60 // ^
-#define IDT_GATE_TASK_32        0x05 // This is a 32-bit task gate
-#define IDT_GATE_INTERRUPT_16   0x06 // This io a 16-bit interrupt gate
-#define IDT_GATE_TRAP_16        0x07 // This is a 16-bit task gate
-#define IDT_GATE_INTERRUPT_32   0x0e // This is a 32-bit interrupt gate
-#define IDT_GATE_TRAP_32        0x0f // This is a 32-bit trap gate
-
-START_PACK struct idt_entry
-{
-    uint16_t handler_offset_00_15;  // Offset of handler code in GDT segment
-    uint16_t gdt_handler_selector;  // GDT segment - as table selector
-    uint8_t  _reserved0;            // Reserved byte
-    uint8_t  flags;                 // Flags detailing type and attributes
-    uint16_t handler_offset_16_32;  // Upper word of handler offset
-} END_PACK;
-
-#define DEF_IDT_ENTRY(HANDLER_OFFSET, GDT_SELECTOR, FLAGS)      \
-    {                                                           \
-        (uint16_t) (((uint32_t) (HANDLER_OFFSET)) & 0xffff),    \
-        (uint16_t) (GDT_SELECTOR),                              \
-        0,                                                      \
-        (uint8_t) (FLAGS),                                      \
-        (uint16_t) (((uint32_t) (HANDLER_OFFSET)) >> 16),       \
-    }
-
-// 48-bit IDT descriptor, for use with lidt and sidt
-START_PACK struct idt_descriptor
-{
-    uint16_t            size;
-    struct idt_entry    *base;
-} END_PACK;
-
-// Load IDT
-ALWAYS_INLINE void
-lidt(struct idt_descriptor *desc)
-{
-    ASM_VOLATILE(
-        "lidt %0"::
-        "m"(desc)
-    );
-}
-
-// Store IDT
-ALWAYS_INLINE void
-sidt(struct idt_descriptor *desc)
-{
-    ASM_VOLATILE(
-        "sidt %0":
-        "=m"(desc)
-    );
-}
-
 // Get clock-cycles since boot via RDTSC (Read Time-stamp counter)
 ALWAYS_INLINE uint64_t
 rdtsc(void)
 {
     uint64_t value;
-    ASM_VOLATILE(
+    ASM(
         "rdtsc":
         "=A"(value)
     );
@@ -189,7 +132,7 @@ rdtsc(void)
 ALWAYS_INLINE void
 wrmsr(uint32_t reg, uint64_t value)
 {
-    ASM_VOLATILE(
+    ASM(
         "wrmsr"::
         "c"(reg),
         "A"(value)
@@ -201,12 +144,49 @@ ALWAYS_INLINE uint64_t
 rdmsr(uint32_t reg)
 {
     uint64_t value;
-    ASM_VOLATILE(
+    ASM(
         "rdmsr":
         "=A"(value):
         "c"(reg)
     );
     return value;
+}
+
+struct register_set
+{
+    uint32_t a;
+    uint32_t b;
+    uint32_t c;
+    uint32_t d;
+    uint32_t si;
+    uint32_t di;
+    uint32_t bp;
+    uint32_t sp;
+};
+
+ALWAYS_INLINE NO_OPTIMISE struct register_set
+get_registers(void)
+{
+    struct register_set result;
+    ASM_VOLATILE("pusha");
+    register uint32_t a ASM("eax");
+    register uint32_t b ASM("ebx");
+    register uint32_t c ASM("ecx");
+    register uint32_t d ASM("edx");
+    register uint32_t si ASM("esi");
+    register uint32_t di ASM("edi");
+    register uint32_t bp ASM("ebp");
+    register uint32_t sp ASM("esp");
+    result.a = a;
+    result.b = b;
+    result.c = c;
+    result.d = d;
+    result.si = si;
+    result.di = di;
+    result.bp = bp;
+    result.sp = sp;
+    ASM_VOLATILE("popa");
+    return result;
 }
 
 // Result fields of CPUID
@@ -218,11 +198,11 @@ struct cpuid_result
     uint32_t d;
 };
 
-ALWAYS_INLINE struct cpuid_result
+INLINE struct cpuid_result
 cpuid(uint32_t query)
 {
     struct cpuid_result result;
-    ASM_VOLATILE(
+    ASM(
         "cpuid":
         "=a"(result.a),
         "=b"(result.b),
@@ -233,7 +213,9 @@ cpuid(uint32_t query)
     return result;
 }
 
+#ifndef BITFLAG
 #define BITFLAG(N)                      (1UL << (N))
+#endif
 
 #define CPUID_QUERY_VENDOR_ID           0x00
 #define CPUID_QUERY_FEATURES            0x01

@@ -3,70 +3,106 @@
 #include "pic.h"
 #include "kstring.h"
 
-void pic_end_of_interrupt(int from_slave)
-{
-    // If the IRQ came from the slave PIC, both master and slave need EoI cmd.
-    if (from_slave) {
-        outportb(PIC_PORT_SLAVE_COMMAND, PIC_OCW2_EOI);
-        portwait();    
-    }
-
-    outportb(PIC_PORT_MASTER_COMMAND, PIC_OCW2_EOI);
-    portwait();    
-}
-
 int pic_init(void)
 {
     uint8_t master_offset = 0x20;
     uint8_t slave_offset = 0x28;
+    uint8_t command;
 
-    // Don't want to screw this up, so will be paranoid with the portwait()s
+    // ICW1 - Initialise PIC and say we're sending ICW4 too
+    command = PIC_ICW1_INITIALISE | PIC_ICW1_EXPECT_ICW4;
+    outportb(PIC_PORT_MASTER_COMMAND, command);
+    outportb(PIC_PORT_SLAVE_COMMAND, command);
 
-    // ICW1 to master
-    outportb(PIC_PORT_MASTER_COMMAND,
-             PIC_ICW1_INITIALISE | PIC_ICW1_EXPECT_ICW4);
-    portwait();    
-
-    // ICW1 to slave
-    outportb(PIC_PORT_SLAVE_COMMAND,
-             PIC_ICW1_INITIALISE | PIC_ICW1_EXPECT_ICW4);
-    portwait();    
-
-    // ICW2, interrupt start index, to master
+    // ICW2 - Interrupt offset
     outportb(PIC_PORT_MASTER_DATA, master_offset);
-    portwait();
-
-    // ICW2, interrupt start index, to slave
     outportb(PIC_PORT_SLAVE_DATA, slave_offset);
-    portwait();
 
-    // ICW3, IRQ of slave (2), to master
-    outportb(PIC_PORT_MASTER_DATA, 0x04); // 0x04 is Bit #2 (counts from #0)
-    portwait();
+    // ICW3
+    outportb(PIC_PORT_MASTER_DATA, 1 << 2); // IRQ (bit) of slave, to master
+    outportb(PIC_PORT_MASTER_DATA, 2);      // IRQ (number) of slave, to slave
 
-    // ICW3, IRQ line for cascade to master, to slave
-    outportb(PIC_PORT_MASTER_DATA, 2);
-    portwait();
+    // ICW4 - Set x86 mode
+    command = PIC_ICW4_X86_MODE;
+    outportb(PIC_PORT_MASTER_DATA, command);    
+    outportb(PIC_PORT_SLAVE_DATA, command);    
 
-    // ICW4, set x86 mode, to master
-    outportb(PIC_PORT_MASTER_DATA, PIC_ICW4_X86_MODE);    
-    portwait();
-
-    // ICW4, set x86 mode, to slave
-    outportb(PIC_PORT_SLAVE_DATA, PIC_ICW4_X86_MODE);    
-    portwait();
-
-    // Clear masks on master
+    // Clear Masks - Allows all IRQs
     outportb(PIC_PORT_MASTER_DATA, 0);    
-    portwait();
-
-    // Clear masks on slave
     outportb(PIC_PORT_SLAVE_DATA, 0);    
-    portwait();    
 
     // That was surprisingly painless :)
-    kprintf("PIC remapped: master at %x, slave at %x\n", master_offset, 
+    kprintf("pic: remapped master at %x, slave at %x\n", master_offset, 
         slave_offset);
 
     return 0;
+}
+
+uint16_t pic_get_register(int reg)
+{
+    uint16_t master_val;
+    uint16_t slave_val;
+
+    portwait();
+    outportb(PIC_PORT_MASTER_COMMAND, reg);
+
+    portwait();
+    outportb(PIC_PORT_SLAVE_COMMAND, reg);
+
+    portwait();
+    master_val = (uint16_t) inportb(PIC_PORT_MASTER_COMMAND);
+
+    portwait();
+    slave_val = (uint16_t) inportb(PIC_PORT_SLAVE_COMMAND);
+
+    return (master_val | (slave_val << 8));
+}
+
+uint16_t pic_get_irr(void)
+{
+    return pic_get_register(PIC_OCW3_READ_IRR);
+}
+
+uint16_t pic_get_isr(void)
+{
+    return pic_get_register(PIC_OCW3_READ_ISR);
+}
+
+int pic_set_irq_enabled(int irqnum, int enabled)
+{
+    int master_mask = irqnum & 0xff;
+    int slave_mask = irqnum >> 8;
+    int mask = 0;
+
+    portwait();
+    mask = inportb(PIC_PORT_MASTER_DATA); 
+    if (enabled) {
+        mask &= ~master_mask;
+    } else {
+        mask |= master_mask;
+    }
+    portwait();
+    outportb(PIC_PORT_MASTER_DATA, mask);
+     
+    portwait();
+    mask = inportb(PIC_PORT_SLAVE_DATA); 
+    if (enabled) {
+        mask &= ~slave_mask;
+    } else {
+        mask |= slave_mask;
+    }
+    portwait();
+    outportb(PIC_PORT_SLAVE_DATA, mask);
+
+    return 0;
+}
+
+void pic_master_end_of_interrupt(void)
+{
+    outportb(PIC_PORT_MASTER_COMMAND, PIC_OCW2_EOI);
+}
+
+void pic_slave_end_of_interrupt(void)
+{
+    outportb(PIC_PORT_SLAVE_COMMAND, PIC_OCW2_EOI);
 }

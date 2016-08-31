@@ -1,5 +1,5 @@
 OUTPUT_FORMAT(binary)
-STARTUP(bootstrap.o)
+STARTUP(bootstrap.bin)
 SECTIONS
 {
     . = 0;
