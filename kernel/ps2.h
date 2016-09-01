@@ -114,11 +114,11 @@
 #define PS2_KB_SCANCODE_SET_3               3
 
 // PS/2 Keyboard Typematic Byte 
-struct ps2_kb_typematic_byte
+BEGIN_PACK struct ps2_kb_typematic_byte
 {
     uint8_t repeat_rate     : 5; // 0x00 = 30Hz; 0x17 = 2Hz
     uint8_t typematic_delay : 2; // Values defined below
-};
+} END_PACK;
 
 // PS/2 Keyboard Typematic Byte Repeat Delay Values (in milliseconds)
 #define PS2_KB_TYPEMATIC_DELAY_250          0

@@ -1,7 +1,11 @@
 #include "irq.h"
 #include "isr.h"
 #include "pic.h"
+#include "ps2.h"
 #include "kstring.h"
+
+// Reference for IRQs' respective devices:
+// https://en.wikipedia.org/wiki/Interrupt_request_(PC_architecture)
 
 ISR_DEF_HANDLER(isr_irq0);
 ISR_DEF_HANDLER(isr_irq1);
@@ -22,6 +26,8 @@ ISR_DEF_HANDLER(isr_irq15);
 
 int irq_init(void)
 {
+    // TODO: be aware of PIC offsets
+
     // PIC Master IRQs
     isr_set_handler(0x20, ISR_HANDLER(isr_irq0));
     isr_set_handler(0x21, ISR_HANDLER(isr_irq1));
@@ -42,7 +48,7 @@ int irq_init(void)
     isr_set_handler(0x2e, ISR_HANDLER(isr_irq14));
     isr_set_handler(0x2f, ISR_HANDLER(isr_irq15));
 
-    kprintf("irq: loaded handlers\n");
+    kprintf("irq: registerred handlers\n");
 
     return 0;
 }
@@ -56,6 +62,15 @@ void isr_irq0(struct register_set regset)
 void isr_irq1(struct register_set regset)
 {
     (void) regset;
+    // Crappy keyboard input thing
+    while (inportb(PS2_PORT_STATUS) & PS2_STATUS_INPUT_WAITING) {
+        uint8_t data = inportb(PS2_PORT_DATA);
+        char buff[3] = { 0 };
+        itoa16(data, buff, 2);
+        kprintf("~%s", buff);
+        //extern int con_write_char(char c);
+        //con_write_char(data);
+    }
     pic_master_end_of_interrupt();    
 }
 

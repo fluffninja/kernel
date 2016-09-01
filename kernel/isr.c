@@ -53,6 +53,8 @@ int isr_set_handler(int index, void (*handler)(void))
     }
 }
 
+// TODO: make this just return a string, printable by kvsprintf (or whatever
+// the heck it's called).
 void print_register_set(struct register_set regset)
 {
     kprintf(

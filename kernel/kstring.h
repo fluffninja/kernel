@@ -16,6 +16,9 @@
 
 char *itoa10(int val, char *str);
 char *itoa16(int val, char *str, unsigned int nibble_count);
+
+// TODO: add ksprintf and kvsprintf to print a string into a buffer, rework
+// these funcs to use those instead.
 void kvprintf(const char *format, va_list args);
 void kprintf(const char *format, ...);
 

@@ -108,10 +108,11 @@ int con_write_char(char c)
         }
         return count;
     } else {        
+        // TODO: find out why this doesn't work properly with interrupts :S
         char buff[3];
         itoa16(c, buff, sizeof(buff) - 1);
         put_char('~');
-        con_write_str(buff);
+        con_write_str(buff); // Dodgey
         return 3;
     }
 

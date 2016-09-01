@@ -105,12 +105,12 @@ ALWAYS_INLINE void sti(void)
     ASM("sti");
 }
 
-START_PACK struct gdt_entry
+BEGIN_PACK struct gdt_entry
 {
 } END_PACK;
 
 // 48-bit GDT descriptor, for use with lgdt and sgdt
-START_PACK struct gdt_descriptor
+BEGIN_PACK struct gdt_descriptor
 {
     uint16_t            size;
     struct gdt_entry    *base;
