@@ -7,6 +7,7 @@
 
 void ps2_flush_input_data(void)
 {
+    // TODO: Something like this for PS2_STATUS_OUTPUT_BUSY as well
     while (1) {
         uint8_t status = inportb(PS2_PORT_STATUS);
         if (status & PS2_STATUS_INPUT_WAITING) {

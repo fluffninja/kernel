@@ -5,6 +5,8 @@
 
 int pic_init(void)
 {
+    // TODO: provide getter for offets, be remappable (?)
+
     uint8_t master_offset = 0x20;
     uint8_t slave_offset = 0x28;
     uint8_t command;

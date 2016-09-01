@@ -21,7 +21,7 @@
     #define NO_OPTIMISE     __attribute__((optimize("O0")))
     #define CDECL           __attribute__((__cdecl__))
     #define ALIGN(A)        __attribute__((aligned(A)))
-    #define START_PACK      
+    #define BEGIN_PACK      
     #define END_PACK        __attribute__((packed))
     #define ASM             __asm__
     #define ASM_VOLATILE    __asm__ volatile
@@ -36,7 +36,7 @@
     #define NO_OPTIMISE
     #define CDECL
     #define ALIGN(A)
-    #define START_PACK      
+    #define BEGIN_PACK      
     #define END_PACK
     #define ASM     
     #define ASM_VOLATILE
