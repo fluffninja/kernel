@@ -16,15 +16,20 @@ LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386 -x -s
 %.o: %.c
 	$(CC) $< -o $@ $(CFLAGS)
 
-kernel.bin: bootstrap.bin kmain.o kstring.o con.o ps2.o pic.o idt.o isr.o irq.o
+kernel.bin: bootstrap.bin kmain.o kstring.o con.o ps2.o pic.o idt.o isr.o \
+	irq.o kb.o
 	$(LD) *.o ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
 
-kmain.c: kstring.h ps2.h con.h
+# Everyone needs kstring
+%.c: kstring.h
+
+kmain.c: con.h idt.h isr.h irq.h kb.h
 kstring.c: kstring.h
-con.c: con.h kstring.h
-ps2.c: ps2.h kstring.h
-pic.c: pic.h kstring.h
-idt.c: idt.h kstring.h
-isr.c: isr.h idt.h kstring.h
-irq.c: irq.h isr.h kstring.h
+con.c: con.h
+ps2.c: ps2.h
+pic.c: pic.h idt.h
+idt.c: idt.h
+isr.c: isr.h idt.h 
+irq.c: irq.h isr.h pic.h
+kb.c: kb.h irq.h ps2.h 
 

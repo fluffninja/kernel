@@ -1,15 +1,49 @@
 #include <sys/asm.h>
 
 #include "pic.h"
+#include "idt.h"
 #include "kstring.h"
 
-int pic_init(void)
+// Check offsets
+// Check index validity, and ensure an idt entry is not already present
+// -1 denotes success, otherwise returns bad index from offset
+static int check_offset_set(int offset)
 {
-    // TODO: provide getter for offets, be remappable (?)
+    for (int i = 0; i < 8; ++i) {
+        if (!idt_is_valid_index(offset + i) || idt_has_entry(offset + i))
+        {
+            // Return the index of the offending entry
+            return i;
+        }
+    }
 
-    uint8_t master_offset = 0x20;
-    uint8_t slave_offset = 0x28;
-    uint8_t command;
+    return -1;
+}
+
+// -1 denotes success, otherwise returns bad idt index
+static int remap_check_offset_set(int offset)
+{
+    int index = 0;
+    if ((index = check_offset_set(offset)) > 0) {
+        kprintf("pic: remap failed, bad index %d on offset %x (idt %x)\n",
+            index, offset, offset + index);
+        return (offset + index);
+    }
+
+    return -1;
+}
+
+int pic_remap(int master_offset, int slave_offset)
+{   
+    int bad_index = 0;
+    if ((bad_index = remap_check_offset_set(slave_offset)) > 0) {
+        return bad_index;
+    }
+    if ((bad_index = remap_check_offset_set(master_offset)) > 0) {
+        return bad_index;
+    }
+
+    int command;
 
     // ICW1 - Initialise PIC and say we're sending ICW4 too
     command = PIC_ICW1_INITIALISE | PIC_ICW1_EXPECT_ICW4;
@@ -29,18 +63,78 @@ int pic_init(void)
     outportb(PIC_PORT_MASTER_DATA, command);    
     outportb(PIC_PORT_SLAVE_DATA, command);    
 
-    // Clear Masks - Allows all IRQs
-    outportb(PIC_PORT_MASTER_DATA, 0);    
-    outportb(PIC_PORT_SLAVE_DATA, 0);    
+    // Set masks, disabling all interrupts
+    outportb(PIC_PORT_MASTER_DATA, 0xff);    
+    outportb(PIC_PORT_SLAVE_DATA, 0xff);    
 
     // That was surprisingly painless :)
-    kprintf("pic: remapped master at %x, slave at %x\n", master_offset, 
+    kprintf("pic: remapped master to %x, slave to %x\n", master_offset, 
         slave_offset);
 
     return 0;
 }
 
-uint16_t pic_get_register(int reg)
+static INLINE void master_set_mask(uint8_t mask)
+{
+    portwait();
+    outportb(PIC_PORT_MASTER_DATA, mask);
+}
+
+static INLINE uint8_t master_get_mask(void)
+{
+    portwait();
+    return inportb(PIC_PORT_MASTER_DATA);
+}
+
+static INLINE void slave_set_mask(uint8_t mask)
+{
+    portwait();
+    outportb(PIC_PORT_SLAVE_DATA, mask);
+}
+
+static INLINE uint8_t slave_get_mask(void)
+{
+    portwait();
+    return inportb(PIC_PORT_SLAVE_DATA);
+}
+
+int pic_set_enabled(int irqnum, int enabled)
+{
+    if (irqnum >= 16) {
+        kprintf("pic: invalid irq: %d\n", irqnum);
+        return 1;
+    }
+
+    uint8_t mask;
+    int irqbit = (1 << (irqnum & 7));
+
+    if (irqnum < 8) {
+        mask = master_get_mask();
+        mask = enabled ? (mask & ~irqbit) : (mask | irqbit);
+        master_set_mask(mask);
+    } else {
+        mask = slave_get_mask();
+        mask = enabled ? (mask & ~irqbit) : (mask | irqbit);
+        slave_set_mask(mask);
+    }
+
+    kprintf("pic: irq %d %s\n", irqnum, enabled ? "enabled" : "disabled");
+
+    return 0;
+}
+
+int pic_end_of_interrupt(int irqnum)
+{
+    if (irqnum >= 8) {
+        outportb(PIC_PORT_SLAVE_COMMAND, PIC_OCW2_EOI);
+    }
+
+    outportb(PIC_PORT_MASTER_COMMAND, PIC_OCW2_EOI);
+
+    return 0;
+}
+
+static uint16_t pic_get_register(int reg)
 {
     uint16_t master_val;
     uint16_t slave_val;
@@ -68,43 +162,4 @@ uint16_t pic_get_irr(void)
 uint16_t pic_get_isr(void)
 {
     return pic_get_register(PIC_OCW3_READ_ISR);
-}
-
-int pic_set_irq_enabled(int irqnum, int enabled)
-{
-    int master_mask = irqnum & 0xff;
-    int slave_mask = irqnum >> 8;
-    int mask = 0;
-
-    portwait();
-    mask = inportb(PIC_PORT_MASTER_DATA); 
-    if (enabled) {
-        mask &= ~master_mask;
-    } else {
-        mask |= master_mask;
-    }
-    portwait();
-    outportb(PIC_PORT_MASTER_DATA, mask);
-     
-    portwait();
-    mask = inportb(PIC_PORT_SLAVE_DATA); 
-    if (enabled) {
-        mask &= ~slave_mask;
-    } else {
-        mask |= slave_mask;
-    }
-    portwait();
-    outportb(PIC_PORT_SLAVE_DATA, mask);
-
-    return 0;
-}
-
-void pic_master_end_of_interrupt(void)
-{
-    outportb(PIC_PORT_MASTER_COMMAND, PIC_OCW2_EOI);
-}
-
-void pic_slave_end_of_interrupt(void)
-{
-    outportb(PIC_PORT_SLAVE_COMMAND, PIC_OCW2_EOI);
 }

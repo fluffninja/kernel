@@ -1,6 +1,8 @@
 #ifndef _INC_PIC
 #define _INC_PIC 1
 
+#include <stdint.h>
+
 // PIC - Programmable Interrupt Controller
 #define PIC_PORT_MASTER_COMMAND     0x20 // PIC Master Command / Status
 #define PIC_PORT_MASTER_DATA        0x21 // PIC Master Data / Mask
@@ -46,12 +48,10 @@
 // Send to both data ports to disable PIC functionality
 #define PIC_DISABLE                 0xff
 
-int pic_init(void);
-uint16_t pic_get_register(int reg);
+int pic_remap(int master_offset, int slave_offset);
+int pic_set_enabled(int irqnum, int enabled);
+int pic_end_of_interrupt(int irqnum);
 uint16_t pic_get_irr(void);
 uint16_t pic_get_isr(void);
-int pic_set_irq_enabled(int irqnum, int enabled);
-void pic_master_end_of_interrupt();
-void pic_slave_end_of_interrupt();
 
 #endif /* _INC_PIC */

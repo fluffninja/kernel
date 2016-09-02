@@ -4,25 +4,47 @@
 #include <sys/asm.h>
 
 // Create/get the name of the handler function
-#define ISR_HANDLER(FUNC)   __handle_##FUNC
+#define ISR_HANDLER(HNAME)  __handle_##HNAME
 
-// TODO: Split ISR_DEF_HANDLER into separate handlers for 'functional
-// interrupts' (eg syscall) vs. exception handlers (which need all flags and
-// registers, including control registers) vs. hardware handlers (for which 
-// registers aren't needed).
+// Template for ISR handler functions
+#define ISR_DEF_HANDLER_BASE(HNAME, HBODY)  \
+    void HNAME(void)                        \
+    {                                       \
+        ASM_VOLATILE(                       \
+            "pusha"                         \
+        );                                  \
+        {                                   \
+            HBODY                           \
+        }                                   \
+        ASM_VOLATILE(                       \
+            "popa   \n\t"                   \
+            "leave  \n\t"                   \
+            "iret   \n\t"                   \
+        );                                  \
+    }
 
-// Define an ISR handler routine
-#define ISR_DEF_HANDLER(FUNC)                   \
-    void ISR_HANDLER(FUNC)(void) {              \
-        extern void FUNC(struct register_set);  \
-        ASM_VOLATILE("pusha");                  \
-        (void) FUNC(get_registers());           \
-        ASM_VOLATILE(                           \
-            "popa   \n\t"                       \
-            "leave  \n\t"                       \
-            "iret   \n\t"                       \
-        );                                      \
-    }                                       
+// TODO: add other int data to def handler
+
+// Define an ISR handler routine that recieves the set of register values as
+// they were before the interrupt occurred.
+#define ISR_DEF_HANDLER(ISRNAME)                    \
+    ISR_DEF_HANDLER_BASE(ISR_HANDLER(ISRNAME),      \
+    {                                               \
+        extern void ISRNAME(struct register_set);   \
+        struct register_set regset;                 \
+        regset = get_registers();                   \
+        ISRNAME(regset);                            \
+    });
+
+// Define an ISR handler routine (does not receive register values)
+// Note that pusha and popa are still used to prevent register cobbering by
+// handler
+#define ISR_DEF_NOREG_HANDLER(ISRNAME)          \
+    ISR_DEF_HANDLER_BASE(ISR_HANDLER(ISRNAME),  \
+    {                                           \
+        extern void ISRNAME(void);              \
+        ISRNAME();                              \
+    });
 
 int isr_init(void);
 int isr_set_handler(int index, void (*handler)(void));

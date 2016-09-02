@@ -4,19 +4,19 @@
 #include "isr.h"
 #include "kstring.h"
 
-ISR_DEF_HANDLER(isr_divide_error);
-ISR_DEF_HANDLER(isr_nonmaskable_interrupt);
-ISR_DEF_HANDLER(isr_bounds_check);
-ISR_DEF_HANDLER(isr_invalid_opcode);
-ISR_DEF_HANDLER(isr_fpu_unavailable);
-ISR_DEF_HANDLER(isr_double_fault);
-ISR_DEF_HANDLER(isr_fpu_segment_overrun);
-ISR_DEF_HANDLER(isr_invalid_tss);
-ISR_DEF_HANDLER(isr_segment_not_present);
-ISR_DEF_HANDLER(isr_stack_exception);
-ISR_DEF_HANDLER(isr_general_protection_violation);
-ISR_DEF_HANDLER(isr_page_fault);
-ISR_DEF_HANDLER(isr_fpu_error);
+static ISR_DEF_HANDLER(isr_divide_error);
+static ISR_DEF_HANDLER(isr_nonmaskable_interrupt);
+static ISR_DEF_HANDLER(isr_bounds_check);
+static ISR_DEF_HANDLER(isr_invalid_opcode);
+static ISR_DEF_HANDLER(isr_fpu_unavailable);
+static ISR_DEF_HANDLER(isr_double_fault);
+static ISR_DEF_HANDLER(isr_fpu_segment_overrun);
+static ISR_DEF_HANDLER(isr_invalid_tss);
+static ISR_DEF_HANDLER(isr_segment_not_present);
+static ISR_DEF_HANDLER(isr_stack_exception);
+static ISR_DEF_HANDLER(isr_general_protection_violation);
+static ISR_DEF_HANDLER(isr_page_fault);
+static ISR_DEF_HANDLER(isr_fpu_error);
 
 int isr_init(void)
 {
@@ -38,7 +38,7 @@ int isr_init(void)
     // 0xf Reserved
     isr_set_handler(0x10, ISR_HANDLER(isr_fpu_error));    
 
-    kprintf("isr: loaded handlers\n");
+    kprintf("isr: registered isr handlers for cpu\n");
 
     return 0;
 }
