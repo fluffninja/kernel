@@ -43,6 +43,7 @@ BEGIN_PACK struct idt_descriptor
 
 int idt_init(void);
 int idt_is_valid_index(int index);
+int idt_has_entry(int index);
 int idt_set_entry(int index, void (*handler)(void), int selector, int flags);
 
 #endif /* _INC_IDT */

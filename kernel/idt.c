@@ -3,6 +3,11 @@
 
 static struct idt_entry idt[256] = { 0 };
 
+static int __idt_is_valid_index_impl(int index)
+{    
+    return !((index < 0) || (index >= (int) ARRLEN(idt)));
+}
+
 int idt_init(void)
 {
     struct idt_descriptor descriptor = { sizeof(idt), idt };
@@ -14,16 +19,22 @@ int idt_init(void)
 
 int idt_is_valid_index(int index)
 {    
-    if (index < 0 || index >= (int) ARRLEN(idt)) {
-        return 0;
-    } else {
+    return __idt_is_valid_index_impl(index);
+}
+
+int idt_has_entry(int index)
+{
+    if (!__idt_is_valid_index_impl(index)) {
         return 1;
     }
+
+    struct idt_entry entry = idt[index];
+    return (entry.flags & IDT_PRESENT);
 }
 
 int idt_set_entry(int index, void (*handler)(void), int selector, int flags)
 {
-    if (!idt_is_valid_index(index)) {
+    if (!__idt_is_valid_index_impl(index)) {
         return 1;
     }
 
