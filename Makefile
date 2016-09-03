@@ -17,7 +17,10 @@ EMUFLAGS		:= -monitor stdio -k en-gb -m 16M \
 DDFLAGS			:= bs=512 conv=notrunc status=noxfer
 
 .PHONY: all
-all: $(OUTPUT_IMAGE) run
+all: image run
+
+.PHONY: image
+image: $(OUTPUT_IMAGE)
 
 boot/boot.bin: boot/boot.asm
 	$(ASM) $< -o $@ -f bin
@@ -49,7 +52,7 @@ clean:
 	@echo "Done"
 
 .PHONY: run
-run: $(OUTPUT_IMAGE)
+run: image
 	$(EMU) $(EMUFLAGS)
 
 .PHONY: mount
