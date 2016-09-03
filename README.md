@@ -6,7 +6,9 @@ I'm making a kernel.
 
 Double-check the prerequisites before trying anything :-).
 
-To build and create a bootable floppy image, use `make run`.
+To build and create a bootable floppy image, use `make image`.
+
+To run, use `make run`.
 
 To attempt to mount the image, use `make mount`. 
 To unmount, use `make unmount`.
