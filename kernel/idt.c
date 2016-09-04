@@ -1,5 +1,6 @@
 #include "idt.h"
-#include "kstring.h"
+#include "kio.h"
+#include "kutil.h"
 
 static struct idt_entry idt[256] = { 0 };
 

@@ -2,6 +2,7 @@
 #define _INC_ISR 1
 
 #include <sys/asm.h>
+#include <cccompat.h>
 
 // Create/get the name of the handler function
 #define ISR_HANDLER(HNAME)  __handle_##HNAME

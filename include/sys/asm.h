@@ -105,6 +105,12 @@ ALWAYS_INLINE void sti(void)
     ASM("sti");
 }
 
+// Halt until next interrupt
+ALWAYS_INLINE void hlt(void)
+{
+    ASM("hlt");
+}
+
 BEGIN_PACK struct gdt_entry
 {
 } END_PACK;

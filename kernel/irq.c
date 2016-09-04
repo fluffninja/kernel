@@ -5,7 +5,11 @@
 #include "irq.h"
 #include "isr.h"
 #include "pic.h"
-#include "kstring.h"
+#include "kio.h"
+#include "kutil.h"
+
+// Reference for IRQs' respective devices:
+// https://en.wikipedia.org/wiki/Interrupt_request_(PC_architecture)
 
 static irq_hook_t irq_hooks[16] = { 0 };
 
@@ -13,21 +17,23 @@ static irq_hook_t irq_hooks[16] = { 0 };
 
 static int DEFAULT_HOOK_FUNC(int irqnum)
 {
+    // Should irq_done(irqnum) be called for the default handler and/or
+    // make this an option, e.g. irq_auto_dismiss_unhooked(int)?
     (void) irqnum;
     return 0;
 }
 
-static ALWAYS_INLINE int __irq_is_valid_irqnum_impl(int irqnum)
+ALWAYS_INLINE int __irq_is_valid_irqnum_impl(int irqnum)
 {
     return !((irqnum < 0) || (irqnum >= (int) ARRLEN(irq_hooks)));
 }
 
-static ALWAYS_INLINE int __irq_has_hook_impl(int irqnum) 
+ALWAYS_INLINE int __irq_has_hook_impl(int irqnum) 
 {
     return (irq_hooks[irqnum] != DEFAULT_HOOK_FUNC);
 }
 
-static ALWAYS_INLINE int __irq_call_hook_impl(int irqnum)
+ALWAYS_INLINE int __irq_call_hook_impl(int irqnum)
 {
     return (irq_hooks[irqnum](irqnum));
 }
@@ -71,28 +77,34 @@ int irq_init(void)
         irq_hooks[i] = DEFAULT_HOOK_FUNC;
     }
 
+    int result = 0;
+
     // PIC Master IRQs
-    isr_set_handler(0x20, IRQ_ISR_HANDLER(0));
-    isr_set_handler(0x21, IRQ_ISR_HANDLER(1));
-    isr_set_handler(0x22, IRQ_ISR_HANDLER(2));
-    isr_set_handler(0x23, IRQ_ISR_HANDLER(3));
-    isr_set_handler(0x24, IRQ_ISR_HANDLER(4));
-    isr_set_handler(0x25, IRQ_ISR_HANDLER(5));
-    isr_set_handler(0x26, IRQ_ISR_HANDLER(6));
-    isr_set_handler(0x27, IRQ_ISR_HANDLER(7));
+    result |= isr_set_handler(0x20, IRQ_ISR_HANDLER(0));
+    result |= isr_set_handler(0x21, IRQ_ISR_HANDLER(1));
+    result |= isr_set_handler(0x22, IRQ_ISR_HANDLER(2));
+    result |= isr_set_handler(0x23, IRQ_ISR_HANDLER(3));
+    result |= isr_set_handler(0x24, IRQ_ISR_HANDLER(4));
+    result |= isr_set_handler(0x25, IRQ_ISR_HANDLER(5));
+    result |= isr_set_handler(0x26, IRQ_ISR_HANDLER(6));
+    result |= isr_set_handler(0x27, IRQ_ISR_HANDLER(7));
 
     // PIC Slave IRQs
-    isr_set_handler(0x28, IRQ_ISR_HANDLER(8));
-    isr_set_handler(0x29, IRQ_ISR_HANDLER(9));
-    isr_set_handler(0x2a, IRQ_ISR_HANDLER(10));
-    isr_set_handler(0x2b, IRQ_ISR_HANDLER(11));
-    isr_set_handler(0x2c, IRQ_ISR_HANDLER(12));
-    isr_set_handler(0x2d, IRQ_ISR_HANDLER(13));
-    isr_set_handler(0x2e, IRQ_ISR_HANDLER(14));
-    isr_set_handler(0x2f, IRQ_ISR_HANDLER(15));
+    result |= isr_set_handler(0x28, IRQ_ISR_HANDLER(8));
+    result |= isr_set_handler(0x29, IRQ_ISR_HANDLER(9));
+    result |= isr_set_handler(0x2a, IRQ_ISR_HANDLER(10));
+    result |= isr_set_handler(0x2b, IRQ_ISR_HANDLER(11));
+    result |= isr_set_handler(0x2c, IRQ_ISR_HANDLER(12));
+    result |= isr_set_handler(0x2d, IRQ_ISR_HANDLER(13));
+    result |= isr_set_handler(0x2e, IRQ_ISR_HANDLER(14));
+    result |= isr_set_handler(0x2f, IRQ_ISR_HANDLER(15));
 
-    kprintf("irq: registered pic-irq isr handlers\n");
+    if (result) {
+        kprintf("irq: failed to register one or more irq isr handlers\n");
+        return 1;
+    }
 
+    kprintf("irq: registered irq isr handlers\n");
     return 0;
 }
 
