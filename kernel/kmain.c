@@ -28,8 +28,6 @@ kmain(void)
 
     kb_init();
 
-    ASM("int 0xff");
-
     while (1);
 
 error:
