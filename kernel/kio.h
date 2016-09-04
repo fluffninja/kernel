@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-int kvsnpritnf(char *str, size_t sz, const char *fmt, va_list args);
+int kvsnprintf(char *str, size_t sz, const char *fmt, va_list args);
 int ksnprintf(char *str, size_t sz, const char *fmt, ...);
 int kvsprintf(char *str, const char *fmt, va_list args);
 int ksprintf(char *str, const char *fmt, ...);
