@@ -1,29 +1,12 @@
 #ifndef _INC_KSTRING
 #define _INC_KSTRING 1
 
+#include <cccompat.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <stdarg.h>
-#include <cccompat.h>
 
-#define EMPLACEB32(V)   ((V) | ((V) << 8) | ((V) << 16) | ((V) << 24))
-#define EMPLACEB16(V)   ((V) | ((V) << 8))
-#define EMPLACEW32(V)   ((V) | ((V) << 16))
-
-#ifndef ARRLEN
-#define ARRLEN(A)   (sizeof(A) / sizeof(*(A)))
-#endif
-
-char *itoa10(int val, char *str);
-char *itoa16(int val, char *str, unsigned int nibble_count);
-
-// TODO: add ksprintf and kvsprintf to print a string into a buffer, rework
-// these funcs to use those instead.
-void kvprintf(const char *format, va_list args);
-void kprintf(const char *format, ...);
-
-// Memset in 32-bit (4 byte) blocks
-INLINE void
+// Memset in 4 byte blocks
+INLINE void *
 kmemset32(void *ptr, size_t sz, uint32_t val)
 {
     uint32_t *ptr32 = (uint32_t *) ptr;
@@ -31,10 +14,11 @@ kmemset32(void *ptr, size_t sz, uint32_t val)
     while (sz--) {
         *(ptr32++) = val;
     }
+    return ptr;
 }
 
-// Memset in 16-bit (2 byte) blocks
-INLINE void
+// Memset in 2 byte blocks
+INLINE void *
 kmemset16(void *ptr, size_t sz, uint16_t val)
 {
     uint16_t *ptr16 = (uint16_t *) ptr;
@@ -42,20 +26,22 @@ kmemset16(void *ptr, size_t sz, uint16_t val)
     while (sz--) {
         *(ptr16++) = val;
     }
+    return ptr;
 }
 
-// Regular memset
-INLINE void
+// Memset in 1 byte blocks
+INLINE void *
 kmemset(void *ptr, size_t sz, uint16_t val) 
 {
     uint8_t *ptr8 = (uint8_t *) ptr;
     while (sz--) {
         *(ptr8++) = val;
     }
+    return ptr;
 }
 
-// Memcpy in 32-bit (4 byte) blocks
-INLINE void
+// Memcpy in 4 byte blocks
+INLINE void *
 kmemcpy32(const void *src, void *dst, size_t sz)
 {
     const uint32_t  *src32 = (const uint32_t *) src;
@@ -64,10 +50,11 @@ kmemcpy32(const void *src, void *dst, size_t sz)
     while (sz--) {
         *(dst32++) = *(src32++);
     }
+    return dst;
 }
 
-// Memcpy in 16-bit (2 byte) blocks
-INLINE void
+// Memcpy in 2 byte blocks
+INLINE void *
 kmemcpy16(const void *src, void *dst, size_t sz)
 {
     const uint16_t  *src16 = (const uint16_t *) src;
@@ -76,10 +63,11 @@ kmemcpy16(const void *src, void *dst, size_t sz)
     while (sz--) {
         *(dst16++) = *(src16++);
     }
+    return dst;
 }
 
-// Regular memcpy
-INLINE void
+// Memset in 1 byte blocks
+INLINE void *
 kmemcpy(const void *src, void *dst, size_t sz)
 {
     const uint8_t   *src8   = (const uint8_t *) src;
@@ -87,6 +75,16 @@ kmemcpy(const void *src, void *dst, size_t sz)
     while (sz--) {
         *(dst8++) = *(src8++);
     }
+    return dst;
+}
+
+INLINE char *
+kstrcpy(const char *src, char *dst)
+{
+    while (*src) {
+        *(dst++) = *(src++);
+    }
+    return dst;
 }
 
 #endif /* _INC_KSTRING */

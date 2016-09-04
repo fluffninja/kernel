@@ -12,8 +12,8 @@
 #endif /* _MSC_VER */
 
 #ifdef _COMP_GCC
-    #define INLINE          __inline__
-    #define ALWAYS_INLINE   __inline__ __attribute__((always_inline))
+    #define INLINE          static inline
+    #define ALWAYS_INLINE   INLINE __attribute__((always_inline))
     #define NAKED           __attribute__((naked))
     #define NO_INLINE       __attribute__((noinline))
     #define NO_RETURN       __attribute__((noreturn))

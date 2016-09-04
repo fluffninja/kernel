@@ -2,7 +2,7 @@
 
 #include "pic.h"
 #include "idt.h"
-#include "kstring.h"
+#include "kio.h"
 
 // Check offsets
 // Check index validity, and ensure an idt entry is not already present
@@ -74,25 +74,25 @@ int pic_remap(int master_offset, int slave_offset)
     return 0;
 }
 
-static INLINE void master_set_mask(uint8_t mask)
+INLINE void master_set_mask(uint8_t mask)
 {
     portwait();
     outportb(PIC_PORT_MASTER_DATA, mask);
 }
 
-static INLINE uint8_t master_get_mask(void)
+INLINE uint8_t master_get_mask(void)
 {
     portwait();
     return inportb(PIC_PORT_MASTER_DATA);
 }
 
-static INLINE void slave_set_mask(uint8_t mask)
+INLINE void slave_set_mask(uint8_t mask)
 {
     portwait();
     outportb(PIC_PORT_SLAVE_DATA, mask);
 }
 
-static INLINE uint8_t slave_get_mask(void)
+INLINE uint8_t slave_get_mask(void)
 {
     portwait();
     return inportb(PIC_PORT_SLAVE_DATA);

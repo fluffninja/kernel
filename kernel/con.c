@@ -1,8 +1,9 @@
 #include <ctype.h>
 #include <stdint.h>
 
-#include "kstring.h"
 #include "con.h"
+#include "kutil.h"
+#include "kio.h"
 
 #define TAB_WIDTH 4
 
@@ -51,7 +52,7 @@ static void put_char(char c)
     info.c      = c;
     info.flags  = (unsigned char) screen_flags;
 
-    if (screen_index >= (screen_width * screen_height)) {
+    if (screen_index >= (screen_width * screen_height) - 1) {
         scroll_screen(1);
     }
 
@@ -106,12 +107,23 @@ int con_write_char(char c)
             put_char(' ');            
         }
         return count;
+    } else if (c == '\r') {
+        screen_index += screen_index % screen_width;
+        return 0;
+    } else if (c == '\b') {
+        if (screen_index > 0) {            
+            screen_index--;
+            put_char(' ');
+            screen_index--;
+            return 0;
+        }
     } else {        
         // TODO: find out why this doesn't work properly with interrupts :S
-        char buff[3];
-        itoa16(c, buff, sizeof(buff) - 1);
+        char buf[3];
+        itoa16(c, buf, sizeof(buf) - 1);
         put_char('~');
-        con_write_str(buff); // Dodgey
+        put_char(buf[0] + '0');
+        put_char(buf[1] + '0');
         return 3;
     }
 

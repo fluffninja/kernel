@@ -1,5 +1,5 @@
-#ifndef _INC_PICIRQ
-#define _INC_PICIRQ 1
+#ifndef _INC_IRQ
+#define _INC_IRQ 1
 
 #include <sys/asm.h>
 
@@ -17,4 +17,4 @@ int irq_call_hook(int irqnum);
 int irq_set_enabled(int irqnum, int enabled);
 int irq_done(int irqnum);
 
-#endif /* _INC_PICIRQ */
+#endif /* _INC_IRQ */
