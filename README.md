@@ -28,3 +28,14 @@ is recommended.
 
 Sometimes the primary makefile doesn't notice changes: use `make clean` to 
 delete everything before trying to build again.
+
+## Naming
+
+*Just to make the codebase a little easier to understand...*
+
+Duplications of C standard library functions within the kernel are prefixed
+by the letter 'k' (e.g. `kmemset`, `kvsnprintf`). This is to help prevent 
+confusion in the event that the functions behave slightly differently.
+
+Functions prefixed by a double-underscore (e.g. `__irq_default_hook_func`) are
+usually helper-functions in one way or another.
