@@ -20,18 +20,27 @@ extern int con_write_char(char);
 static int (*const puts_ptr)(const char *) = con_write_str;
 static int (*const putc_ptr)(char)         = con_write_char;
 
-// Note not all are supported (yet)
+// Format specifiers (the type of the var arg)
+// Note that differences in case ('X' vs 'x') are signified by fmtinfo.is_upper
 enum fmttype
 {
     FT_INVALID,
-    FT_SIGNED,
-    FT_UNSIGNED,
-    FT_HEX,
-    FT_FLOAT,
-    FT_CHAR,
-    FT_STR,
+    FT_SIGNED,              // 'd', 'i'
+    FT_UNSIGNED,            // 'u'
+    FT_OCTAL,               // 'o'
+    FT_HEX,                 // 'x', 'X'
+    FT_FLOAT,               // 'f', 'F'
+    FT_SCIENTIFIC,          // 'e', 'E'
+    FT_SHORTEST,            // 'g', 'G': Shortest out of float and scientific
+    FT_HEXFLOAT,            // 'a', 'A': Hexadecimal as float
+    FT_CHAR,                // 'c'
+    FT_STR,                 // 's'
+    FT_PTR,                 // 'p'
+    FT_STORE_CHAR_COUNT,    // 'n'
+    FT_ESCAPE,              // '%'
 };
 
+// Format specifier flags
 enum fmtflags
 {
     FF_NONE     = 0x00,
@@ -42,6 +51,7 @@ enum fmtflags
     FF_EXPLICIT = 0x08, // '#': Prefix hex with '0x' or always show decimal dot
 };
 
+// Format specifier size (long vs short int, etc.)
 enum fmtlen
 {
     FL_INT,         // (none)
@@ -55,18 +65,17 @@ enum fmtlen
     FL_LONG_DOUBLE, // L
 };
 
+// Pack all of this information up neatly
 struct fmtinfo
 {
     enum fmttype    ft;
     enum fmtflags   ff;
+    enum fmtlen     fl;
     int             width;      // -1 if specified in vararg, 0 if unspecified
     int             precision;  // -1 if specified in vararg, 0 if unspecified
-    int             length;     // 0 if unspecified.
-    int             is_escape;  // This was actually just a '%%' escape
     int             is_upper;   // Make letter digit chars uppercase (eg 0xFF)
 };
 
-// Yet to be optimised... so far just a (kind of) working implementation
 ALWAYS_INLINE size_t
 __va_str_format_proc(
     const char      *fmt,
@@ -93,7 +102,7 @@ __va_str_format_proc(
         could_be_presision  = 3,
         could_be_length     = 4,
         could_be_spec       = 5,
-    } could_be = could_be_flags;
+    } could_be = could_be_spec;
 
     size_t  fmti = 0;
     char    fmtc;
@@ -237,8 +246,115 @@ __va_str_format_proc(
 
             int is_length = 1;
 
+            switch (fmtc) {
+            case 'h':
+                fi.fl = FL_SHORT;               
+                // Check to see if the next char is another h (for 'hh') 
+                if (++fmti, (fmtc = *(fmt++)) && fmtc == 'h') {
+                    fi.fl = FL_CHAR;
+                } else {
+                    // If not, backtrack
+                    --fmti;
+                    --fmt;
+                }
+                break;
+            case 'l':
+                fi.fl = FL_LONG_LONG;
+                // Check to see if the next char is another l (for 'll')
+                if (++fmti, (fmtc = *(fmt++)) && fmtc == 'l') {
+                    fi.fl = FL_LONG;
+                } else {
+                    // If not, backtrack
+                    --fmti;
+                    --fmt;
+                }
+                break;
+            case 'j':
+                fi.fl = FL_INTMAX;
+                break;
+            case 'z':
+                fi.fl = FL_SIZE;
+                break;
+            case 't':
+                fi.fl = FL_PTRDIFF;
+                break;
+            case 'L':
+                fi.fl = FL_LONG_DOUBLE;
+                break;
+            default:
+                // If we had no matches, then this was not a length specifier
+                is_length = 0;
+                break;
+            }
+
             if (is_length) {
                 continue;
+            }
+        }
+
+        if (could_be <= could_be_spec) {
+            could_be = could_be_spec;
+
+            int is_spec = 1;
+
+            switch (fmtc) {
+            case 'd':
+            case 'i':
+                fi.ft = FT_SIGNED;
+                break;
+            case 'u':
+                fi.ft = FT_UNSIGNED;
+                break;
+            case 'o':
+                fi.ft = FT_OCTAL;
+                break;
+            case 'X':
+                fi.is_upper = 1;
+            case 'x':
+                fi.ft = FT_HEX;
+                break;
+            case 'F':
+                fi.is_upper = 1;
+            case 'f':
+                fi.ft = FT_FLOAT;
+                break;
+            case 'E':
+                fi.is_upper = 1;
+            case 'e':
+                fi.ft = FT_SCIENTIFIC;
+                break;
+            case 'G':
+                fi.is_upper = 1;
+            case 'g':
+                fi.ft = FT_SHORTEST;
+                break;
+            case 'A':
+                fi.is_upper = 1;
+            case 'a':
+                fi.ft = FT_HEXFLOAT;
+                break;
+            case 'c':
+                fi.ft = FT_CHAR;
+                break;
+            case 's':
+                fi.ft = FT_STR;
+                break;
+            case 'p':
+                fi.ft = FT_PTR;
+                break;
+            case 'n':
+                fi.ft = FT_STORE_CHAR_COUNT;
+                break;
+            case '%':
+                fi.ft = FT_ESCAPE;
+                break;
+            default:
+                is_spec = 0;
+                break;
+            }
+
+            if (is_spec) {
+                break;
             }
         }
 
@@ -252,18 +368,102 @@ __va_str_format_proc(
     return fmti;
 }
 
+ALWAYS_INLINE size_t
+__str_puts(
+    char        **dst,
+    const char  *src,
+    size_t      sz)
+{
+    size_t i = 0;
+    while (*src) {
+        **dst = *src;
+        ++i;
+        if (!--sz) {
+            **dst = 0;
+            break;
+        }
+        src++;
+        (*dst)++;
+    }
+    return i;
+}
+
 // Processes string 'fmt' into buffer 'str' of size 'sz' using data from 'args'
 // Returns the number of characters written into buffer 'str'
 ALWAYS_INLINE size_t
 __va_str_format_impl(
-    char        *ostr, 
+    char        *str, 
     size_t      sz,
     const char  *fmt,
     va_list     args) 
 {
-    (void) ostr;
-    (void) sz;
-    
+    size_t          old_sz = sz;
+    char            fmtbuf[9];
+    struct fmtinfo  fi;
+    union {
+        int32_t         i32;
+        int32_t         u32;
+        int8_t          i16;
+        const char      *str;
+    } arg;
+
+    char fmtc;
+    while ((fmtc = *(fmt++))) {
+        if (fmtc == '%') {
+            size_t count = __va_str_format_proc(fmt, &fi);
+            fmt += count;
+
+            if (fi.ft == FT_ESCAPE) {
+                sz -= __str_puts(&str, "%", sz);
+                continue;
+            }
+
+            if (fi.ft == FT_STR) {
+                arg.str = va_arg(args, const char *);
+                sz -= __str_puts(&str, arg.str, sz);
+                continue;                
+            }
+
+            if (fi.ft == FT_SIGNED || fi.ft == FT_UNSIGNED) {
+                arg.i32 = va_arg(args, int32_t);                    
+                itoa10(arg.i32, fmtbuf);
+                sz -= __str_puts(&str, fmtbuf, sz);
+                continue;                
+            }
+
+            if (fi.ft == FT_PTR || fi.ft == FT_HEX) {
+                arg.u32 = va_arg(args, uint32_t);                    
+                itoa16(arg.u32, fmtbuf);
+                sz -= __str_puts(&str, fmtbuf, sz);
+                continue;                
+            }
+
+            sz -= __str_puts(&str, "<invalid>", sz);
+            (void) va_arg(args, uint32_t);
+            continue;
+
+            if (fi.is_upper) {
+                char *bufptr = fmtbuf;
+                while (*bufptr) {
+                    *bufptr = toupper(*bufptr);
+                    ++bufptr;
+                }
+            }
+
+            sz -= __str_puts(&str, fmtbuf, sz);
+
+        } else {
+            *(str++) = fmtc;
+            --sz;
+        }
+    }
+
+    *(str++) = 0;
+    --sz;
+
+    return old_sz - sz;
+
+#if 0    
     size_t count = 0;
     char buf[64];
     void *ptr;
@@ -313,7 +513,8 @@ __va_str_format_impl(
         }
     }    
 
-    return count;    
+    return count;
+#endif
 }
 
 int kvsnprintf(char *str, size_t sz, const char *fmt, va_list args)

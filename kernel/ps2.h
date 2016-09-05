@@ -1,6 +1,7 @@
 // Useful resources:
 // 8084     - http://wiki.osdev.org/%228042%22_PS/2_Controller
 // Keyboard - http://wiki.osdev.org/Keyboard_Controller
+//          - http://www.computer-engineering.org/ps2keyboard/
 // Mouse    - http://wiki.osdev.org/PS/2_Mouse
 //          - http://www.computer-engineering.org/ps2mouse/
 
@@ -16,12 +17,14 @@
 #define PS2_PORT_CMD                        0x64 // Command Register (Write)
 
 // PS/2 Status Flags
-#define PS2_STATUS_INPUT_WAITING            0x01 // Data port waiting for read
-#define PS2_STATUS_OUTPUT_BUSY              0x02 // Data or command ports busy
-#define PS2_STATUS_POST_PASSED              0x04 // System POST passed 
-#define PS2_STATUS_CMD_IN_DATA_PORT         0x08 // Data content is a command
-#define PS2_STATUS_ERROR_TIME_OUT           0x40
-#define PS2_STATUS_ERROR_PARITY             0x80
+#define PS2_STATUS_OUTPUT_BUFFER_FULL       0x01 // Don't out to PS2_PORT_DATA
+#define PS2_STATUS_INPUT_BUFFER_FULL        0x02 // Something in PS2_PORT_DATA
+#define PS2_STATUS_SYSTEM                   0x04 // System is powered on
+#define PS2_STATUS_A2                       0x08 // PS2_PORT_STATUS written to
+#define PS2_STATUS_KB_INHIBITED             0x10 // Keyboard is inhibited
+#define PS2_STATUS_MOUSE_OUTPUT_BUFFER_FULL 0x20 // Don't out to PS2_PORT_DATA
+#define PS2_STATUS_ERROR_TIME_OUT           0x40 // Keyboard didn't respond
+#define PS2_STATUS_ERROR_PARITY             0x80 // Communication error
 
 // PS/2 Controller Configuration Flags
 // See PS2_CMD_GET_CONFIG and PS2_CMD_SET_CONFIG
@@ -89,18 +92,21 @@
 // PS/2 Keyboard Commands
 #define PS2_KB_CMD_SET_LED                  0xed // Set keyboard LEDs 
 #define PS2_KB_CMD_ECHO                     0xee 
-#define PS2_KB_CMD_GET_SCANCODE             0xf0 
+#define PS2_KB_CMD_SET_SCANCODE_SET         0xf0
+#define PS2_KB_CMD_IDENTIFY                 0xf2 
 #define PS2_KB_CMD_SET_TYPEMATIC_CONFIG     0xf3 // Set typematic config byte
 #define PS2_KB_CMD_ENABLE_SCANNING          0xf4
 #define PS2_KB_CMD_DISABLE_SCANNING         0xf5
 #define PS2_KB_CMD_SET_DEFAULTS             0xf6 
-#define PS2_KB_CMD_SET_ALL_TA               0xf7 // Set all typema./auto-repeat
-#define PS2_KB_CMD_SET_ALL_MR               0xf8 // Set all make/release
-#define PS2_KB_CMD_SET_ALL_M                0xf9 // Set all make
-#define PS2_KB_CMD_SET_ALL_TAMR             0xfa // Set all ty./auto-./ma./rel.
-#define PS2_KB_CMD_SET_KEY_TA               0xfb // Set key typema./auto-repeat
-#define PS2_KB_CMD_SET_KEY_MR               0xfc // Set key make/release
-#define PS2_KB_CMD_SET_KEY_M                0xfd // Set key make
+#define PS2_KB_CMD_SET_ALL_TPMTC            0xf7 // Set all typematic
+#define PS2_KB_CMD_SET_ALL_MK_BRK           0xf8 // Set all make/break
+#define PS2_KB_CMD_SET_ALL_MK               0xf9 // Set all make
+#define PS2_KB_CMD_SET_ALL_TPMTC_MK_BRK     0xfa // Set all typematic/make/brk
+#define PS2_KB_CMD_SET_KEY_TPMTC            0xfb // Set key typematic
+#define PS2_KB_CMD_SET_KEY_MK_BRK           0xfc // Set key make/break
+#define PS2_KB_CMD_SET_KEY_MK               0xfd // Set key make
+#define PS2_KB_CMD_RESEND                   0xfe
+#define PS2_KB_CMD_RESET                    0xff
 
 // PS/2 Keyboard LED States
 #define PS2_KB_LED_SCOLL_LOCK               0
@@ -184,6 +190,9 @@ struct ps2_mouse_move_packet
 #define PS2_MOUSE_RESOLUTION_4              2
 #define PS2_MOUSE_RESOLUTION_8              3
 
-extern int ps2_init(void);
+int ps2_init(void);
+int ps2_set_enabled(int chnum, int enabled);
+uint8_t ps2_get_config(void);
+void ps2_set_config(uint8_t ps2_config);
 
 #endif /* _INC_PS2 */

@@ -11,19 +11,10 @@ static char scancodes[128] = {
 };
 
 static int kb_irq_hook(int irqnum)
-{
-    while (inportb(PS2_PORT_STATUS) & PS2_STATUS_INPUT_WAITING) {
-        uint8_t data = inportb(PS2_PORT_DATA);
-        if (!(data & 0x80) && scancodes[data]) {
-            con_write_char(scancodes[data]); 
-        } else {
-            /*
-            char buff[3] = { 0 };
-            extern char *itoa16(int, char*, int);
-            itoa16(data, buff, 2);
-            kprintf("~%s", buff);
-            */
-        }
+{   
+    uint8_t data = inportb(PS2_PORT_DATA);
+    if (!(data & 0x80) && scancodes[data]) {
+        con_write_char(scancodes[data]); 
     }
 
     irq_done(irqnum);
@@ -39,6 +30,8 @@ int kb_init(void)
     }
 
     kprintf("kb: irq hooked\n");
+
+    ps2_set_enabled(1, 1);
 
     return 0;
 }

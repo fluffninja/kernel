@@ -5,7 +5,12 @@
 #include "con.h"
 #include "panic.h"
 
-static int s_friendly_bsod = 0;
+static int s_use_bsod = 1;
+
+void panic_set_use_bsod(int use_bsod) 
+{
+    s_use_bsod = use_bsod ? 1 : 0;
+}
 
 static void print_register_set(struct register_set regset)
 {
@@ -22,15 +27,12 @@ __panic(
     const char                  *fmt,
     va_list                     args)
 {   
-    if (s_friendly_bsod) {
+    if (s_use_bsod) {
         // Yes, really.
         con_set_bgcol(COL_BLUE);
         con_set_fgcol(COL_BRWHITE);
         con_clear();    
         kprintf(
-            "\n"
-            " Isaac OS\n"
-            " ========\n"
             "\n"
             "An error has been detected and your computer has been\n"
             "frozen to prevent damage to your devices and data.\n"

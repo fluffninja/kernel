@@ -5,9 +5,9 @@
 char *itoa10(int val, char *str)
 {
     char buff[10];  // Store digits in reverse (UINT_MAX is 10 dec digits long)
-    int is_neg = 0; // Is the value negative?
     int i = 0;      // Buffer index
     int j = 0;      // Output string index
+    int is_neg = 0; // Is the value negative?
 
     if (!str) {
         goto done;
@@ -41,28 +41,19 @@ done:
     return str;
 }
 
-char *itoa16(int val, char *str, unsigned int nibble_count)
+char *itoa16(int val, char *str)
 {
     static const char HEX_DIGITS[16] = "0123456789abcdef";
 
     char buff[8];
-    unsigned int i = 0;
-    unsigned int j = 0;
+    int i = 0;
+    int j = 0;
 
     if (!str) {
         goto done;
     }
 
-    while ((i < (int) sizeof(buff))) {
-        if (nibble_count) {
-            if (i >= nibble_count) {
-                break;
-            }
-        } else {
-            if (!(val & 0x0f)) {
-                break;
-            }
-        }
+    while ((i < (int) sizeof(buff))) {        
         buff[i++] = HEX_DIGITS[val & 0x0f];
         val >>= 4;
     }
