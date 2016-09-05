@@ -39,7 +39,7 @@ static int remap_check_offset_set(int offset)
 {
     int index = 0;
     if ((index = check_offset_set(offset)) > 0) {
-        kprintf("pic: remap failed, bad index %d on offset %x (idt %x)\n",
+        kprintf("pic: remap failed, bad index %d on offset %#2x (idt %#2x)\n",
             index, offset, offset + index);
         return (offset + index);
     }
@@ -82,7 +82,7 @@ int pic_remap(int master, int slave)
     outportb(PIC_PORT_SLAVE_DATA, 0xff);    
 
     // That was surprisingly painless :)
-    kprintf("pic: remapped master to %x, slave to %x\n", master, slave);
+    kprintf("pic: remapped master to %#2x, slave to %#2x\n", master, slave);
 
     return 0;
 }
