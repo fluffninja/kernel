@@ -33,12 +33,6 @@ kmain(void)
     kb_init();
     mouse_init();
 
-    int a = 1;
-    int b = 1;
-    a--;
-    b /= a;
-    
-
     while (1);
 
 error:
