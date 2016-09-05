@@ -73,8 +73,11 @@ struct fmtinfo
     enum fmtlen     fl;
     int             width;      // -1 if specified in vararg, 0 if unspecified
     int             precision;  // -1 if specified in vararg, 0 if unspecified
-    int             is_upper;   // Make letter digit chars uppercase (eg 0xFF)
+    int             upper;      // Make letter digit chars uppercase (eg 0xFF)
 };
+
+// Note: this whole monolithic mess of a function will eventually get redone
+// in a far nicer manner. For now, I'm just trying to get it working.
 
 ALWAYS_INLINE size_t
 __va_str_format_proc(
@@ -102,7 +105,7 @@ __va_str_format_proc(
         could_be_presision  = 3,
         could_be_length     = 4,
         could_be_spec       = 5,
-    } could_be = could_be_spec;
+    } could_be = could_be_flags;
 
     size_t  fmti = 0;
     char    fmtc;
@@ -309,27 +312,27 @@ __va_str_format_proc(
                 fi.ft = FT_OCTAL;
                 break;
             case 'X':
-                fi.is_upper = 1;
+                fi.upper = 1;
             case 'x':
                 fi.ft = FT_HEX;
                 break;
             case 'F':
-                fi.is_upper = 1;
+                fi.upper = 1;
             case 'f':
                 fi.ft = FT_FLOAT;
                 break;
             case 'E':
-                fi.is_upper = 1;
+                fi.upper = 1;
             case 'e':
                 fi.ft = FT_SCIENTIFIC;
                 break;
             case 'G':
-                fi.is_upper = 1;
+                fi.upper = 1;
             case 'g':
                 fi.ft = FT_SHORTEST;
                 break;
             case 'A':
-                fi.is_upper = 1;
+                fi.upper = 1;
             case 'a':
                 fi.ft = FT_HEXFLOAT;
                 break;
@@ -398,7 +401,7 @@ __va_str_format_impl(
     va_list     args) 
 {
     size_t          old_sz = sz;
-    char            fmtbuf[9];
+    char            fmtbuf[32];
     struct fmtinfo  fi;
     union {
         int32_t         i32;
@@ -418,39 +421,65 @@ __va_str_format_impl(
                 continue;
             }
 
+            if (fi.ft == FT_INVALID) {
+                sz -= __str_puts(&str, "<invalid>", sz);
+                continue;                
+            }
+
             if (fi.ft == FT_STR) {
                 arg.str = va_arg(args, const char *);
                 sz -= __str_puts(&str, arg.str, sz);
                 continue;                
             }
 
-            if (fi.ft == FT_SIGNED || fi.ft == FT_UNSIGNED) {
-                arg.i32 = va_arg(args, int32_t);                    
-                itoa10(arg.i32, fmtbuf);
-                sz -= __str_puts(&str, fmtbuf, sz);
-                continue;                
-            }
-
-            if (fi.ft == FT_PTR || fi.ft == FT_HEX) {
+            if (fi.ft == FT_PTR) {
                 arg.u32 = va_arg(args, uint32_t);                    
                 itoa16(arg.u32, fmtbuf);
                 sz -= __str_puts(&str, fmtbuf, sz);
-                continue;                
+                continue;
             }
 
-            sz -= __str_puts(&str, "<invalid>", sz);
-            (void) va_arg(args, uint32_t);
-            continue;
+            if (fi.ft == FT_SIGNED || fi.ft == FT_UNSIGNED) {
+                arg.i32 = va_arg(args, int32_t);                    
+                itoa10(arg.i32, fmtbuf);                
+            }
 
-            if (fi.is_upper) {
-                char *bufptr = fmtbuf;
-                while (*bufptr) {
-                    *bufptr = toupper(*bufptr);
-                    ++bufptr;
+            if (fi.ft == FT_HEX || fi.ft == FT_PTR) {
+                arg.u32 = va_arg(args, uint32_t);                    
+                itoa16(arg.u32, fmtbuf);
+
+                if (fi.ff & FF_EXPLICIT) {
+                    sz -= __str_puts(&str, "0x", sz);                    
                 }
             }
 
-            sz -= __str_puts(&str, fmtbuf, sz);
+            size_t start_index = 0;
+
+            // TODO: fix bug with this - zero padding + width combo
+
+            if (fi.width) {
+                if (fi.width > 8) {
+                    fi.width = 8;
+                }
+                start_index = (8 - (size_t) fi.width);
+            }
+
+            if (!(fi.ff & FF_ZEROPAD)) {                
+                for (size_t i = 0; i < sizeof(fmtbuf) && fmtbuf[i]; ++i) {
+                    if (fmtbuf[i] != '0') {
+                        start_index = i;
+                        break;
+                    }
+                }
+            }
+
+            if (fi.upper) {
+                for (size_t i = start_index; i < sizeof(fmtbuf); ++i) {
+                    fmtbuf[i] = toupper(fmtbuf[i]);
+                }
+            }
+
+            sz -= __str_puts(&str, fmtbuf + start_index, sz);
 
         } else {
             *(str++) = fmtc;
@@ -462,59 +491,6 @@ __va_str_format_impl(
     --sz;
 
     return old_sz - sz;
-
-#if 0    
-    size_t count = 0;
-    char buf[64];
-    void *ptr;
-    const char *str;
-    int i32;  
-
-    char c;
-    while ((c = *(fmt++))) {
-        if (c == '%') {
-            switch (c = *(fmt++)) {
-            case '%':
-            default:
-                putc_ptr(c);
-                break;
-            case 's':
-                str = va_arg(args, const char *);
-                puts_ptr(str);
-                break;
-            case 'u':
-            case 'i':
-            case 'd':
-                i32 = va_arg(args, int32_t);
-                itoa10(i32, buf);
-                puts_ptr(buf);
-                break;
-            case 'x':
-                i32 = va_arg(args, uint32_t);
-                itoa16(i32, buf, 8);
-                puts_ptr(buf);
-                break;
-            case 'X':
-                i32 = va_arg(args, uint32_t);
-                itoa16(i32, buf, 0);
-                for (size_t i = 0; i < sizeof(buf); ++i) {
-                    buf[i] = toupper(buf[i]);
-                }
-                puts_ptr(buf);
-                break;
-            case 'p':
-                ptr = va_arg(args, void *);
-                itoa16((int32_t) ptr, buf, sizeof(void *) * 2);
-                puts_ptr(buf);
-                break;
-            }
-        } else {
-            putc_ptr(c);
-        }
-    }    
-
-    return count;
-#endif
 }
 
 int kvsnprintf(char *str, size_t sz, const char *fmt, va_list args)
