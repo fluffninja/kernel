@@ -68,7 +68,7 @@ int isxdigit(int c)
 int tolower(int c)
 {
     if (isupper(c)) {
-        return (c - ('a' - 'A'));
+        return (c + ('a' - 'A'));
     } else {
         return c;
     }
@@ -77,7 +77,7 @@ int tolower(int c)
 int toupper(int c)
 {
     if (islower(c)) {
-        return (c + ('a' - 'A'));
+        return (c - ('a' - 'A'));
     } else {
         return c;
     }
