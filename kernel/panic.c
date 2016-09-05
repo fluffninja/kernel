@@ -5,7 +5,7 @@
 #include "con.h"
 #include "panic.h"
 
-static int s_use_bsod = 1;
+static int s_use_bsod = 0;
 
 void panic_set_use_bsod(int use_bsod) 
 {
@@ -34,13 +34,12 @@ __panic(
         con_clear();    
         kprintf(
             "\n"
-            "An error has been detected and your computer has been\n"
+            "A problem has been detected and your computer has been\n"
             "frozen to prevent damage to your devices and data.\n"
             "\n"
             "It is OK to turn off or restart your computer.\n"
             "\n"
-            "Details:\n"
-            "\n"
+            "Problem details:\n"
         );
     }
 
