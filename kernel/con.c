@@ -152,12 +152,53 @@ void con_set_bgcol(int col)
     screen_flags = flags;
 }
 
+int con_get_bgcol(void)
+{
+    int flags = screen_flags;
+    return ((flags >> 4) & 0x07);
+}
+
 void con_set_fgcol(int col)
 {
     int flags = screen_flags;
     flags &= ~0x0f;
     flags |= (col & 0x0f);
     screen_flags = flags;
+}
+
+int con_get_fgcol(void)
+{
+    int flags = screen_flags;
+    return (flags & 0x0f);
+}
+
+int con_set_curpos(int row, int col)
+{
+    if (row < 0 || row >= screen_width) {
+        return 1;
+    }
+
+    if (col < 0 || col >= screen_height) {
+        return 1;
+    }
+
+    screen_index = row + col * screen_width;
+
+    return 0;
+}
+
+void con_get_curpos(int *row, int *col)
+{
+    int rowval = screen_index / screen_height;
+    int colval = screen_index % screen_height;
+
+    if (row) {
+        *row = rowval;
+    }
+
+    if (col) {
+        *col = colval;
+    }
 }
 
 #if 0
