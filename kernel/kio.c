@@ -435,6 +435,7 @@ __va_str_format_impl(
             if (fi.ft == FT_PTR) {
                 arg.u32 = va_arg(args, uint32_t);                    
                 itoa16(arg.u32, fmtbuf);
+                sz -= __str_puts(&str, "0x", sz);
                 sz -= __str_puts(&str, fmtbuf, sz);
                 continue;
             }
