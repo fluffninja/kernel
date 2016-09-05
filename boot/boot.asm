@@ -2,7 +2,7 @@
 ; boot.asm - Bootloader
 ;
 ; It does the following:
-; * stage 2 - Load stage 2 and the kernel image off disk, jump to stage 2.
+; * Stage 1 - Load stage 2 and the kernel image off disk, jump to stage 2.
 ; * Stage 2 - Switch to 32-bit mode, move kernel image to 1MB, jump to kernel.
 ;
 ; Sounds easy... right?
