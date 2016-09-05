@@ -195,4 +195,55 @@ int ps2_set_enabled(int chnum, int enabled);
 uint8_t ps2_get_config(void);
 void ps2_set_config(uint8_t ps2_config);
 
+#define PS2_OUTPUT_BUFFER_WAIT_TIMEOUT      1024
+#define PS2_INPUT_BUFFER_FLUSH_ATTEMPTS     1024
+
+ALWAYS_INLINE int __flush_input_buffer(void)
+{
+    int i = PS2_INPUT_BUFFER_FLUSH_ATTEMPTS;
+    while (i--) {
+        uint8_t status = inportb(PS2_PORT_STATUS);
+        if (status & PS2_STATUS_INPUT_BUFFER_FULL) {
+            (void) inportb(PS2_PORT_DATA);
+        } else {
+            return 0;
+        }
+        portwait();
+    }
+
+    return 1;
+}
+
+ALWAYS_INLINE int __wait_for_output_buffer(void)
+{
+    int i = PS2_OUTPUT_BUFFER_WAIT_TIMEOUT;
+    while (i--) {
+        uint8_t status = inportb(PS2_PORT_STATUS);
+        if (!(status & PS2_STATUS_OUTPUT_BUFFER_FULL)) {
+            return 0;
+        }
+        portwait();
+    }
+
+    return 1;
+}
+
+// Help us find where unnecessary flushes are
+#define FLUSH_INPUT_BUFFER()                                                \
+    {                                                                       \
+        if (__flush_input_buffer()) {                                       \
+            kprintf("ps2: input buffer flush failed (%s:%d)\n",             \
+                __FILE__, __LINE__);                                        \
+        }                                                                   \
+    }
+
+// Help us find where unnecessary waits are
+#define WAIT_FOR_OUTPUT_BUFFER()                                            \
+    {                                                                       \
+        if (__wait_for_output_buffer()) {                                   \
+            kprintf("ps2: output buffer wait failed (%s:%d)\n",             \
+                __FILE__, __LINE__);                                        \
+        }                                                                   \
+    }
+
 #endif /* _INC_PS2 */
