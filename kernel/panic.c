@@ -15,8 +15,8 @@ void panic_set_use_bsod(int use_bsod)
 static void print_register_set(struct register_set regset)
 {
     kprintf(
-        " eax=%x ebx=%x ecx=%x edx=%x\n"
-        " esi=%x edi=%x ebp=%x esp=%x\n",
+        " eax=%08x ebx=%08x ecx=%08x edx=%08x\n"
+        " esi=%08x edi=%08x ebp=%08x esp=%08x\n",
         regset.a, regset.b, regset.c, regset.d,
         regset.si, regset.di, regset.bp, regset.sp);
 }
