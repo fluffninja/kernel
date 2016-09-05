@@ -26,7 +26,16 @@ is recommended.
 
 ## Known Issues
 
-Sometimes the primary makefile doesn't notice changes: use `make clean` to 
+* At the moment, the bootloader relies on extra BIOS functions to read from the
+floppy drive. While standardised, they don't seem to be  widely supported - in
+particular they are not supported by, of all things, VirtualBox or VMware.
+Thankfully QEMU does support these functions.
+
+* The bootloader currently doesn't activate the A20 (although the code is
+present), because QEMU _helpfully_ enables it for us by default. Hence I 
+cannot test it properly.
+
+* Sometimes the primary makefile doesn't notice changes: use `make clean` to 
 delete everything before trying to build again.
 
 ## Naming
