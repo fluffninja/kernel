@@ -3,6 +3,7 @@
 
 #include <sys/asm.h>
 
+void panic_set_use_bsod(int use_bsod);
 void NO_RETURN panicrs(const struct register_set regset, const char *fmt, ...);
 void NO_RETURN panic(const char *fmt, ...);
 

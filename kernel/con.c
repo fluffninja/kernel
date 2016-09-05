@@ -119,8 +119,8 @@ int con_write_char(char c)
         }
     } else {        
         // TODO: find out why this doesn't work properly with interrupts :S
-        char buf[3];
-        itoa16(c, buf, sizeof(buf) - 1);
+        char buf[16];
+        itoa16(c, buf);
         put_char('~');
         put_char(buf[0] + '0');
         put_char(buf[1] + '0');

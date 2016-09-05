@@ -11,7 +11,7 @@
 #endif
 
 char *itoa10(int val, char *str);
-char *itoa16(int val, char *str, unsigned int nibble_count);
+char *itoa16(int val, char *str);
 int atoi10(const char *str);
 
 #endif /* _INC_KUTIL */

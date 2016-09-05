@@ -48,10 +48,11 @@
 // Send to both data ports to disable PIC functionality
 #define PIC_DISABLE                 0xff
 
-int pic_remap(int master_offset, int slave_offset);
+int pic_remap(int master, int slave);
 int pic_set_enabled(int irqnum, int enabled);
 int pic_end_of_interrupt(int irqnum);
 uint16_t pic_get_irr(void);
 uint16_t pic_get_isr(void);
+void pic_get_offsets(int *master, int *slave);
 
 #endif /* _INC_PIC */

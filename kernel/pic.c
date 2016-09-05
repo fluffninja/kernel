@@ -4,6 +4,20 @@
 #include "idt.h"
 #include "kio.h"
 
+static int s_master = 0;
+static int s_slave = 0;
+
+void pic_get_offsets(int *master, int *slave)
+{
+    if (master) {
+        *master = s_master;
+    }
+
+    if (slave) {
+        *slave = s_slave;
+    }
+}
+
 // Check offsets
 // Check index validity, and ensure an idt entry is not already present
 // -1 denotes success, otherwise returns bad index from offset
@@ -33,13 +47,13 @@ static int remap_check_offset_set(int offset)
     return -1;
 }
 
-int pic_remap(int master_offset, int slave_offset)
+int pic_remap(int master, int slave)
 {   
     int bad_index = 0;
-    if ((bad_index = remap_check_offset_set(slave_offset)) > 0) {
+    if ((bad_index = remap_check_offset_set(slave)) > 0) {
         return bad_index;
     }
-    if ((bad_index = remap_check_offset_set(master_offset)) > 0) {
+    if ((bad_index = remap_check_offset_set(master)) > 0) {
         return bad_index;
     }
 
@@ -51,8 +65,8 @@ int pic_remap(int master_offset, int slave_offset)
     outportb(PIC_PORT_SLAVE_COMMAND, command);
 
     // ICW2 - Interrupt offset
-    outportb(PIC_PORT_MASTER_DATA, master_offset);
-    outportb(PIC_PORT_SLAVE_DATA, slave_offset);
+    outportb(PIC_PORT_MASTER_DATA, master);
+    outportb(PIC_PORT_SLAVE_DATA, slave);
 
     // ICW3
     outportb(PIC_PORT_MASTER_DATA, 1 << 2); // IRQ (bit) of slave, to master
@@ -68,8 +82,7 @@ int pic_remap(int master_offset, int slave_offset)
     outportb(PIC_PORT_SLAVE_DATA, 0xff);    
 
     // That was surprisingly painless :)
-    kprintf("pic: remapped master to %x, slave to %x\n", master_offset, 
-        slave_offset);
+    kprintf("pic: remapped master to %x, slave to %x\n", master, slave);
 
     return 0;
 }
