@@ -39,10 +39,8 @@ kmain(void)
 
     // Non-essential drivers (whose initialisation upon which we don't depend)
     kb_init();
-    mouse_init();
+    //mouse_init();
     vga_init();
-
-    __syscall4(0xa, 0xb, 0xc, 0xd);
 
     while (1);
 }

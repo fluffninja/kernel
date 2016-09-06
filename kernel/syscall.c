@@ -7,6 +7,11 @@
 
 static ISR_DEF_HANDLER(isr_syscall);
 
+void isr_syscall(struct isr_params params)
+{
+    paniccs(params.cs, "syscall unimplemented\n");
+}
+
 int syscall_init(void)
 {
     if (isr_set_handler(SYSCALL_IDT_INDEX, ISR_HANDLER(isr_syscall))) {
@@ -14,11 +19,6 @@ int syscall_init(void)
         return 1;
     }
 
-    kprintf("syscall: \n");
+    kprintf("syscall: registered isr %#2x\n", SYSCALL_IDT_INDEX);
     return 0;
-}
-
-void isr_syscall(struct isr_params params)
-{
-    paniccs(params.cs, "syscall unimplemented\n");
 }
