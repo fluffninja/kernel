@@ -103,7 +103,7 @@ stage_1_start_16:
     mov         ss, ax
 
     ; The stack will grow downwards from beneath our bootloader.
-    mov         sp,  STAGE_1_LOCATION
+    mov         sp, STAGE_1_LOCATION
 
     sti
 
@@ -129,10 +129,9 @@ stage_1_start_16:
     call        load_floppy_using_extensions_16
 
 .no_disk_extensions:
-
+    mov         ax, STAGE_1_PAYLOAD_START
     mov         bx, STAGE_2_LOCATION
-    mov         cx, KERNEL_IMAGE_SECTORS + 1    
-    mov         ax, 1
+    mov         cx, STAGE_1_PAYLOAD_SECTORS    
 
 .read_floppy:
     pusha
@@ -181,10 +180,10 @@ load_floppy_using_extensions_16:
 .data_access_packet_struct:
                         db  0x10                        ; Size of packet
                         db  0                           ; Reserved
-.read_sector_count      dw  STAGE_1_PAYLOAD_SECTORS   ; Sectors to read
-.destination_offset     dw  STAGE_2_LOCATION             ; Destination offset
+.read_sector_count      dw  STAGE_1_PAYLOAD_SECTORS     ; Sectors to read
+.destination_offset     dw  STAGE_2_LOCATION            ; Destination offset
 .destination_segment    dw  0                           ; Destination segment
-.read_sector_index      dq  STAGE_1_PAYLOAD_START   ; On-disk sector index
+.read_sector_index      dq  STAGE_1_PAYLOAD_START       ; On-disk sector index
 
 .read_fail:    
     ; Check attempt count. If zero, quit.
