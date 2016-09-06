@@ -79,6 +79,12 @@ DRIVE_VOLUME_LABEL                  db  "OS BOOTDISK"   ; 11 Characters
 DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters  
 
 
+; Variables for use by lba_to_hcs_16
+b_boot_device                       db  0
+w_sectors_per_cylinder              dw  18
+w_head_count                        dw  2
+
+
 stage_1_normalise_code_address_16:
     ; The BIOS can place us at 07c0:0000 or 0000:7c00 -- the same address, but 
     ; addressed using different schemes. The following long jump normalises 
@@ -87,17 +93,23 @@ stage_1_normalise_code_address_16:
 
 
 stage_1_start_16:
-    ; Set up segment registers and the stack.
-    ; Don't allow interrupts whilst doing this.
+    ; Set up segments and stack - don't allow interrupts whilst doing this.
     cli
+
+    ; Data, extra, and stack segments will start at zero.
     xor         ax, ax
-    mov         es, ax
     mov         ds, ax
+    mov         es, ax
     mov         ss, ax
-    xor         sp, sp
+
+    ; The stack will grow downwards from beneath our bootloader.
+    mov         sp,  STAGE_1_LOCATION
+
     sti
 
-    ; The BIOS has placed the boot device ID in the DL register
+    ; The BIOS has given us the ID of the boot device in DL.
+    ; Save it for later use if necessary.
+    mov         byte [b_boot_device], dl
 
     ; Try to detect whethere this BIOS supports the floppy extension functions.
     mov         ah, 0x41
@@ -113,6 +125,41 @@ stage_1_start_16:
     test        cx, 0x0001                  ; Bit 1 signifies DAP capabilities
     jz          short .no_disk_extensions
 
+    ; If all tests passed, load the floppy using the extended functions
+    call        load_floppy_using_extensions_16
+
+.no_disk_extensions:
+
+    mov         bx, STAGE_2_LOCATION
+    mov         cx, KERNEL_IMAGE_SECTORS + 1    
+    mov         ax, 1
+
+.read_floppy:
+    pusha
+    call        lba_to_hcs_16
+    mov         ah, 0x02
+    mov         al, 1
+    int         0x13
+    jc          short .read_fail
+    popa
+
+    add         bx, 512
+    inc         ax
+
+    dec         cx
+    test        cx, cx
+    jz          short .done
+
+    jmp         short .read_floppy
+
+.done:
+    jmp         long 0x0000:stage_2_start_16
+
+.read_fail:
+    call        floppy_read_error_16
+
+
+load_floppy_using_extensions_16:
     ; Number of floppy read/reset attempts before quitting
     mov         di, 5
 
@@ -139,16 +186,10 @@ stage_1_start_16:
 .destination_segment    dw  0                           ; Destination segment
 .read_sector_index      dq  STAGE_1_PAYLOAD_START   ; On-disk sector index
 
-.no_disk_extensions:
-    mov         si, MSG_NO_DISK_EXTENSIONS
-    call        print_line_16
-
-    jmp         short .reboot
-
 .read_fail:    
     ; Check attempt count. If zero, quit.
     dec         di
-    jz          short .quit
+    call        floppy_read_error_16
 
     ; Reset floppy drive
     xor         ah, ah
@@ -157,9 +198,9 @@ stage_1_start_16:
     jnc         short .read_floppy
 
     ; If we get here, floppy reset failed.
-    ; Fall-through to .quit
+    ; Fall-through to floppy_read_error_16
 
-.quit:
+floppy_read_error_16:
     mov         si, MSG_NO_BOOT_DUE_TO_DISK
     call        print_line_16
 
@@ -172,9 +213,6 @@ stage_1_start_16:
     mov         bl, ah
     call        print_string_hex_line_16
 
-.reboot:
-    ; Fall-through to reboot_16
-
 
 reboot_16:
     mov         si, MSG_KEY_TO_REBOOT
@@ -185,8 +223,8 @@ reboot_16:
     int         0x19        ; Warm reboot
 
     ; If the above interrupts fail, just halt
-    cli
-    hlt                 
+    cli    
+    hlt
 
 
 ; Print a null-terminated string to the screen
@@ -271,49 +309,7 @@ print_hex_byte_16:
     popa
     ret
 
-.HEX_DIGITS db "0123456789ABCDEF"
-
-
-%if 0
-; Acquires details about the floppy from the BIOS
-; IN:
-;   b_boot_device
-; OUT:
-;   CF: On error
-;   w_sectors_per_cylinder
-;   w_head_count
-get_floppy_details_16:
-    pusha
-    push        es                              ; Clob'd, not included by PUSHA 
-
-    xor         ax, ax                          ; Zero ES:DI for some BIOSes
-    mov         es, ax
-    xor         di, di
-    mov         dl, [b_boot_device]
-    mov         ah, 0x08
-    int         0x13
-    jc          short .error                    ; Carry set on fail, code in AH
-
-    movzx       dx, dh                          ; Index of last head
-    inc         dx                              ; Increment to get count
-    mov         [w_head_count], dx
-
-    and         cx, 0x3f                        ; Deal with whacky encoding
-    mov         [w_sectors_per_cylinder], cx
-
-    ; The other goodies can be ignored for now, just end it
-    jmp         short .done
-
-.error: 
-    mov         si, MSG_ERROR
-    call        print_string_16
-    call        print_hex_16                    ; Code is already in AH
-
-.done:
-    pop         es
-    popa
-
-    ret
+    .HEX_DIGITS db "0123456789ABCDEF"
 
 
 ; Converts an index for an absolute logical sector (were all sectors simply
@@ -326,7 +322,7 @@ get_floppy_details_16:
 ;   CL: Sector
 ;   DH: Head
 ;   DL: Drive ID
-logical_to_hcs_16:
+lba_to_hcs_16:
     push        ax
     push        bx
 
@@ -350,20 +346,18 @@ logical_to_hcs_16:
 
     mov         dl, byte [b_boot_device]        ; For INT 0x13, the drive ID
 
-    pop         ax                              ; Restore clobbered AX and BX
     pop         bx
+    pop         ax                              ; Restore clobbered AX and BX
 
     ret
-%endif
 
 
 ; Error messages for our dear user
 ; Keep these brief, for we've only 512 bytes of space
-MSG_NO_DISK_EXTENSIONS  db "BIOS unsupported", 0
-MSG_ERRROR_CODE         db "Code ", 0
-MSG_DISK_ID             db "Disk ", 0
 MSG_NO_BOOT_DUE_TO_DISK db "Disk issue preventing boot", 0
 MSG_KEY_TO_REBOOT       db "Press any key to reboot", 10, 13, 0
+MSG_DISK_ID             db "", 0
+MSG_ERRROR_CODE         db "", 0
 
 
 ; Pad the rest of this sector with zeroes, appart from...
@@ -383,11 +377,11 @@ g_sector_0_signature_w  dw STAGE_1_SIGNATURE
 g_cursor_pos_x_b        db 0
 g_cursor_pos_y_b        db 0
 
-
 ; More strings
-MSG_LOADING             db 10, 13, "Loading, please wait...", 0
+MSG_LOADING             db "Loading, please wait...", 0
 MSG_NO_BOOT_DUE_TO_A20  db "A20 not initialised", 0
 
+tries db 5
 
 ; See https://www.win.tue.nl/~aeb/linux/kbd/A20.html
 ; See http://wiki.osdev.org/A20_Line
@@ -423,8 +417,19 @@ test_a20:
     ; enabled.
     jne         short init_pm
 
-    ; QEMU already has A20 enabled! For now, only account for this being the
-    ; case.
+    ;call        clear_kb_cmd_queue
+    ;call        enable_a20_kb_16
+    call        enable_a20_bios_16
+
+    mov         ax, [tries]
+    dec         ax
+    mov         [tries], ax
+
+    mov         bl, al
+    call        print_hex_byte_16
+
+    jnz         test_a20
+
     mov         si, MSG_NO_BOOT_DUE_TO_A20
     call        print_line_16
     call        reboot_16
@@ -446,7 +451,6 @@ init_pm:
     jmp         0x08:stage_2_start_32            ; Code segment is now 0x08 :-)
 
 
-%if 0
 clear_kb_cmd_queue:
     push        ax
 .repeat:
@@ -505,7 +509,6 @@ enable_a20_fast_16:
 .done:
     pop         ax
     ret
-%endif
 
 
 ; GDT Entry Macro
