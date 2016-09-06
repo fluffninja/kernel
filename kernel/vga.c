@@ -5,16 +5,74 @@
 #include "vga.h"
 #include "kio.h"
 
-void vga_hide_cursor(void)
+typedef uint8_t (*adjust_reg_delegate_t)(uint8_t);
+
+ALWAYS_INLINE void
+__adjust_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
+    adjust_reg_delegate_t adjustment_delegate)
+{
+    outportb(index_port, regindex);
+    uint8_t value = inportb(data_port);
+    value = adjustment_delegate(value);
+    outportb(data_port, value);    
+}
+
+int vga_adjust_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
+    adjust_reg_delegate_t adjustment_delegate)
+{
+    if (!adjustment_delegate) {
+        return 1;
+    }
+
+    __adjust_reg(index_port, data_port, regindex, adjustment_delegate);
+
+    return 0;
+}
+
+ALWAYS_INLINE uint8_t
+__get_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex)
+{
+    outportb(index_port, regindex);
+    return inportb(data_port);
+}
+
+uint8_t vga_get_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex)
+{
+    return __get_reg(index_port, data_port, regindex);
+}
+
+ALWAYS_INLINE void
+__set_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
+    uint8_t value)
+{
+    outportb(index_port, regindex);
+    outportb(data_port, value);
+}
+
+void vga_set_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
+    uint8_t value)
+{
+    __set_reg(index_port, data_port, regindex, value);
+}
+
+void vga_set_reg_list(uint16_t index_port, uint16_t data_port,
+    uint8_t start_regindex, uint8_t *values, size_t lsz)
+{
+    while (lsz--) {
+        __set_reg(index_port, data_port, start_regindex++, *(values++));
+    }
+}
+
+void vga_disable_cursor(void)
 {
     // Hide the cursor by setting the disable cursor bit (0x20) of cursor start
     // For good measure, set cursor start to be higher than cursor end
 
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_CURSOR_START);
-    outportb(VGA_PORT_CRT_DATA_RW, (uint8_t) 0x21);
-
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_CURSOR_END);
-    outportb(VGA_PORT_CRT_DATA_RW, (uint8_t) 0x00);    
+    __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_CURSOR_START, 0x21);
+    
+    __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_CURSOR_END, 0x00);  
 }
 
 void vga_set_cursor_shape(int start, int end)
@@ -22,11 +80,11 @@ void vga_set_cursor_shape(int start, int end)
     start &= 0x1f;
     end   &= 0x1f;
 
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_CURSOR_START);
-    outportb(VGA_PORT_CRT_DATA_RW, (uint8_t) start);
+    __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_CURSOR_START, (uint8_t) start);   
 
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_CURSOR_END);
-    outportb(VGA_PORT_CRT_DATA_RW, (uint8_t) end);
+    __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW, 
+        VGA_CRT_INDEX_CURSOR_END, (uint8_t) end);
 }
 
 void vga_set_cursor_location(int index) 
@@ -34,20 +92,20 @@ void vga_set_cursor_location(int index)
     int high = (index & 0xff00) >> 8;
     int low  = (index & 0xff);
 
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_CURSOR_LOCATION_HIGH);
-    outportb(VGA_PORT_CRT_DATA_RW, (uint8_t) high);
+    __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_CURSOR_LOCATION_HIGH, (uint8_t) high);
 
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_CURSOR_LOCATION_LOW);
-    outportb(VGA_PORT_CRT_DATA_RW, (uint8_t) low);    
+    __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW, 
+        VGA_CRT_INDEX_CURSOR_LOCATION_LOW, (uint8_t) low);
 }
 
 int vga_get_cursor_location(void)
 {
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_CURSOR_LOCATION_HIGH);
-    int high = inportb(VGA_PORT_CRT_DATA_RW);
+    int high = (int) __get_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_CURSOR_LOCATION_HIGH);
 
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_CURSOR_LOCATION_LOW);
-    int low = inportb(VGA_PORT_CRT_DATA_RW);     
+    int low = (int) __get_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_CURSOR_LOCATION_LOW);
 
     return (low | (high << 8));
 }
@@ -57,20 +115,18 @@ void vga_set_start_address(int address)
     int high = (address & 0xff00) >> 8;
     int low  = (address & 0xff);
 
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_START_ADDR_HIGH);
-    outportb(VGA_PORT_CRT_DATA_RW, (uint8_t) high);
-
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_START_ADDR_LOW);
-    outportb(VGA_PORT_CRT_DATA_RW, (uint8_t) low);   
+    __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_START_ADDR_HIGH, (uint8_t) high);
+    __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW, 
+        VGA_CRT_INDEX_START_ADDR_LOW, (uint8_t) low);
 }
 
 int vga_get_start_address(void)
 {
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_START_ADDR_HIGH);
-    int high = inportb(VGA_PORT_CRT_DATA_RW);
-
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_START_ADDR_LOW);
-    int low = inportb(VGA_PORT_CRT_DATA_RW);     
+    int high = (int) __get_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_START_ADDR_HIGH);
+    int low = (int) __get_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
+        VGA_CRT_INDEX_START_ADDR_LOW);    
 
     return (low | (high << 8));
 }
@@ -106,13 +162,13 @@ int vga_init(void)
     // First, enable retrace register access on legacy systems
     outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_END_HORIZONTAL_BLANKING);
     outportb(VGA_PORT_CRT_DATA_RW, inportb(VGA_PORT_CRT_DATA_RW) | 0x80);
+
     // Turn off protecton bit, in the retrace register
     outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_END_VERTICAL_RETRACE);
     outportb(VGA_PORT_CRT_DATA_RW, inportb(VGA_PORT_CRT_DATA_RW) & ~0x80);
 
     // Perform an inconsequential write to the DAC to normalise its state
     vga_dac_write_rgb(0xff, 0, 0, 0);
-
 
     kprintf("vga: initialised\n");
     return 1;
