@@ -12,20 +12,20 @@ void panic_set_use_bsod(int use_bsod)
     s_use_bsod = use_bsod ? 1 : 0;
 }
 
-static void print_register_set(struct register_set regset)
+static void print_cpustat(const struct cpustat cs)
 {
     kprintf(
         " eax=%08x ebx=%08x ecx=%08x edx=%08x\n"
-        " esi=%08x edi=%08x ebp=%08x esp=%08x\n",
-        regset.a, regset.b, regset.c, regset.d,
-        regset.si, regset.di, regset.bp, regset.sp);
+        " esi=%08x edi=%08x ebp=%08x esp=%08x\n"
+        " efl=%08x\n",
+        cs.regset.a, cs.regset.b, cs.regset.c, cs.regset.d,
+        cs.regset.si, cs.regset.di, cs.regset.bp, cs.regset.sp,
+        cs.eflags
+    );
 }
 
 ALWAYS_INLINE NO_RETURN void
-__panic(
-    const struct register_set   regset,
-    const char                  *fmt,
-    va_list                     args)
+__panic(const struct cpustat cs, const char *fmt, va_list args)
 {   
     if (s_use_bsod) {
         // Yes, really.
@@ -46,26 +46,26 @@ __panic(
     kprintf("panic: ");
     kvprintf(fmt, args);
 
-    print_register_set(regset);
+    print_cpustat(cs);
 
     cli();
     hlt();
     while (1);
 }
 
-void NO_RETURN panicrs(const struct register_set regset, const char *fmt, ...)
+void NO_RETURN paniccs(const struct cpustat cs, const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    __panic(regset, fmt, args);
+    __panic(cs, fmt, args);
     va_end(args);
 }
 
 void NO_RETURN panic(const char *fmt, ...)
 {
-    struct register_set regset = get_registers();
+    struct cpustat cs = collect_cpustat();
     va_list args;
     va_start(args, fmt);
-    __panic(regset, fmt, args);
+    __panic(cs, fmt, args);
     va_end(args);
 }

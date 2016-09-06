@@ -4,6 +4,11 @@
 #include <sys/asm.h>
 #include <cccompat.h>
 
+struct isr_params
+{
+    struct cpustat cs;
+};
+
 // Create/get the name of the handler function
 #define ISR_HANDLER(HNAME)  __handle_##HNAME
 
@@ -28,13 +33,13 @@
 
 // Define an ISR handler routine that recieves the set of register values as
 // they were before the interrupt occurred.
-#define ISR_DEF_HANDLER(ISRNAME)                    \
-    ISR_DEF_HANDLER_BASE(ISR_HANDLER(ISRNAME),      \
-    {                                               \
-        extern void ISRNAME(struct register_set);   \
-        struct register_set regset;                 \
-        regset = get_registers();                   \
-        ISRNAME(regset);                            \
+#define ISR_DEF_HANDLER(ISRNAME)                        \
+    ISR_DEF_HANDLER_BASE(ISR_HANDLER(ISRNAME),          \
+    {                                                   \
+        extern void ISRNAME(struct isr_params params);  \
+        struct isr_params params;                       \
+        params.cs = collect_cpustat();                  \
+        ISRNAME(params);                                \
     });
 
 // Define an ISR handler routine (does not receive register values)

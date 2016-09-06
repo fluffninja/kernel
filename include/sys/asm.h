@@ -195,6 +195,33 @@ get_registers(void)
     return result;
 }
 
+ALWAYS_INLINE NO_OPTIMISE uint32_t
+get_eflags(void)
+{
+    uint32_t result;
+    ASM_VOLATILE(
+        "pushf  \n\t"
+        "pop eax\n\t":
+        "=a"(result)
+    );
+    return result;
+}
+
+struct cpustat
+{
+    struct register_set regset;
+    uint32_t            eflags;
+};
+
+ALWAYS_INLINE NO_OPTIMISE struct cpustat
+collect_cpustat(void)
+{
+    struct cpustat cs;
+    cs.regset = get_registers();
+    cs.eflags = get_eflags();
+    return cs;
+}
+
 // Result fields of CPUID
 struct cpuid_result
 {

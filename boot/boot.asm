@@ -273,6 +273,7 @@ print_hex_byte_16:
 
 .HEX_DIGITS db "0123456789ABCDEF"
 
+
 %if 0
 ; Acquires details about the floppy from the BIOS
 ; IN:
@@ -378,7 +379,7 @@ g_sector_0_signature_w  dw STAGE_1_SIGNATURE
 
 ; These can be read during kernel console initialisation so that future
 ; text output carries on from where it left off.
-; They're at a known location: 0x7e00
+; They're at a known location: 0x7e00 and 0x7e01
 g_cursor_pos_x_b        db 0
 g_cursor_pos_y_b        db 0
 

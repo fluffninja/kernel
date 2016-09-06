@@ -8,6 +8,7 @@
 #include "mouse.h"
 #include "ps2.h"
 #include "vga.h"
+#include "syscall.h"
 
 // Dumb waiting function
 void dumb_wait(int mult)
@@ -23,21 +24,25 @@ void dumb_wait(int mult)
 void CDECL NO_RETURN
 kmain(void)
 { 
-    if (con_init() || idt_init() || isr_init() || irq_init() || ps2_init()) {
-        goto error;
+    if (con_init() || 
+        idt_init() || 
+        isr_init() ||
+        syscall_init() || 
+        irq_init() || 
+        ps2_init()) {
+        panic("init error\n");
     }
 
     panic_set_use_bsod(1);
 
     sti();
 
+    // Non-essential drivers (whose initialisation upon which we don't depend)
     kb_init();
     mouse_init();
-
     vga_init();
 
-    while (1);
+    __syscall4(0xa, 0xb, 0xc, 0xd);
 
-error:
-    panic("init error\n");
+    while (1);
 }
