@@ -17,7 +17,7 @@ EMUFLAGS		:= -monitor stdio -k en-gb -m 16M \
 DDFLAGS			:= bs=512 conv=notrunc status=noxfer
 
 .PHONY: all
-all: image run
+all: clean image
 
 .PHONY: image
 image: $(OUTPUT_IMAGE)

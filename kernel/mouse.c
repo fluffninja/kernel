@@ -8,8 +8,6 @@
 
 static int mouse_irq_hook(int irqnum)
 {
-    kprintf("moo\n");
-
     while (inportb(PS2_PORT_STATUS) & PS2_STATUS_INPUT_BUFFER_FULL) {
         for (int i = 0; i < 3; ++i) {
             uint8_t data = inportb(PS2_PORT_DATA);

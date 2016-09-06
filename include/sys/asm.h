@@ -180,7 +180,7 @@ get_registers(void)
     register uint32_t c ASM("ecx");
     register uint32_t d ASM("edx");
     register uint32_t si ASM("esi");
-    register uint32_t di ASM("edi");
+    register uint32_t di ASM("edi"); 
     register uint32_t bp ASM("ebp");
     register uint32_t sp ASM("esp");
     result.a = a;
