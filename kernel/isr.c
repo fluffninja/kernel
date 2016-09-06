@@ -64,67 +64,67 @@ int isr_set_handler(int index, void (*handler)(void))
 // Reference: https://support.microsoft.com/en-us/kb/117389
 // Note: 'coprocessor' is another term for FPU.
 
-void isr_divide_error(struct register_set regset)
+void isr_divide_error(struct isr_params params)
 {
-    panicrs(regset, "cpu divide error\n");
+    paniccs(params.cs, "cpu divide error\n");
 }
 
-void isr_nonmaskable_interrupt(struct register_set regset)
+void isr_nonmaskable_interrupt(struct isr_params params)
 {
-    panicrs(regset, "cpu non-maskable hardware interrupt\n");
+    paniccs(params.cs, "cpu non-maskable hardware interrupt\n");
 }
 
-void isr_bounds_check(struct register_set regset)
+void isr_bounds_check(struct isr_params params)
 {
-    panicrs(regset, "cpu bounds limit exceeded\n");
+    paniccs(params.cs, "cpu bounds limit exceeded\n");
 }
 
-void isr_invalid_opcode(struct register_set regset)
+void isr_invalid_opcode(struct isr_params params)
 {
-    panicrs(regset, "cpu invalid opcode\n");
+    paniccs(params.cs, "cpu invalid opcode\n");
 }
 
-void isr_fpu_unavailable(struct register_set regset)
+void isr_fpu_unavailable(struct isr_params params)
 {
-    panicrs(regset, "cpu fpu unavailable\n");
+    paniccs(params.cs, "cpu fpu unavailable\n");
 }
 
-void isr_double_fault(struct register_set regset)
+void isr_double_fault(struct isr_params params)
 {
-    panicrs(regset, "cpu double-fault\n");
+    paniccs(params.cs, "cpu double-fault\n");
 }
 
-void isr_fpu_segment_overrun(struct register_set regset)
+void isr_fpu_segment_overrun(struct isr_params params)
 {
-    panicrs(regset, "cpu fpu segment overrun\n");
+    paniccs(params.cs, "cpu fpu segment overrun\n");
 }
 
-void isr_invalid_tss(struct register_set regset)
+void isr_invalid_tss(struct isr_params params)
 {
-    panicrs(regset, "cpu invalid TSS\n");
+    paniccs(params.cs, "cpu invalid TSS\n");
 }
 
-void isr_segment_not_present(struct register_set regset)
+void isr_segment_not_present(struct isr_params params)
 {
-    panicrs(regset, "cpu segment not present\n");
+    paniccs(params.cs, "cpu segment not present\n");
 }
 
-void isr_stack_exception(struct register_set regset)
+void isr_stack_exception(struct isr_params params)
 {
-    panicrs(regset, "cpu stack exception\n");    
+    paniccs(params.cs, "cpu stack exception\n");    
 }
 
-void isr_general_protection_fault(struct register_set regset)
+void isr_general_protection_fault(struct isr_params params)
 {
-    panicrs(regset, "cpu general protection fault\n");
+    paniccs(params.cs, "cpu general protection fault\n");
 }
 
-void isr_page_fault(struct register_set regset)
+void isr_page_fault(struct isr_params params)
 {
-    panicrs(regset, "cpu page fault\n");
+    paniccs(params.cs, "cpu page fault\n");
 }
 
-void isr_fpu_error(struct register_set regset)
+void isr_fpu_error(struct isr_params params)
 {
-    panicrs(regset, "cpu fpu error\n");
+    paniccs(params.cs, "cpu fpu error\n");
 }

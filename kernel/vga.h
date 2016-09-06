@@ -17,13 +17,13 @@
 #define VGA_PORT_EXT_STATUS_1_R_COLOUR          0x03da
 
 // Flags for VGA_PORT_EXT_MISC_OUT_R
-#define VGA_EXT_MISC_COMPATIBLE_CRT_PORTS       0x01    // Change CRT port map*
-#define VGA_EXT_MISC_ENABLE_RAM_MAP             0x02    // Map VRAM to RAM
-#define VGA_EXT_MISC_CLOCK_25MHZ                0x00    // 25MHz Clock
-#define VGA_EXT_MISC_CLOCK_28MHZ                0x04    // 28MHz Clock 
-#define VGA_EXT_MISC_SELECT_HIGH_PAGE_ODD_EVEN  0x20    // High page in OE mode
-#define VGA_EXT_MISC_HSYNC_POLARITY             0x40    // 0: Positive; 1: Neg.
-#define VGA_EXT_MISC_VSYNC_POLARITY             0x80    // 0: Positive; 1: Neg.
+#define VGA_EXT_MISC_COMPATIBLE_CRT_PORTS       0x01 // Change CRT port map*
+#define VGA_EXT_MISC_ENABLE_RAM_MAP             0x02 // Map VRAM to RAM
+#define VGA_EXT_MISC_CLOCK_25MHZ                0x00 // 25MHz Clock
+#define VGA_EXT_MISC_CLOCK_28MHZ                0x04 // 28MHz Clock 
+#define VGA_EXT_MISC_SELECT_HIGH_PAGE_ODD_EVEN  0x20 // High page in OE mode
+#define VGA_EXT_MISC_HSYNC_POLARITY             0x40 // 0: Positive; 1: Neg.
+#define VGA_EXT_MISC_VSYNC_POLARITY             0x80 // 0: Positive; 1: Neg.
 
 // Flags for VGA_PORT_EXT_FEATURE_CTRL_W_MONO/COLOUR
 #define VGA_EXT_FEATURE_CTRL_FC1                0x01
@@ -42,7 +42,7 @@
 //
 
 // CRT Control Register Ports
-// Note that VGA_EXT_MISC_COMPATIBLE_CRT_PORTS must be set to use there
+// *Note that VGA_EXT_MISC_COMPATIBLE_CRT_PORTS must be set to use there
 // Otherwise the following two values need to be 0x03b4 and 0x03b5
 #define VGA_PORT_CRT_INDEX_W                    0x03d4
 #define VGA_PORT_CRT_DATA_RW                    0x03d5
@@ -81,7 +81,7 @@
 #define VGA_CRT_END_HORZ_RETRACE_EHB5           0x80 // END_HORZ_BLANK bit 5
 
 // Flags for VGA_CRT_INDEX_OVERFLOW
-#define VGA_CRT_OVERFLOW_VT9                    0x01 // VERT_TOTAL bit 8
+#define VGA_CRT_OVERFLOW_VT8                    0x01 // VERT_TOTAL bit 8
 #define VGA_CRT_OVERFLOW_EVD8                   0x02 // END_VERT_DISPLAY bit 8
 #define VGA_CRT_OVERFLOW_BVR8                   0x04 // BEG_VERT_RETRACE bit 8
 #define VGA_CRT_OVERFLOW_BVB8                   0x08 // BEG_VERT_BLANK bit 9

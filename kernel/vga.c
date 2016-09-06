@@ -153,19 +153,25 @@ int vga_dac_write_rgb_list(uint8_t dac_index, uint8_t *list, size_t n)
 
 int vga_init(void)
 {
+    uint8_t regval;
+
     // Turn on compatible port remapping
-    uint8_t misc_out = inportb(VGA_PORT_EXT_MISC_OUT_R);
-    misc_out |= VGA_EXT_MISC_COMPATIBLE_CRT_PORTS;
-    outportb(VGA_PORT_EXT_MISC_OUT_W, misc_out);
+    regval = inportb(VGA_PORT_EXT_MISC_OUT_R);
+    regval |= VGA_EXT_MISC_COMPATIBLE_CRT_PORTS;
+    outportb(VGA_PORT_EXT_MISC_OUT_W, regval);
 
     // Turn off CRT register protection
     // First, enable retrace register access on legacy systems
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_END_HORIZONTAL_BLANKING);
-    outportb(VGA_PORT_CRT_DATA_RW, inportb(VGA_PORT_CRT_DATA_RW) | 0x80);
+    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_END_HORZ_BLANK);
+    regval = inportb(VGA_PORT_CRT_DATA_RW);
+    regval |= VGA_CRT_END_HORZ_BLANK_EVRA;
+    outportb(VGA_PORT_CRT_DATA_RW, regval);
 
     // Turn off protecton bit, in the retrace register
-    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_END_VERTICAL_RETRACE);
-    outportb(VGA_PORT_CRT_DATA_RW, inportb(VGA_PORT_CRT_DATA_RW) & ~0x80);
+    outportb(VGA_PORT_CRT_INDEX_W, VGA_CRT_INDEX_END_VERT_RETRACE);
+    regval = inportb(VGA_PORT_CRT_DATA_RW);
+    regval &= ~VGA_CRT_END_VERT_RETRACE_PROTECT_CRT;
+    outportb(VGA_PORT_CRT_DATA_RW, regval);
 
     // Perform an inconsequential write to the DAC to normalise its state
     vga_dac_write_rgb(0xff, 0, 0, 0);
