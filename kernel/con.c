@@ -118,12 +118,10 @@ int con_write_char(char c)
             return 0;
         }
     } else {        
-        // TODO: find out why this doesn't work properly with interrupts :S
-        char buf[16];
-        itoa16(c, buf);
+        static const char hex_digits[16] = "0123456789abcdef";
         put_char('~');
-        put_char(buf[0] + '0');
-        put_char(buf[1] + '0');
+        put_char(hex_digits[(c & 0xf0) >> 4]);
+        put_char(hex_digits[c & 0x0f]);
         return 3;
     }
 

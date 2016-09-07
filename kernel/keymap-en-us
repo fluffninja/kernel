@@ -1,5 +1,5 @@
-0,      // <nothing>
-0,      // Escape
+KB_KEY_NONE,        // <nothing>
+KB_KEY_ESCAPE,      // Escape
 '1',
 '2', 
 '3', 
@@ -12,8 +12,8 @@
 '0',
 '-',
 '=',
-'\b',
-'\t',
+'\b',               // Backspace
+'\t',               // Tab
 'q', 
 'w', 
 'e', 
@@ -27,7 +27,7 @@
 '[', 
 ']', 
 '\n', 
-0,      // Enter
+KB_KEY_LCTRL,       // Enter
 'a', 
 's', 
 'd', 
@@ -40,7 +40,7 @@
 ';', 
 '\'',
 '`', 
-0,      // LShift 
+KB_KEY_LSHIFT,      // LShift 
 '\\',
 'z', 
 'x', 
@@ -52,41 +52,41 @@
 ',', 
 '.', 
 '/', 
-0,      // RShift
-'*',    // Keypad *
-0,      // LAlt
+KB_KEY_RSHIFT,      // RShift
+'*',                // Keypad *
+KB_KEY_LALT,        // LAlt
 ' ', 
-0,      // Caps
-0,      // F1
-0,      // F2
-0,      // F3
-0,      // F4
-0,      // F5
-0,      // F6
-0,      // F7
-0,      // F8
-0,      // F9
-0,      // F10
-0,      // NumLock
-0,      // ScrollLock
-'7',    // Keypad 7
-'8',    // Keypad 8
-'9',    // Keypad 9
-'-',    // Keypad -
-'4',    // Keypad 4
-'5',    // Keypad 5
-'6',    // Keypad 6
-'+',    // Keypad +
-'1',    // Keypad 1
-'2',    // Keypad 2
-'3',    // Keypad 3
-'0',    // Keypad 0
-'.',    // Keypad .
+KB_KEY_CAPSLOCK,    // Caps
+KB_KEY_F1,          // F1
+KB_KEY_F2,          // F2
+KB_KEY_F3,          // F3
+KB_KEY_F4,          // F4
+KB_KEY_F5,          // F5
+KB_KEY_F6,          // F6
+KB_KEY_F7,          // F7
+KB_KEY_F8,          // F8
+KB_KEY_F9,          // F9
+KB_KEY_F10,         // F10
+KB_KEY_NUMLOCK,     // NumLock
+KB_KEY_SCROLLLOCK,  // ScrollLock
+'7',                // Keypad 7
+'8',                // Keypad 8
+'9',                // Keypad 9
+'-',                // Keypad -
+'4',                // Keypad 4
+'5',                // Keypad 5
+'6',                // Keypad 6
+'+',                // Keypad +
+'1',                // Keypad 1
+'2',                // Keypad 2
+'3',                // Keypad 3
+'0',                // Keypad 0
+'.',                // Keypad .
 0, 
 0, 
 0, 
-0,      // F11
-0,      // F12
+KB_KEY_F11,         // F11
+KB_KEY_F12,         // F12
 0, 
 0, 
 0, 
