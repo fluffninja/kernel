@@ -352,11 +352,11 @@ lba_to_hcs_16:
 
 
 ; Error messages for our dear user
-; Keep these brief, for we've only 512 bytes of space
-MSG_NO_BOOT_DUE_TO_DISK db "Disk issue preventing boot", 0
+; Keep these brief, for we've only 512 bytes of space                           
+MSG_NO_BOOT_DUE_TO_DISK db "Cannot boot due to a problem with the disk", 0
 MSG_KEY_TO_REBOOT       db "Press any key to reboot", 10, 13, 0
-MSG_DISK_ID             db "", 0
-MSG_ERRROR_CODE         db "", 0
+MSG_DISK_ID             db "Disk:  ", 0
+MSG_ERRROR_CODE         db "Error: ", 0
 
 
 ; Pad the rest of this sector with zeroes, appart from...
