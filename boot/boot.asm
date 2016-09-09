@@ -79,8 +79,11 @@ DRIVE_VOLUME_LABEL                  db  "OS BOOTDISK"   ; 11 Characters
 DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters  
 
 
-; Variables for use by lba_to_hcs_16
 b_boot_device                       db  0
+
+; Variables for use by lba_to_hcs_16
+; Default values assume 3.5" floppy.
+; TODO: Use INT 0x13 to acquire these values
 w_sectors_per_cylinder              dw  18
 w_head_count                        dw  2
 
@@ -359,11 +362,11 @@ MSG_DISK_ID             db "Disk:  ", 0
 MSG_ERRROR_CODE         db "Error: ", 0
 
 
-; Pad the rest of this sector with zeroes, appart from...
+; Pad the rest of this sector with zeroes (leave room for signature)
 times ((512 - 2) - ($ - $$)) db 0
 
 
-; ...the last word, which is the boot signature.
+; Boot sector signature
 g_sector_0_signature_w  dw STAGE_1_SIGNATURE
 
 
@@ -555,7 +558,7 @@ idt_description:
     [bits 32]
 
 
-; We're no in 32-bit code land.
+; We're now in 32-bit land.
 ; Load the new data segment from the GDT.
 stage_2_start_32:
     mov         ax, 0x10                        
