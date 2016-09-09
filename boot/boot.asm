@@ -2,7 +2,7 @@
 ; boot.asm - Bootloader for Isaac OS
 ;
 ; It does the following:
-; * Stage 1 - Load stage 2 and the kernel image off disk, jump to stage 2.
+; * Stage 1 - Load Stage 2 and the kernel image off disk, jump to stage 2.
 ; * Stage 2 - Switch to 32-bit mode, move kernel image to 1MB, jump to kernel.
 ;
 ; Sounds easy... right?
@@ -10,14 +10,14 @@
 ; Metrics:
 ;  Real-mode Physical Address Space Size: 2^20 = 10 0000 = 1MB
 ;  Real-mode Accessible RAM Size:                 A 0000 = 640KB
-;  stage 2 Location (Loaded by BIOS):               7C00 = 32KB - 512B * 2
-;  Stage 2 Location (Loaded by stage 2):            7E00 = 32KB - 512B
-;  Kernel Image Location (Loaded by stage 2 too):   8000 = 32KB
+;  Stage 2 Location (Loaded by BIOS):               7C00 = 32KB - 512B * 2
+;  Stage 2 Location (Loaded by stage 1):            7E00 = 32KB - 512B
+;  Kernel Image Location (Loaded by Stage 1 too):   8000 = 32KB
 ;  Kernel Target Location (Moved by Stage 2):    10 0000 = 1MB
 ;  Stack for Stages 1 and 2:                        7C00 (Grows Down)
 ;  Stack for Kernel (Set by Stage 2):             A 0000 (Grows Down)
 ;  Disk Sector Size:                                0200 = 512B
-; Note that memory below 0500 is unusable, consisting of the IVT and BIOS
+; Note that memory below 0500 is unusable, as it consists of the IVT and BIOS
 ; Data Area (BDA).
 ; Note that the Extended BIOS Data Area (EBDA) sometimes sits below A 0000.
 ; It's never more than 8KB (0400) in size.
