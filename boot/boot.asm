@@ -416,16 +416,12 @@ test_a20:
     ; enabled.
     jne         short init_pm
 
-    ;call        clear_kb_cmd_queue
-    ;call        enable_a20_kb_16
+    ; TODO: Utilise more a20 init methods
     call        enable_a20_bios_16
 
     mov         ax, [tries]
     dec         ax
     mov         [tries], ax
-
-    mov         bl, al
-    call        print_hex_byte_16
 
     jnz         test_a20
 
