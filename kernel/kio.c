@@ -11,8 +11,8 @@
 
 #define OUTBUF_SIZE PAGE_SIZE
 
-static PAGE_ALIGNED char outbuf[OUTBUF_SIZE];
-static int outbuf_zeroed = 0;
+static PAGE_ALIGNED char s_outbuf[OUTBUF_SIZE];
+static int s_outbuf_zeroed = 0;
 
 extern int con_write_str(const char *);
 extern int con_write_char(char);
@@ -400,9 +400,16 @@ __va_str_format_impl(
     const char  *fmt,
     va_list     args) 
 {
+    // Remember the size we were originally given, so we can report the diff.
     size_t          old_sz = sz;
-    char            fmtbuf[32];
+
+    // Buffer for formatting things into - for use with atoi, etc.
+    char            fmtbuf[128];
+
+    // Format info of each formatting key
     struct fmtinfo  fi;
+
+    // Storage place for each arg type retrieved from args.
     union {
         int32_t         i32;
         int32_t         u32;
@@ -410,7 +417,9 @@ __va_str_format_impl(
         const char      *str;
     } arg;
 
+    // Char from fmt
     char fmtc;
+
     while ((fmtc = *(fmt++))) {
         if (fmtc == '%') {
             size_t count = __va_str_format_proc(fmt, &fi);
@@ -434,7 +443,7 @@ __va_str_format_impl(
 
             if (fi.ft == FT_PTR) {
                 arg.u32 = va_arg(args, uint32_t);                    
-                itoa16(arg.u32, fmtbuf);
+                itoa(arg.u32, fmtbuf, 16);
                 sz -= __str_puts(&str, "0x", sz);
                 sz -= __str_puts(&str, fmtbuf, sz);
                 continue;
@@ -442,12 +451,12 @@ __va_str_format_impl(
 
             if (fi.ft == FT_SIGNED || fi.ft == FT_UNSIGNED) {
                 arg.i32 = va_arg(args, int32_t);                    
-                itoa10(arg.i32, fmtbuf);                
+                itoa(arg.i32, fmtbuf, 10);
             }
 
-            if (fi.ft == FT_HEX || fi.ft == FT_PTR) {
+            if (fi.ft == FT_HEX) {
                 arg.u32 = va_arg(args, uint32_t);                    
-                itoa16(arg.u32, fmtbuf);
+                itoa(arg.u32, fmtbuf, 16);
 
                 if (fi.ff & FF_EXPLICIT) {
                     sz -= __str_puts(&str, "0x", sz);                    
@@ -488,6 +497,7 @@ __va_str_format_impl(
         }
     }
 
+    // Add a null-ternimator to the end.
     *(str++) = 0;
     --sz;
 
@@ -530,13 +540,15 @@ int ksprintf(char *str, const char *fmt, ...)
 
 int kvprintf(const char *fmt, va_list args)
 {
-    if (!outbuf_zeroed) {
-        kmemset((void *) outbuf, OUTBUF_SIZE, 0);
-        outbuf_zeroed = 1;
+    if (!s_outbuf_zeroed) {
+        kmemset((void *) s_outbuf, OUTBUF_SIZE, 0);
+        s_outbuf_zeroed = 1;
     }
 
-    int result = (int) __va_str_format_impl(outbuf, OUTBUF_SIZE, fmt, args);
-    con_write_str(outbuf);
+    int result = (int) __va_str_format_impl(s_outbuf, OUTBUF_SIZE, fmt, args);
+
+    con_write_str(s_outbuf);
+
     return result;
 }
 
