@@ -2,73 +2,7 @@
 
 #include "kutil.h"
 
-char *itoa10(int val, char *str)
-{
-    char buff[10];  // Store digits in reverse (UINT_MAX is 10 dec digits long)
-    int i = 0;      // Buffer index
-    int j = 0;      // Output string index
-    int is_neg = 0; // Is the value negative?
-
-    if (!str) {
-        goto done;
-    }
-
-    if (val < 0) {
-        is_neg = 1;
-        val = -val;
-    }
-
-    while (i < (int) sizeof(buff)) {
-        buff[i++] = (char) ('0' + (val % 10));
-        val /= 10;
-
-        if (!val) {
-            break;
-        }
-    }
-
-    if (is_neg) {
-        str[j++] = '-';
-    }
-
-    while (i) {
-        str[j++] = buff[--i];
-    }
-
-    str[j] = '\0';
-
-done:
-    return str;
-}
-
-char *itoa16(int val, char *str)
-{
-    static const char HEX_DIGITS[16] = "0123456789abcdef";
-
-    char buff[8];
-    int i = 0;
-    int j = 0;
-
-    if (!str) {
-        goto done;
-    }
-
-    while ((i < (int) sizeof(buff))) {        
-        buff[i++] = HEX_DIGITS[val & 0x0f];
-        val >>= 4;
-    }
-
-    while (i) {
-        str[j++] = buff[--i];
-    }
-
-    str[j] = '\0';
-
-done:
-    return str;
-}
-
-int atoi10(const char *str)
+int atoi(const char *str)
 {
     if (!str) {
         return -1;
@@ -88,4 +22,47 @@ int atoi10(const char *str)
     }
 
     return result;
+}
+
+char *itoa(int val, char *str, int radix)
+{
+    static const char DIGIT_CHARS[36] = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+    // The longest string we can produce is the string for highest value that
+    // can be represented by a signed platform-width integer in base 2.
+    int buf[8 * sizeof(int)];
+
+    int i = 0;
+    int is_negative = 0;
+
+    if (!str) {
+        goto done;
+    }
+
+    if (val < 0) {
+        is_negative = 1;
+        val = -val;
+    }
+
+    while (i < (int) sizeof(buf)) {
+        buf[i++] = val % radix;
+        val /= radix;
+
+        if (!val) {
+            break;
+        }
+    }
+
+    if (is_negative) {
+        *(str++) = '-';
+    }
+
+    while (i) {
+        *(str++) = DIGIT_CHARS[buf[--i]];
+    }
+
+    *str = 0;
+
+done:
+    return str;
 }
