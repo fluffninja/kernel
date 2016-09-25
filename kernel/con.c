@@ -59,23 +59,30 @@ static void put_char(char c)
     screen_ptr[screen_index++] = info;
 }
 
-int con_init(void)
+int con_init(struct kernel_boot_params *params)
 {
+    int cursor_x = 0;
+    int cursor_y = 0;
+
     screen_ptr = (struct charinfo *) 0xb8000;
     screen_width = 80;
     screen_height = 25;
 
-    // Grab the cursor coordinates left by the bootloader
-    int cur_x = (int) *((unsigned char *) 0x7e00);
-    int cur_y = (int) *((unsigned char *) 0x7e01);   
+    // Use the cursor co-ordinates from the boot parameter block, providing
+    // the block is present and the co-ordinates it describes are valid.
+    // Note that the cursor co-ordinates in the param block are unsigned bytes.
+    if (params &&
+        ((int) params->cursor_x < screen_width) &&
+        ((int) params->cursor_y < screen_height)) {
 
-    // If either coordinate is invalid, just discard both
-    if (cur_x >= screen_width || cur_y >= screen_height) {
-        cur_x = 0;
-        cur_y = 0;
+        cursor_x = (int) params->cursor_x;
+        cursor_y = (int) params->cursor_y;
     }
 
-    screen_index = cur_x + cur_y * screen_width;
+    screen_index = cursor_x + cursor_y * screen_width;
+
+    // Our default flags are the flags of whatever character cell is at the 
+    // initial cursor position.
     screen_flags = (int) (screen_ptr[screen_index].flags);
 
     kprintf("con: %dx%d at %p\n", screen_width, screen_height, screen_ptr);

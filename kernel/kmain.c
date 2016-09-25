@@ -1,3 +1,7 @@
+#include <stdint.h>
+#include <stddef.h>
+
+#include "boot.h"
 #include "con.h"
 #include "idt.h"
 #include "isr.h"
@@ -13,8 +17,10 @@
 void CDECL NO_RETURN
 kmain(void)
 { 
+    struct kernel_boot_params *params = boot_get_params(BOOT_PARAM_BLOCK_ADDR);
+
     // Initialise primary systems
-    if (con_init() || 
+    if (con_init(params) || 
         idt_init() || 
         isr_init() ||
         syscall_init() || 
