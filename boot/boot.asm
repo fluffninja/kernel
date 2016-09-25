@@ -43,9 +43,14 @@
 %define STAGE_1_PAYLOAD_SECTORS     (STAGE_2_SECTORS + KERNEL_IMAGE_SECTORS)
 %define STAGE_1_SIGNATURE           (0xaa55)
 %define KERNEL_TARGET_LOCATION      (0x100000)
+%define UNINITIALISED_LOCATION      (0x7a00)
 
 
+    
+    ; These first few parts are 16-bit. We'll switch to 32-bit later on.
     [bits       16]
+
+
     [org        STAGE_1_LOCATION]
 
 
@@ -56,6 +61,7 @@
 
 ; Pad up to the third byte
 times (3 - ($ - $$))                db 0
+
 
 ; Fields for a standard FAT16 header
 DRIVE_OEM                           db  "FLUFF OS"      ; 8 Characters
@@ -77,15 +83,6 @@ DRIVE_EXTENDED_SIGNATURE            db  0x29            ; 3 More Fields Present
 DRIVE_VOLUME_SERIAL_NUMBER          dd  0x1544c051      ; Arbritrary
 DRIVE_VOLUME_LABEL                  db  "OS BOOTDISK"   ; 11 Characters
 DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters  
-
-
-b_boot_device                       db  0
-
-; Variables for use by lba_to_hcs_16
-; Default values assume 3.5" floppy.
-; TODO: Use INT 0x13 to acquire these values
-w_sectors_per_cylinder              dw  18
-w_head_count                        dw  2
 
 
 stage_1_normalise_code_address_16:
@@ -113,6 +110,21 @@ stage_1_start_16:
     ; The BIOS has given us the ID of the boot device in DL.
     ; Save it for later use if necessary.
     mov         byte [b_boot_device], dl
+
+    ; Read parameters of the disk
+    xor         di, di
+    mov         es, di
+    mov         ah, 0x08
+    int         0x13
+    jc          floppy_read_error_16
+
+    inc         dh
+    movzx       dx, dh
+    mov         word [w_head_count], dx
+
+    and         cl, 0x3f
+    movzx       cx, cl
+    mov         word [w_sectors_per_cylinder], cx
 
     ; Try to detect whethere this BIOS supports the floppy extension functions.
     mov         ah, 0x41
@@ -378,12 +390,13 @@ g_sector_0_signature_w  dw STAGE_1_SIGNATURE
 ; They're at a known location: 0x7e00 and 0x7e01
 g_cursor_pos_x_b        db 0
 g_cursor_pos_y_b        db 0
+b_a20_init_attempts     db 5
+
 
 ; More strings
 MSG_LOADING             db "Loading, please wait...", 0
 MSG_NO_BOOT_DUE_TO_A20  db "A20 not initialised", 0
 
-tries db 5
 
 ; See https://www.win.tue.nl/~aeb/linux/kbd/A20.html
 ; See http://wiki.osdev.org/A20_Line
@@ -422,9 +435,9 @@ test_a20:
     ; TODO: Utilise more a20 init methods
     call        enable_a20_bios_16
 
-    mov         ax, [tries]
+    mov         ax, [b_a20_init_attempts]
     dec         ax
-    mov         [tries], ax
+    mov         [b_a20_init_attempts], ax
 
     jnz         test_a20
 
@@ -580,3 +593,11 @@ stage_2_start_32:
 
 ; Pad out the rest of this sector 
 times ((512 * 2) - ($ - $$)) db 0
+
+    ; The following data definitions are uninitialised, and will not be
+    ; present or use up space in the floppy image
+    [absolute   UNINITIALISED_LOCATION]
+
+b_boot_device                       resb 1
+w_sectors_per_cylinder              resw 1
+w_head_count                        resw 1
