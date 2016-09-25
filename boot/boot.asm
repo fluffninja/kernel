@@ -45,6 +45,9 @@
 %define KERNEL_TARGET_LOCATION      (0x100000)
 %define UNINITIALISED_LOCATION      (0x7a00)
 
+; Note that these values MUST agree with the values in kernel/boot.h
+%define BOOT_PARAM_BLOCK_LOCATION   (0x7000)
+%define BOOT_PARAM_BLOCK_SINGATURE  (0xc33c)
 
     
     ; These first few parts are 16-bit. We'll switch to 32-bit later on.
@@ -385,11 +388,6 @@ g_sector_0_signature_w  dw STAGE_1_SIGNATURE
 ; --- End of first sector (512 bytes) --- ;
 
 
-; These can be read during kernel console initialisation so that future
-; text output carries on from where it left off.
-; They're at a known location: 0x7e00 and 0x7e01
-g_cursor_pos_x_b        db 0
-g_cursor_pos_y_b        db 0
 b_a20_init_attempts     db 5
 
 
@@ -405,12 +403,16 @@ stage_2_start_16:
     mov         si, MSG_LOADING
     call        print_line_16
 
+    ; Set up the kernel boot parameter block - wherein we pass the kernel
+    ; information from the boot process
+    mov         word [boot_param_block.w_signature], BOOT_PARAM_BLOCK_SINGATURE
+
     ; Save the position of the cursor, for continuity in later console output
     mov         ah, 0x03
     xor         bh, bh
     int         0x10
-    mov         [g_cursor_pos_x_b], dl
-    mov         [g_cursor_pos_y_b], dh
+    mov         byte [boot_param_block.b_cursor_pos_x], dl
+    mov         byte [boot_param_block.b_cursor_pos_y], dh
 
     ; Hide the blinking cursor
     mov         ah, 0x01
@@ -593,6 +595,18 @@ stage_2_start_32:
 
 ; Pad out the rest of this sector 
 times ((512 * 2) - ($ - $$)) db 0
+
+    [absolute   BOOT_PARAM_BLOCK_LOCATION]
+
+boot_param_block:
+.w_signature                        resw 1
+
+; These can be read during kernel console initialisation so that future
+; text output carries on from where it left off.
+; They're at a known location: 0x7e00 and 0x7e01
+.b_cursor_pos_x                     resb 1
+.b_cursor_pos_y                     resb 1
+
 
     ; The following data definitions are uninitialised, and will not be
     ; present or use up space in the floppy image
