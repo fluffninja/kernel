@@ -13,7 +13,7 @@
 
 #ifdef _COMP_GCC
     #define INLINE          static inline
-    #define ALWAYS_INLINE   INLINE __attribute__((always_inline))
+    #define ALWAYS_INLINE   static inline __attribute__((always_inline))
     #define NAKED           __attribute__((naked))
     #define NO_INLINE       __attribute__((noinline))
     #define NO_RETURN       __attribute__((noreturn))
@@ -26,6 +26,7 @@
     #define ASM             __asm__
     #define ASM_VOLATILE    __asm__ volatile
     #define ASM_GOTO        __asm__ goto
+    #define NO_REMOVE       __attribute__((used))
 #else
     #define INLINE
     #define ALWAYS_INLINE
