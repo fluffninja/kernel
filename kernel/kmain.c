@@ -14,6 +14,8 @@
 #include "vga.h"
 #include "syscall.h"
 
+void call_test_fn(void);
+
 void CDECL NO_RETURN
 kmain(void)
 { 
@@ -29,9 +31,6 @@ kmain(void)
         // If any of these fail, we cannot continue
         panic("init error\n");
     }
-
-    // Turn on fullscreen panic
-    panic_set_use_bsod(1);
 
     // Enable interrupts
     sti();
