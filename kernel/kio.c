@@ -20,6 +20,84 @@ extern int con_write_char(char);
 static int (*const puts_ptr)(const char *) = con_write_str;
 static int (*const putc_ptr)(char)         = con_write_char;
 
+ALWAYS_INLINE size_t
+__sputs(char **dst, const char *src, size_t sz)
+{
+    size_t i = 0;
+
+    while (*src) {
+        **dst = *src;
+        ++i;
+        if (!--sz) {
+            **dst = 0;
+            break;
+        }
+        src++;
+        (*dst)++;
+    }
+
+    return i;
+}
+
+ALWAYS_INLINE size_t
+__itoa10(int val, char *dst)
+{
+    int buf[10];
+    size_t i = 0;
+    size_t count;
+    int is_negative = 0;
+
+    if (val < 0) {
+        is_negative = 1;
+        val = -val;
+    }
+
+    while (i < ARRLEN(buf)) {
+        buf[i++] = val % 10;
+        val /= 10;
+
+        if (!val) {
+            break;
+        }
+    }
+
+    if (is_negative) {
+        *(dst++) = '-';
+    }
+
+    count = i;
+
+    while (i) {
+        *(dst++) = (char) ('0' + buf[--i]);
+    }
+
+    *dst = '\0';
+
+    return count;
+}
+
+ALWAYS_INLINE size_t
+__itoa16(int val, char *dst)
+{
+    static const char HEX_DIGIT_CHARS[16] = "0123456789abcdef";
+
+    int buf[8];
+    size_t i = 0;
+
+    while (i < ARRLEN(buf)) {
+        buf[i++] = val & 0x0f;
+        val >>= 4;
+    }
+
+    while (i) {
+        *(dst++) = HEX_DIGIT_CHARS[buf[--i]];
+    }
+
+    *dst = '\0';
+
+    return 8;
+}
+
 // Format specifiers (the type of the var arg)
 // Note that differences in case ('X' vs 'x') are signified by fmtinfo.is_upper
 enum fmttype
@@ -55,7 +133,7 @@ enum fmtflags
 enum fmtlen
 {
     FL_INT,         // (none)
-    FL_CHAR,        // hh 
+    FL_CHAR,        // hh
     FL_SHORT,       // h
     FL_LONG,        // l
     FL_LONG_LONG,   // ll
@@ -145,7 +223,7 @@ __va_str_format_proc(
             }
 
             // Otherwise, fall through to the next check
-        } 
+        }
 
         // Not a flag. Could it be the first char of the width specifier?
         // If so, it's going to be a string of digits.
@@ -208,7 +286,7 @@ __va_str_format_proc(
                     is_precision = 0;
                 } else {
                     if (isdigit(fmtc)) {
-                        int precision = 0;                    
+                        int precision = 0;
                         // Parse this number
                         while (isdigit(fmtc)) {
                             precision *= 10;
@@ -223,7 +301,7 @@ __va_str_format_proc(
 
                         fi.precision = precision;
                     } else if (fmtc == '*') {
-                        // Asterisk denotes that the precision is specified by 
+                        // Asterisk denotes that the precision is specified by
                         // the next var arg.
                         fi.width = -1;
                     } else {
@@ -251,8 +329,8 @@ __va_str_format_proc(
 
             switch (fmtc) {
             case 'h':
-                fi.fl = FL_SHORT;               
-                // Check to see if the next char is another h (for 'hh') 
+                fi.fl = FL_SHORT;
+                // Check to see if the next char is another h (for 'hh')
                 if (++fmti, (fmtc = *(fmt++)) && fmtc == 'h') {
                     fi.fl = FL_CHAR;
                 } else {
@@ -361,7 +439,7 @@ __va_str_format_proc(
             }
         }
 
-        // We've fallen through all checks. This was an invalid format 
+        // We've fallen through all checks. This was an invalid format
         // specifier, or it at least contains unaccounted-for characters.
         fi.ft = FT_INVALID;
         break;
@@ -371,34 +449,14 @@ __va_str_format_proc(
     return fmti;
 }
 
-ALWAYS_INLINE size_t
-__str_puts(
-    char        **dst,
-    const char  *src,
-    size_t      sz)
-{
-    size_t i = 0;
-    while (*src) {
-        **dst = *src;
-        ++i;
-        if (!--sz) {
-            **dst = 0;
-            break;
-        }
-        src++;
-        (*dst)++;
-    }
-    return i;
-}
-
 // Processes string 'fmt' into buffer 'str' of size 'sz' using data from 'args'
 // Returns the number of characters written into buffer 'str'
 ALWAYS_INLINE size_t
 __va_str_format_impl(
-    char        *str, 
+    char        *str,
     size_t      sz,
     const char  *fmt,
-    va_list     args) 
+    va_list     args)
 {
     // Remember the size we were originally given, so we can report the diff.
     size_t          old_sz = sz;
@@ -426,40 +484,40 @@ __va_str_format_impl(
             fmt += count;
 
             if (fi.ft == FT_ESCAPE) {
-                sz -= __str_puts(&str, "%", sz);
+                sz -= __sputs(&str, "%", sz);
                 continue;
             }
 
             if (fi.ft == FT_INVALID) {
-                sz -= __str_puts(&str, "<invalid>", sz);
-                continue;                
+                sz -= __sputs(&str, "<invalid>", sz);
+                continue;
             }
 
             if (fi.ft == FT_STR) {
                 arg.str = va_arg(args, const char *);
-                sz -= __str_puts(&str, arg.str, sz);
-                continue;                
+                sz -= __sputs(&str, arg.str, sz);
+                continue;
             }
 
             if (fi.ft == FT_PTR) {
-                arg.u32 = va_arg(args, uint32_t);                    
-                itoa(arg.u32, fmtbuf, 16);
-                sz -= __str_puts(&str, "0x", sz);
-                sz -= __str_puts(&str, fmtbuf, sz);
+                arg.u32 = va_arg(args, uint32_t);
+                __itoa16(arg.u32, fmtbuf);
+                sz -= __sputs(&str, "0x", sz);
+                sz -= __sputs(&str, fmtbuf, sz);
                 continue;
             }
 
             if (fi.ft == FT_SIGNED || fi.ft == FT_UNSIGNED) {
-                arg.i32 = va_arg(args, int32_t);                    
-                itoa(arg.i32, fmtbuf, 10);
+                arg.i32 = va_arg(args, int32_t);
+                __itoa10(arg.i32, fmtbuf);
             }
 
             if (fi.ft == FT_HEX) {
-                arg.u32 = va_arg(args, uint32_t);                    
-                itoa(arg.u32, fmtbuf, 16);
+                arg.u32 = va_arg(args, uint32_t);
+                __itoa16(arg.u32, fmtbuf);
 
                 if (fi.ff & FF_EXPLICIT) {
-                    sz -= __str_puts(&str, "0x", sz);                    
+                    sz -= __sputs(&str, "0x", sz);
                 }
             }
 
@@ -474,7 +532,7 @@ __va_str_format_impl(
                 start_index = (8 - (size_t) fi.width);
             }
 
-            if (!(fi.ff & FF_ZEROPAD)) {                
+            if (!(fi.ff & FF_ZEROPAD)) {
                 for (size_t i = 0; i < sizeof(fmtbuf) && fmtbuf[i]; ++i) {
                     if (fmtbuf[i] != '0') {
                         start_index = i;
@@ -489,7 +547,7 @@ __va_str_format_impl(
                 }
             }
 
-            sz -= __str_puts(&str, fmtbuf + start_index, sz);
+            sz -= __sputs(&str, fmtbuf + start_index, sz);
 
         } else {
             *(str++) = fmtc;
@@ -554,7 +612,7 @@ int kvprintf(const char *fmt, va_list args)
 
 int kprintf(const char *fmt, ...)
 {
-    int result;    
+    int result;
     va_list args;
 
     va_start(args, fmt);
