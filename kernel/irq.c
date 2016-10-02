@@ -41,7 +41,7 @@ ALWAYS_INLINE int __irq_call_hook_impl(int irqnum)
 #define IRQ_ISR_HANDLER(IRQNUM)     ISR_HANDLER(irq_##IRQNUM)
 
 #define IRQ_DEF_ISR_HANDLER(IRQNUM)                 \
-    __ISR_HOOK_HANDLER_BASE(IRQ_ISR_HANDLER(IRQNUM),   \
+    __ISR_HOOK_HANDLER_BASE(IRQ_ISR_HANDLER(IRQNUM),\
     {                                               \
         __irq_call_hook_impl(IRQNUM);               \
     });
