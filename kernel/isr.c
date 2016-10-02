@@ -30,7 +30,7 @@ INLINE int __set_handler(int isrnum, void (*handler)(void))
 
 INLINE int __remove_handler(int isrnum)
 {
-    return idt_set_entry(isrnum, 0, 0, 0);   
+    return idt_set_entry(isrnum, 0, 0, 0);
 }
 
 int isr_init(void)
@@ -54,7 +54,7 @@ int isr_init(void)
     result |= __set_handler(0x0d, ISR_HANDLER(isr_general_protection_fault));
     result |= __set_handler(0x0e, ISR_HANDLER(isr_page_fault));
     // 0xf Reserved by Intel
-    result |= __set_handler(0x10, ISR_HANDLER(isr_fpu_error));    
+    result |= __set_handler(0x10, ISR_HANDLER(isr_fpu_error));
 
     if (result) {
         kprintf("isr: failed to register one or more cpu isr handlers\n");
@@ -69,7 +69,7 @@ int isr_set_handler(int isrnum, void (*handler)(void))
 {
     if (handler) {
         return __set_handler(isrnum, handler);
-    } else {        
+    } else {
         return __remove_handler(isrnum);
     }
 }
@@ -121,7 +121,7 @@ void isr_segment_not_present(struct isr_params params)
 
 void isr_stack_exception(struct isr_params params)
 {
-    paniccs(params.cs, "cpu stack exception\n");    
+    paniccs(params.cs, "cpu stack exception\n");
 }
 
 void isr_general_protection_fault(struct isr_params params)
