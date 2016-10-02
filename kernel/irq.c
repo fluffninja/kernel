@@ -125,14 +125,24 @@ int irq_has_hook(int irqnum)
 
 int irq_set_hook(int irqnum, irq_hook_t hookfn)
 {
+    char fail_str[256];
+
     if (__irq_is_valid_irqnum_impl(irqnum)) {
         if (!__irq_has_hook_impl(irqnum)) {
             irq_hooks[irqnum] = hookfn;
             pic_set_enabled(irqnum, 1);
             kprintf("irq: irq %d hooked at %p\n", irqnum, (void *) hookfn);
             return 0;
-        }
+        } else {        
+            ksnprintf(fail_str, sizeof(fail_str), "already hooked at %p",
+                (void *) irq_hooks[irqnum]);
+    	}
+    } else {
+        ksnprintf(fail_str, sizeof(fail_str), "invalid irqnum");
     }
+    
+    kprintf("irq: failed to hook irq %d at %p: %s\n", irqnum, 
+        (void *) hookfn);
 
     return 1;
 }
