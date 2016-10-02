@@ -11,7 +11,7 @@
 // Reference for IRQs' respective devices:
 // https://en.wikipedia.org/wiki/Interrupt_request_(PC_architecture)
 
-static irq_hook_t irq_hooks[16] = { 0 };
+static irq_hook_t irq_hooks[16];
 
 #define DEFAULT_HOOK_FUNC   __irq_default_hook_func
 
@@ -73,6 +73,7 @@ int irq_init(void)
         return 1;
     }
 
+    // Set all hooks to the default hook function
     for (size_t i = 0; i < 16; ++i) {
         irq_hooks[i] = DEFAULT_HOOK_FUNC;
     }
