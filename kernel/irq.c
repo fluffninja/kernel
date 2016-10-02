@@ -66,8 +66,9 @@ static IRQ_DEF_ISR_HANDLER(15);
 
 int irq_init(void)
 {
-    kprintf("irq: remapping pic\n");
+    int res = 0;
 
+    kprintf("irq: remapping pic\n");
     if (pic_remap(IRQ_PIC_MASTER_IDT_OFFSET, IRQ_PIC_SLAVE_IDT_OFFSET)) {
         kprintf("irq: irq init failed\n");
         return 1;
@@ -78,29 +79,27 @@ int irq_init(void)
         irq_hooks[i] = DEFAULT_HOOK_FUNC;
     }
 
-    int result = 0;
-
     // PIC Master IRQs
-    result |= isr_set_handler(0x20, IRQ_ISR_HANDLER(0));
-    result |= isr_set_handler(0x21, IRQ_ISR_HANDLER(1));
-    result |= isr_set_handler(0x22, IRQ_ISR_HANDLER(2));
-    result |= isr_set_handler(0x23, IRQ_ISR_HANDLER(3));
-    result |= isr_set_handler(0x24, IRQ_ISR_HANDLER(4));
-    result |= isr_set_handler(0x25, IRQ_ISR_HANDLER(5));
-    result |= isr_set_handler(0x26, IRQ_ISR_HANDLER(6));
-    result |= isr_set_handler(0x27, IRQ_ISR_HANDLER(7));
+    res |= isr_set_handler(IRQ_PIC_MASTER_IDT_OFFSET + 0, IRQ_ISR_HANDLER(0));
+    res |= isr_set_handler(IRQ_PIC_MASTER_IDT_OFFSET + 1, IRQ_ISR_HANDLER(1));
+    res |= isr_set_handler(IRQ_PIC_MASTER_IDT_OFFSET + 2, IRQ_ISR_HANDLER(2));
+    res |= isr_set_handler(IRQ_PIC_MASTER_IDT_OFFSET + 3, IRQ_ISR_HANDLER(3));
+    res |= isr_set_handler(IRQ_PIC_MASTER_IDT_OFFSET + 4, IRQ_ISR_HANDLER(4));
+    res |= isr_set_handler(IRQ_PIC_MASTER_IDT_OFFSET + 5, IRQ_ISR_HANDLER(5));
+    res |= isr_set_handler(IRQ_PIC_MASTER_IDT_OFFSET + 6, IRQ_ISR_HANDLER(6));
+    res |= isr_set_handler(IRQ_PIC_MASTER_IDT_OFFSET + 7, IRQ_ISR_HANDLER(7));
 
     // PIC Slave IRQs
-    result |= isr_set_handler(0x28, IRQ_ISR_HANDLER(8));
-    result |= isr_set_handler(0x29, IRQ_ISR_HANDLER(9));
-    result |= isr_set_handler(0x2a, IRQ_ISR_HANDLER(10));
-    result |= isr_set_handler(0x2b, IRQ_ISR_HANDLER(11));
-    result |= isr_set_handler(0x2c, IRQ_ISR_HANDLER(12));
-    result |= isr_set_handler(0x2d, IRQ_ISR_HANDLER(13));
-    result |= isr_set_handler(0x2e, IRQ_ISR_HANDLER(14));
-    result |= isr_set_handler(0x2f, IRQ_ISR_HANDLER(15));
+    res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 0, IRQ_ISR_HANDLER(8));
+    res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 1, IRQ_ISR_HANDLER(9));
+    res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 2, IRQ_ISR_HANDLER(10));
+    res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 3, IRQ_ISR_HANDLER(11));
+    res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 4, IRQ_ISR_HANDLER(12));
+    res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 5, IRQ_ISR_HANDLER(13));
+    res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 6, IRQ_ISR_HANDLER(14));
+    res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 7, IRQ_ISR_HANDLER(15));
 
-    if (result) {
+    if (res) {
         kprintf("irq: failed to register one or more irq isr handlers\n");
         return 1;
     }
