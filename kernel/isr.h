@@ -21,9 +21,15 @@ struct isr_params
 // Gets the name of the ISR handler function
 #define ISR_HANDLER(ISRFUNC)    __handle_##ISRFUNC
 
+// Optimisations cause gcc to tamper with the stack handling, which 
+// subsequently messes up our ugly hack around the x86 interrupt 'calling-
+// convention'. Hence, disable optimisations.
+// TODO: Find an alternative that doesn't involve disabling all optimisations.
+#define ISR_HANDLER_ATTR    NO_OPTIMISE
+
 // Template for ISR handler functions
 #define __ISR_HOOK_HANDLER_BASE(ISRFUNC, ISRBODY)       \
-    void ISRFUNC(void)                                  \
+    void ISR_HANDLER_ATTR ISRFUNC(void)                 \
     {                                                   \
         ASM_VOLATILE(                                   \
             "pusha"                                     \

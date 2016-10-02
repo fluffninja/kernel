@@ -3,7 +3,7 @@ ASMFLAGS	:= -f elf
 
 CC		:= gcc
 CFLAGS		:= -nostdinc -m32 -std=c11 -Wall -Wextra -c -I ../include \
-		-fno-builtin -fno-stack-protector -masm=intel
+		-fno-builtin -fno-stack-protector -masm=intel -Os
 
 LD		:= ld
 LDSCRIPT	:= kernel.ld
