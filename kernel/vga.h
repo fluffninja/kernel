@@ -1,6 +1,9 @@
 #ifndef _INC_VGA
 #define _INC_VGA 1
 
+#include <stdint.h>
+#include <stdlib.h>
+
 //
 // VGA External Registers
 // See: http://www.osdever.net/FreeVGA/vga/extreg.htm
@@ -228,5 +231,19 @@
 #define VGA_ATTR_MODE_PALETTE_BITS_4_5_SELECT   0x08
 
 int vga_init(void);
+
+uint8_t vga_get_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex);
+void vga_set_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
+    uint8_t value);
+void vga_set_reg_list(uint16_t index_port, uint16_t data_port, 
+    uint8_t start_regindex, uint8_t *values, size_t lsz);
+void vga_disable_cursor(void);
+void vga_set_cursor_shape(uint8_t first_line, uint8_t end_line);
+void vga_set_cursor_location(uint16_t index);
+uint16_t vga_get_cursor_location(void);
+void vga_set_mapping_address(uint32_t address);
+uint32_t vga_get_mapping_address(void);
+void vga_dac_write_rgb(uint8_t dacindex, uint8_t r, uint8_t g, uint8_t b);
+void vga_dat_write_rgb_list(uint8_t start_dacindex, uint8_t *list, size_t lsz);
 
 #endif /* _INC_VGA */
