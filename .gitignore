@@ -1,9 +1,13 @@
+# Dirty files
 *.bin
 *.flp
+*.elf
 *.img
 *.o
 *.a
 *.map
+
+# Output directory
 ./out/
-dump
+
 
