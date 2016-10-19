@@ -16,20 +16,19 @@ EMUFLAGS		:= -monitor stdio -k en-gb -m 16M \
 
 DDFLAGS			:= bs=512 conv=notrunc status=noxfer
 
-.PHONY: all
-all: clean image
-
 .PHONY: image
 image: $(OUTPUT_IMAGE)
 
 boot/boot.bin: boot/boot.asm
 	$(ASM) $< -o $@ -f bin
 
-kernel/kernel.bin: libc/libc.a
-	@$(MAKE) -C $(@D) $(@F)
+.PHONY: kernel
+kernel: libc
+	$(MAKE) -C kernel/ kernel.bin
 
-libc/libc.a:
-	@$(MAKE) -C $(@D) $(@F)
+.PHONY: libc
+libc:
+	$(MAKE) -C libc/ libc.a
 
 .PHONY: prepared_output_floppy
 prepared_output_floppy:
@@ -38,7 +37,7 @@ prepared_output_floppy:
 	@rm -fv $(OUTPUT_IMAGE)
 	dd of=$(OUTPUT_IMAGE) if=/dev/zero bs=$(OUTPUT_IMAGE_SIZE) count=1
 
-$(OUTPUT_IMAGE): boot/boot.bin kernel/kernel.bin prepared_output_floppy
+$(OUTPUT_IMAGE): boot/boot.bin kernel prepared_output_floppy
 	dd of=$@ if=boot/boot.bin seek=0 $(DDFLAGS)
 	dd of=$@ if=kernel/kernel.bin seek=2 $(DDFLAGS)
 
