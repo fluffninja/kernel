@@ -2,7 +2,7 @@ OUTPUT_DIR		:= out
 OUTPUT_IMAGE		:= $(OUTPUT_DIR)/bootdisk.img
 OUTPUT_IMAGE_SIZE	:= 1474560
 
-DIRTY_FILES		:= a o bin map
+DIRTY_FILES		:= a o bin map elf
 
 MOUNT_DIR		:= $(OUTPUT_DIR)/bootdisk_mout/
 
