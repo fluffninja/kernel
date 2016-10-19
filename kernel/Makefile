@@ -8,7 +8,7 @@ CFLAGS		:= -nostdinc -m32 -std=c11 -Wall -Wextra -c -I ../include \
 LD		:= ld
 LDSCRIPT	:= kernel.ld
 LDMAP		:= kernel.map
-LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386 -x -s
+LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
 
 %.bin: %.asm
 	$(ASM) $< -o $@ $(ASMFLAGS)
@@ -21,7 +21,7 @@ kernel.elf: bootstrap.bin kmain.o kstring.o con.o ps2.o pic.o idt.o isr.o \
 	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
 
 kernel.bin: kernel.elf
-	@objcopy -O binary $^ $@
+	objcopy -O binary -S $^ $@
 
 kmain.c: con.h idt.h isr.h irq.h kb.h mouse.h boot.h
 kstring.c: kstring.h
