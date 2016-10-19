@@ -25,7 +25,7 @@ static void scroll_screen(unsigned int lines)
     struct charinfo *ptr1;
     struct charinfo clearchar;
     unsigned int n;
-    
+
     ptr0 = screen_ptr;
     ptr1 = ptr0 + screen_width * lines;
 
@@ -81,7 +81,7 @@ int con_init(struct kernel_boot_params *params)
 
     screen_index = cursor_x + cursor_y * screen_width;
 
-    // Our default flags are the flags of whatever character cell is at the 
+    // Our default flags are the flags of whatever character cell is at the
     // initial cursor position.
     screen_flags = (int) (screen_ptr[screen_index].flags);
 
@@ -98,33 +98,32 @@ void con_clear(void)
 
 int con_write_char(char c)
 {
-    // If this is a regular print character, 
     if (isprint(c)) {
         put_char(c);
         return 1;
     } else if (c == '\n') {
         int count = screen_width - screen_index % screen_width;
         for (int i = 0; i < count; ++i) {
-            put_char(0);            
+            put_char(0);
         }
         return 0;
     } else if (c == '\t') {
         int count = TAB_WIDTH - screen_index % TAB_WIDTH;
         for (int i = 0; i < count; ++i) {
-            put_char(' ');            
+            put_char(' ');
         }
         return count;
     } else if (c == '\r') {
         screen_index += screen_index % screen_width;
         return 0;
     } else if (c == '\b') {
-        if (screen_index > 0) {            
+        if (screen_index > 0) {
             screen_index--;
             put_char(' ');
             screen_index--;
             return 0;
         }
-    } else {        
+    } else {
         static const char hex_digits[16] = "0123456789abcdef";
         put_char('~');
         put_char(hex_digits[(c & 0xf0) >> 4]);
@@ -177,32 +176,32 @@ int con_get_fgcol(void)
     return (flags & 0x0f);
 }
 
-int con_set_curpos(int row, int col)
+int con_set_curpos(int x, int y)
 {
-    if (row < 0 || row >= screen_width) {
+    if (x < 0 || x >= screen_width) {
         return 1;
     }
 
-    if (col < 0 || col >= screen_height) {
+    if (y < 0 || y >= screen_height) {
         return 1;
     }
 
-    screen_index = row + col * screen_width;
+    screen_index = x + y * screen_width;
 
     return 0;
 }
 
-void con_get_curpos(int *row, int *col)
+void con_get_curpos(int *x, int *y)
 {
-    int rowval = screen_index / screen_height;
-    int colval = screen_index % screen_height;
+    int xx = screen_index % screen_width;
+    int yy = screen_index / screen_width;
 
-    if (row) {
-        *row = rowval;
+    if (x) {
+        *x = xx;
     }
 
-    if (col) {
-        *col = colval;
+    if (y) {
+        *y = yy;
     }
 }
 
@@ -216,14 +215,14 @@ void con_get_curpos(int *row, int *col)
 // Virtual-terminal Mode
 // Describes VGA-compatible text mode metrics
 struct vt_mode
-{  
+{
     void        *screen_ptr;                    // Flush destination
     int32_t     screen_width;                   // Width
     int32_t     screen_height;                  // Height
 };
 
 // List of known modes (immutable)
-static const struct vt_mode vt_mode_list[] = 
+static const struct vt_mode vt_mode_list[] =
 {
     { 0x000b8000, 80, 25, 2 },                  // Text 80x25
 };
