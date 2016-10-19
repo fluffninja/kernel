@@ -1,18 +1,17 @@
-OUTPUT_FORMAT(binary)
 STARTUP(bootstrap.bin)
 SECTIONS
 {
     . = 0;
-    .text (1M) : { 
+    .text (1M) : {
         *(.text)
     }
     .data : {
-        *(.data)   
+        *(.data)
     }
-    .rodata : { 
+    .rodata : {
         *(.rodata)
     }
-    .bss : { 
-        *(.bss)    
+    .bss : {
+        *(.bss)
     }
 }
