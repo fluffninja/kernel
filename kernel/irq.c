@@ -28,7 +28,7 @@ ALWAYS_INLINE int __irq_is_valid_irqnum_impl(int irqnum)
     return !((irqnum < 0) || (irqnum >= (int) ARRLEN(irq_hooks)));
 }
 
-ALWAYS_INLINE int __irq_has_hook_impl(int irqnum) 
+ALWAYS_INLINE int __irq_has_hook_impl(int irqnum)
 {
     return (irq_hooks[irqnum] != DEFAULT_HOOK_FUNC);
 }
@@ -132,15 +132,15 @@ int irq_set_hook(int irqnum, irq_hook_t hookfn)
             pic_set_enabled(irqnum, 1);
             kprintf("irq: irq %d hooked at %p\n", irqnum, (void *) hookfn);
             return 0;
-        } else {        
+        } else {
             ksnprintf(fail_str, sizeof(fail_str), "already hooked at %p",
                 (void *) irq_hooks[irqnum]);
     	}
     } else {
         ksnprintf(fail_str, sizeof(fail_str), "invalid irqnum");
     }
-    
-    kprintf("irq: failed to hook irq %d at %p: %s\n", irqnum, 
+
+    kprintf("irq: failed to hook irq %d at %p: %s\n", irqnum,
         (void *) hookfn);
 
     return 1;
@@ -153,10 +153,10 @@ int irq_remove_hook(int irqnum)
             irq_hook_t old_hook = irq_hooks[irqnum];
             irq_hooks[irqnum] = DEFAULT_HOOK_FUNC;
             pic_set_enabled(irqnum, 0);
-            kprintf("irq: irq %d unhooked from %p\n", irqnum, 
+            kprintf("irq: irq %d unhooked from %p\n", irqnum,
                 (void *) old_hook);
             return 0;
-        } 
+        }
     }
 
     return 1;
@@ -166,7 +166,7 @@ int irq_call_hook(int irqnum)
 {
     if (__irq_is_valid_irqnum_impl(irqnum)) {
         return __irq_call_hook_impl(irqnum);
-    }    
+    }
 
     return 1;
 }
