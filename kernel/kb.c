@@ -7,51 +7,84 @@
 #include "irq.h"
 #include "ps2.h"
 #include "con.h"
+#include "panic.h"
 
-static const int scancodes[128] = {
+static const int s_scancodes[128] = {
     #include "keymap-en-us"
 };
 
-static int s_b_shift = 0;
-static int s_b_alt = 0;
-static int s_b_ctrl = 0;
+static int s_shift  = 0;
+static int s_alt    = 0;
+static int s_ctrl   = 0;
+
+static int process_command(char c)
+{
+    if (c == 'l') {
+        // CTRL+L clears the screen
+        con_clear();
+    } else if (c == 'p') {
+        // CTRL+P triggers kernel panic
+        panic("triggered panic (ctrl+p)\n");
+    } else if (c == 'a') {
+        // CTRL+A puts cursor at line start
+        int y;
+        con_get_curpos(NULL, &y);
+        con_set_curpos(0, y);
+    } else {
+        return 1;
+    }
+
+    return 0;
+}
 
 static int kb_irq_hook(int irqnum)
-{   
-    uint8_t data = inportb(PS2_PORT_DATA);
-    uint8_t scancode = data & 0x7f;
-    int key_release = data & 0x80;
-    int c = scancodes[scancode];
+{
+    uint8_t raw_data = inportb(PS2_PORT_DATA);
+    uint8_t scancode = raw_data & 0x7f;
+    int is_key_release = raw_data & 0x80;
+    int key_char = s_scancodes[scancode];
 
-    if (c & 0x80) {
-        switch (c) {
-        case KB_KEY_LSHIFT:   
+    if (key_char & 0x80) {
+        switch (key_char) {
+        case KB_KEY_LSHIFT:
         case KB_KEY_RSHIFT:
-            s_b_shift = !key_release;
+            s_shift = !is_key_release;
             break;
-        case KB_KEY_LALT:   
+        case KB_KEY_LALT:
         case KB_KEY_RALT:
-            s_b_alt = !key_release;
+            s_alt = !is_key_release;
             break;
-        case KB_KEY_LCTRL:   
+        case KB_KEY_LCTRL:
         case KB_KEY_RCTRL:
-            s_b_ctrl = !key_release;
+            s_ctrl = !is_key_release;
             break;
         default:
+            /* Unknown */
             break;
         }
-    } else if (!key_release) {
-        if (s_b_ctrl) {
-            if (c == 'l') {
-                con_clear();
+    } else if (!is_key_release) {
+        if (s_ctrl) {
+            // If control is held, process keyboard
+            // commands (which are CTRL+... combos)
+            if (process_command(key_char)) {
+                // If no command exists for the
+                // given key combo, output a caret
+                // and the typed key
+                con_write_char('^');
+                con_write_char(toupper(key_char));
             }
         } else {
-            if (s_b_shift && islower(c)) {
-                c = toupper(c);
+            // If control is not held, type text
+
+            // Convert to caps if shift is held
+            if (s_shift && islower(key_char)) {
+                key_char = toupper(key_char);
             }
-            con_write_char(c); 
+
+            con_write_char(key_char);
         }
     }
+
     irq_done(irqnum);
     return 0;
 }
