@@ -23,17 +23,17 @@ static int DEFAULT_HOOK_FUNC(int irqnum)
     return 0;
 }
 
-ALWAYS_INLINE int __irq_is_valid_irqnum_impl(int irqnum)
+INLINE int __irq_is_valid_irqnum_impl(int irqnum)
 {
     return !((irqnum < 0) || (irqnum >= (int) ARRLEN(irq_hooks)));
 }
 
-ALWAYS_INLINE int __irq_has_hook_impl(int irqnum)
+INLINE int __irq_has_hook_impl(int irqnum)
 {
     return (irq_hooks[irqnum] != DEFAULT_HOOK_FUNC);
 }
 
-ALWAYS_INLINE int __irq_call_hook_impl(int irqnum)
+INLINE int __irq_call_hook_impl(int irqnum)
 {
     return (irq_hooks[irqnum](irqnum));
 }
