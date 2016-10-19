@@ -4,27 +4,16 @@ I'm making a kernel.
 
 ## Building and Running
 
-Double-check the prerequisites before trying anything :-).
+Please double-check the prerequisites before trying anything :-)
 
 To build and create a bootable floppy image, use `make image`.
 
-To run, use `make run`.
-
-To attempt to mount the image, use `make mount`. 
-To unmount, use `make unmount`.
-Note that this is dependent on the FAT header in boot/boot.asm.
+To run (and build if not already built), use `make run`.
 
 ## Prerequisites
 
-The building process relies on some GNU coreutils, so a Linux build environment 
-is recommended.
-
-* nasm
+* make
 * gcc
-* qemu (to emulate)
-* dd (to make the floppy image and write to it)
-
-## Known Issues
-
-* Sometimes the primary makefile doesn't notice changes: use `make clean` to 
-delete everything before trying to build again.
+* nasm
+* dd - to make a floppy image
+* qemu - for quick emulation
