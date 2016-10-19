@@ -14,7 +14,7 @@ enum
                             | PANIC_SHOW_HELP,
 };
 
-void panic_set_flags(uint32_t flags, int state);
+uint32_t panic_set_flags(uint32_t flags, int state);
 
 void NO_RETURN paniccs(const struct cpustat cs, const char *fmt, ...);
 void NO_RETURN panic(const char *fmt, ...);

@@ -7,13 +7,14 @@
 
 static uint32_t s_panic_flags = PANIC_SHOW_DUMP;
 
-void panic_set_flags(uint32_t flags, int state)
+uint32_t panic_set_flags(uint32_t flags, int state)
 {
     if (state) {
         s_panic_flags |= flags;
     } else {
         s_panic_flags &= ~flags;
     }
+    return s_panic_flags;
 }
 
 static void print_cpustat(const struct cpustat cs)
