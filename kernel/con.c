@@ -14,10 +14,26 @@ struct charinfo
 };
 
 static struct charinfo  *screen_ptr;
-static int              screen_index;
+static int              s_screen_index;
 static int              screen_flags;
-static int              screen_width;
-static int              screen_height;
+static int              s_screen_width;
+static int              s_screen_height;
+
+enum
+{
+    SEEK_REL = 0,
+    SEEK_ABS = 1,
+};
+
+static int seek_cursor(int offset, int seek)
+{
+    if (offset && (seek == SEEK_REL)) {
+        s_screen_index += offset;
+    } else if (seek == SEEK_ABS) {
+        s_screen_index = offset;
+    }
+    return s_screen_index;
+}
 
 static void scroll_screen(unsigned int lines)
 {
@@ -27,10 +43,10 @@ static void scroll_screen(unsigned int lines)
     unsigned int n;
 
     ptr0 = screen_ptr;
-    ptr1 = ptr0 + screen_width * lines;
+    ptr1 = ptr0 + s_screen_width * lines;
 
     // Move the topmost lines upwards
-    n = (unsigned int) (screen_width * (screen_height - lines));
+    n = (unsigned int) (s_screen_width * (s_screen_height - lines));
     while (n--) {
         *(ptr0++) = *(ptr1++);
     }
@@ -38,12 +54,12 @@ static void scroll_screen(unsigned int lines)
     clearchar.c     = 0;
     clearchar.flags = screen_flags;
 
-    n = (unsigned int) (screen_width * lines);
+    n = (unsigned int) (s_screen_width * lines);
     while (n--) {
         *(ptr0++) = clearchar;
     }
 
-    screen_index -= lines * screen_width;
+    seek_cursor(-(lines * s_screen_width), SEEK_REL);
 }
 
 static void put_char(char c)
@@ -52,11 +68,12 @@ static void put_char(char c)
     info.c      = c;
     info.flags  = (unsigned char) screen_flags;
 
-    if (screen_index >= (screen_width * screen_height) - 1) {
+    if (s_screen_index >= (s_screen_width * s_screen_height) - 1) {
         scroll_screen(1);
     }
 
-    screen_ptr[screen_index++] = info;
+    screen_ptr[s_screen_index] = info;
+    seek_cursor(1, SEEK_REL);
 }
 
 int con_init(struct kernel_boot_params *params)
@@ -65,35 +82,35 @@ int con_init(struct kernel_boot_params *params)
     int cursor_y = 0;
 
     screen_ptr = (struct charinfo *) 0xb8000;
-    screen_width = 80;
-    screen_height = 25;
+    s_screen_width = 80;
+    s_screen_height = 25;
 
     // Use the cursor co-ordinates from the boot parameter block, providing
     // the block is present and the co-ordinates it describes are valid.
     // Note that the cursor co-ordinates in the param block are unsigned bytes.
     if (params &&
-        ((int) params->cursor_x < screen_width) &&
-        ((int) params->cursor_y < screen_height)) {
+        ((int) params->cursor_x < s_screen_width) &&
+        ((int) params->cursor_y < s_screen_height)) {
 
         cursor_x = (int) params->cursor_x;
         cursor_y = (int) params->cursor_y;
     }
 
-    screen_index = cursor_x + cursor_y * screen_width;
+    seek_cursor(cursor_x + cursor_y * s_screen_width, SEEK_ABS);
 
     // Our default flags are the flags of whatever character cell is at the
     // initial cursor position.
-    screen_flags = (int) (screen_ptr[screen_index].flags);
+    screen_flags = (int) (screen_ptr[s_screen_index].flags);
 
-    kprintf("con: %dx%d at %p\n", screen_width, screen_height, screen_ptr);
+    kprintf("con: %dx%d at %p\n", s_screen_width, s_screen_height, screen_ptr);
 
     return 0;
 }
 
 void con_clear(void)
 {
-    scroll_screen(screen_height);
-    screen_index = 0;
+    scroll_screen(s_screen_height);
+    seek_cursor(0, SEEK_ABS);
 }
 
 int con_write_char(char c)
@@ -102,25 +119,25 @@ int con_write_char(char c)
         put_char(c);
         return 1;
     } else if (c == '\n') {
-        int count = screen_width - screen_index % screen_width;
+        int count = s_screen_width - s_screen_index % s_screen_width;
         for (int i = 0; i < count; ++i) {
             put_char(0);
         }
         return 0;
     } else if (c == '\t') {
-        int count = TAB_WIDTH - screen_index % TAB_WIDTH;
+        int count = TAB_WIDTH - s_screen_index % TAB_WIDTH;
         for (int i = 0; i < count; ++i) {
             put_char(' ');
         }
         return count;
     } else if (c == '\r') {
-        screen_index += screen_index % screen_width;
+        seek_cursor(s_screen_index % s_screen_width, SEEK_REL);
         return 0;
     } else if (c == '\b') {
-        if (screen_index > 0) {
-            screen_index--;
+        if (s_screen_index > 0) {
+            seek_cursor(-1, SEEK_REL);
             put_char(' ');
-            screen_index--;
+            seek_cursor(-1, SEEK_REL);
             return 0;
         }
     } else {
@@ -178,23 +195,23 @@ int con_get_fgcol(void)
 
 int con_set_curpos(int x, int y)
 {
-    if (x < 0 || x >= screen_width) {
+    if (x < 0 || x >= s_screen_width) {
         return 1;
     }
 
-    if (y < 0 || y >= screen_height) {
+    if (y < 0 || y >= s_screen_height) {
         return 1;
     }
 
-    screen_index = x + y * screen_width;
+    seek_cursor(x + y * s_screen_width, SEEK_ABS);
 
     return 0;
 }
 
 void con_get_curpos(int *x, int *y)
 {
-    int xx = screen_index % screen_width;
-    int yy = screen_index / screen_width;
+    int xx = s_screen_index % s_screen_width;
+    int yy = s_screen_index / s_screen_width;
 
     if (x) {
         *x = xx;
