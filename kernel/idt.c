@@ -2,24 +2,29 @@
 #include "kio.h"
 #include "kutil.h"
 
-static struct idt_entry idt[256] = { 0 };
+#define IDT_SIZE    256
 
-static int __idt_is_valid_index_impl(int index)
-{    
-    return !((index < 0) || (index >= (int) ARRLEN(idt)));
+static struct idt_entry s_idt[IDT_SIZE];
+
+INLINE int __idt_is_valid_index_impl(int index)
+{
+    return !((index < 0) || (index >= (int) ARRLEN(s_idt)));
 }
 
 int idt_init(void)
 {
-    struct idt_descriptor descriptor = { sizeof(idt), idt };
+    kzeromem(s_idt, sizeof(s_idt));
+
+    struct idt_descriptor descriptor = { sizeof(s_idt), s_idt };
+
     ASM_VOLATILE("lidt [eax]"::"a"(&descriptor));
-    kprintf("idt: loaded with size %d at %p\n", ARRLEN(idt), idt);
+    kprintf("idt: loaded with size %d at %p\n", ARRLEN(s_idt), s_idt);
 
     return 0;
 }
 
 int idt_is_valid_index(int index)
-{    
+{
     return __idt_is_valid_index_impl(index);
 }
 
@@ -29,7 +34,7 @@ int idt_has_entry(int index)
         return 1;
     }
 
-    struct idt_entry entry = idt[index];
+    struct idt_entry entry = s_idt[index];
     return (entry.flags & IDT_PRESENT);
 }
 
@@ -40,7 +45,7 @@ int idt_set_entry(int index, void (*handler)(void), int selector, int flags)
     }
 
     struct idt_entry entry = IDT_DEF_ENTRY(handler, selector, flags);
-    idt[index] = entry;
+    s_idt[index] = entry;
 
     return 0;
 }
