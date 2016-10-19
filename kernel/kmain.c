@@ -18,15 +18,15 @@ void call_test_fn(void);
 
 void CDECL NO_RETURN
 kmain(void)
-{ 
+{
     struct kernel_boot_params *params = boot_get_params(BOOT_PARAM_BLOCK_ADDR);
 
     // Initialise primary systems
-    if (con_init(params) || 
-        idt_init() || 
+    if (con_init(params) ||
+        idt_init() ||
         isr_init() ||
-        syscall_init() || 
-        ps2_init() || 
+        syscall_init() ||
+        ps2_init() ||
         irq_init()) {
         // If any of these fail, we cannot continue
         panic("init error\n");
