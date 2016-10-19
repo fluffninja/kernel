@@ -13,6 +13,18 @@ struct charinfo
     unsigned char   flags;
 };
 
+static uint32_t s_con_flags = 0;
+
+uint32_t con_set_flags(uint32_t flags, int state)
+{
+    if (state) {
+        s_con_flags |= flags;
+    } else {
+        s_con_flags &= ~flags;
+    }
+    return s_con_flags;
+}
+
 static struct charinfo  *screen_ptr;
 static int              s_screen_index;
 static int              screen_flags;

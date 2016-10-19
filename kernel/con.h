@@ -1,6 +1,8 @@
 #ifndef _INC_CON
 #define _INC_CON 1
 
+#include <stdint.h>
+
 #include "boot.h"
 
 #define COL_BLACK               0x00
@@ -21,6 +23,7 @@
 #define COL_BRWHITE             0x0f
 
 int con_init(struct kernel_boot_params *params);
+uint32_t con_set_flags(uint32_t flags, int state);
 
 void con_clear(void);
 
