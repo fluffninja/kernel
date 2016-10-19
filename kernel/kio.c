@@ -17,8 +17,6 @@ static int s_outbuf_zeroed = 0;
 extern int con_write_str(const char *);
 extern int con_write_char(char);
 
-static int (*const puts_ptr)(const char *) = con_write_str;
-static int (*const putc_ptr)(char)         = con_write_char;
 
 ALWAYS_INLINE size_t
 __sputs(char **dst, const char *src, size_t sz)
