@@ -173,14 +173,17 @@ struct register_set
 ALWAYS_INLINE NO_OPTIMISE struct register_set
 get_registers(void)
 {
-    struct register_set result;
+    // NOTE: Disabled due to register allocation problems.
+    // TODO: Reimplement this in a less demanding manner.
+    struct register_set result = { 0 };
+    /*
     ASM_VOLATILE("pusha");
     register uint32_t a ASM("eax");
     register uint32_t b ASM("ebx");
     register uint32_t c ASM("ecx");
     register uint32_t d ASM("edx");
     register uint32_t si ASM("esi");
-    register uint32_t di ASM("edi"); 
+    register uint32_t di ASM("edi");
     register uint32_t bp ASM("ebp");
     register uint32_t sp ASM("esp");
     result.a = a;
@@ -192,6 +195,7 @@ get_registers(void)
     result.bp = bp;
     result.sp = sp;
     ASM_VOLATILE("popa");
+    */
     return result;
 }
 
