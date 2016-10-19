@@ -4,6 +4,7 @@
 #include "con.h"
 #include "kutil.h"
 #include "kio.h"
+#include "vga.h"
 
 #define TAB_WIDTH 4
 
@@ -44,6 +45,9 @@ static int seek_cursor(int offset, int seek)
     } else if (seek == SEEK_ABS) {
         s_screen_index = offset;
     }
+
+    vga_set_cursor_location((uint16_t) s_screen_index);
+
     return s_screen_index;
 }
 

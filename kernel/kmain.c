@@ -38,5 +38,7 @@ kmain(void)
     kb_init();
     vga_init();
 
+    vga_set_cursor_shape(14, 16);
+
     while (1);
 }
