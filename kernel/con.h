@@ -33,7 +33,7 @@ int con_get_bgcol(void);
 void con_set_fgcol(int col);
 int con_get_fgcol(void);
 
-int con_set_curpos(int row, int col);
-void con_get_curpos(int *row, int *col);
+int con_set_curpos(int x, int y);
+void con_get_curpos(int *x, int *y);
 
 #endif /* _INC_CON */
