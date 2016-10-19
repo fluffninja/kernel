@@ -28,8 +28,8 @@ static int process_command(char c)
     } else if (c == 'a') {
         // CTRL+A puts cursor at line start
         int y;
-        con_get_curpos(NULL, &y);
-        con_set_curpos(0, y);
+        con_get_cursor_location(NULL, &y);
+        con_set_cursor_location(0, y);
     } else {
         return 1;
     }

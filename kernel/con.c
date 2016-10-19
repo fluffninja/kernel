@@ -177,35 +177,35 @@ int con_write_str(const char *str)
     return char_count;
 }
 
-void con_set_bgcol(int col)
+void con_set_background_colour(int colour)
 {
     int flags = screen_flags;
     flags &= ~(0x07 << 4);
-    flags |= ((col & 0x07) << 4);
+    flags |= ((colour & 0x07) << 4);
     screen_flags = flags;
 }
 
-int con_get_bgcol(void)
+int con_get_background_colour(void)
 {
     int flags = screen_flags;
     return ((flags >> 4) & 0x07);
 }
 
-void con_set_fgcol(int col)
+void con_set_foreground_colour(int colour)
 {
     int flags = screen_flags;
     flags &= ~0x0f;
-    flags |= (col & 0x0f);
+    flags |= (colour & 0x0f);
     screen_flags = flags;
 }
 
-int con_get_fgcol(void)
+int con_get_foreground_colour(void)
 {
     int flags = screen_flags;
     return (flags & 0x0f);
 }
 
-int con_set_curpos(int x, int y)
+int con_set_cursor_location(int x, int y)
 {
     if (x < 0 || x >= s_screen_width) {
         return 1;
@@ -220,7 +220,7 @@ int con_set_curpos(int x, int y)
     return 0;
 }
 
-void con_get_curpos(int *x, int *y)
+void con_get_cursor_location(int *x, int *y)
 {
     int xx = s_screen_index % s_screen_width;
     int yy = s_screen_index / s_screen_width;
