@@ -10,7 +10,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 // Write a byte to the given port
 ALWAYS_INLINE void
@@ -261,7 +261,7 @@ cpuid(uint32_t query)
 #define CPUID_QUERY_EXTENDED_FEATURES_2 0x80000001
 #define CPUID_QUERY_BRAND_STRING_1      0x80000002
 #define CPUID_QUERY_BRAND_STRING_2      0x80000003
-#define CPUID_QUERY_BRAND_STRING_3      0x80000004   
+#define CPUID_QUERY_BRAND_STRING_3      0x80000004
 #define CPUID_QUERY_ADVANCED_POWER_INFO 0x80000007
 #define CPUID_QUERY_HIGHEST_VIRT_ADDR   0x80000008
 
@@ -275,6 +275,6 @@ cpuid(uint32_t query)
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 #endif /* _INC_ASM */
