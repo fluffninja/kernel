@@ -4,15 +4,15 @@
 #include <sys/asm.h>
 #include <cccompat.h>
 
-// Contains functions and utilities for registering handlers of interrupt 
+// Contains functions and utilities for registering handlers of interrupt
 // service routines (ISRs). These are functions that will be called when a
 // given interrupt - CPU, hardware, or software - is invoked.
 
-// Due to the fact that interrupts have an abnormal calling convention, 
+// Due to the fact that interrupts have an abnormal calling convention,
 // registerred ISRs must be registered via a 'handler'. A handler is a wrapper
 // function a given ISR. One must be defined for each ISR.
 
-// ISRs are given 
+// ISRs are given
 struct isr_params
 {
     struct cpustat cs;
