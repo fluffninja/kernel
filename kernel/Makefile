@@ -2,8 +2,12 @@ ASM		:= nasm
 ASMFLAGS	:= -f elf
 
 CC		:= gcc
-CFLAGS		:= -nostdinc -m32 -std=c11 -Wall -Wextra -c -I ../include \
-		-fno-builtin -fno-stack-protector -masm=intel
+CFLAGS		:= -std=c11 -c -I ../include \
+		-Wall -Wextra \
+		-m32 -masm=intel \
+		-nostdinc -fno-builtin -fno-stack-protector \
+		-mno-red-zone \
+		-fno-omit-frame-pointer -fno-combine-stack-adjustments
 
 LD		:= ld
 LDSCRIPT	:= kernel.ld
