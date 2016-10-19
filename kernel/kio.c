@@ -17,8 +17,7 @@ static int s_outbuf_zeroed = 0;
 extern int con_write_str(const char *);
 extern int con_write_char(char);
 
-
-ALWAYS_INLINE size_t
+size_t
 __sputs(char **dst, const char *src, size_t sz)
 {
     size_t i = 0;
@@ -37,7 +36,7 @@ __sputs(char **dst, const char *src, size_t sz)
     return i;
 }
 
-ALWAYS_INLINE size_t
+size_t
 __itoa10(int val, char *dst)
 {
     int buf[10];
@@ -74,7 +73,7 @@ __itoa10(int val, char *dst)
     return count;
 }
 
-ALWAYS_INLINE size_t
+size_t
 __itoa16(int val, char *dst)
 {
     static const char HEX_DIGIT_CHARS[16] = "0123456789abcdef";
@@ -155,7 +154,7 @@ struct fmtinfo
 // Note: this whole monolithic mess of a function will eventually get redone
 // in a far nicer manner. For now, I'm just trying to get it working.
 
-ALWAYS_INLINE size_t
+size_t
 __va_str_format_proc(
     const char      *fmt,
     struct fmtinfo  *fip)
@@ -449,7 +448,7 @@ __va_str_format_proc(
 
 // Processes string 'fmt' into buffer 'str' of size 'sz' using data from 'args'
 // Returns the number of characters written into buffer 'str'
-ALWAYS_INLINE size_t
+size_t
 __va_str_format_impl(
     char        *str,
     size_t      sz,
