@@ -3,6 +3,8 @@
 
 #include <cccompat.h>
 
+#include "kstring.h"
+
 #define PAGE_SIZE       4096
 #define PAGE_ALIGNED    ALIGN(PAGE_SIZE)
 
@@ -10,7 +12,10 @@
 #define ARRLEN(A)       (sizeof(A) / sizeof(*(A)))
 #endif
 
-int atoi(const char *str);
-char *itoa(int val, char *str, int radix);
+INLINE void *
+kzeromem(void *ptr, size_t sz)
+{
+    return kmemset(ptr, sz, 0);
+}
 
 #endif /* _INC_KUTIL */
