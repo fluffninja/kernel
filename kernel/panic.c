@@ -5,11 +5,15 @@
 #include "con.h"
 #include "panic.h"
 
-static int s_use_bsod = 0;
+static uint32_t s_panic_flags = PANIC_SHOW_DUMP;
 
-void panic_set_use_bsod(int use_bsod) 
+void panic_set_flags(uint32_t flags, int state)
 {
-    s_use_bsod = use_bsod ? 1 : 0;
+    if (state) {
+        s_panic_flags |= flags;
+    } else {
+        s_panic_flags &= ~flags;
+    }
 }
 
 static void print_cpustat(const struct cpustat cs)
@@ -24,14 +28,19 @@ static void print_cpustat(const struct cpustat cs)
     );
 }
 
-ALWAYS_INLINE NO_RETURN void
+INLINE NO_RETURN void
 __panic(const struct cpustat cs, const char *fmt, va_list args)
-{   
-    if (s_use_bsod) {
-        // Yes, really.
+{
+    if (s_panic_flags & PANIC_USE_COLOUR) {
         con_set_bgcol(COL_BLUE);
         con_set_fgcol(COL_BRWHITE);
-        con_clear();    
+    }
+
+    if (s_panic_flags & PANIC_CLEAR_SCREEN) {
+        con_clear();
+    }
+
+    if (s_panic_flags & PANIC_SHOW_HELP) {
         kprintf(
             "\n"
             "A problem has been detected and your computer has been\n"
@@ -46,7 +55,9 @@ __panic(const struct cpustat cs, const char *fmt, va_list args)
     kprintf("panic: ");
     kvprintf(fmt, args);
 
-    print_cpustat(cs);
+    if (s_panic_flags & PANIC_SHOW_DUMP) {
+        print_cpustat(cs);
+    }
 
     cli();
     hlt();
