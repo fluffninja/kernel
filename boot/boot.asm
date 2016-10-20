@@ -49,7 +49,7 @@
 %define BOOT_PARAM_BLOCK_LOCATION   (0x7000)
 %define BOOT_PARAM_BLOCK_SINGATURE  (0xc33c)
 
-    
+
     ; These first few parts are 16-bit. We'll switch to 32-bit later on.
     [bits       16]
 
@@ -85,12 +85,12 @@ DRIVE_LOGICAL_DRIVE_NUMBER          db  0
 DRIVE_EXTENDED_SIGNATURE            db  0x29            ; 3 More Fields Present
 DRIVE_VOLUME_SERIAL_NUMBER          dd  0x1544c051      ; Arbritrary
 DRIVE_VOLUME_LABEL                  db  "OS BOOTDISK"   ; 11 Characters
-DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters  
+DRIVE_VOLUME_FILESYSTEM_TYPE        db  "FAT16   "      ; 8 Characters
 
 
 stage_1_normalise_code_address_16:
-    ; The BIOS can place us at 07c0:0000 or 0000:7c00 -- the same address, but 
-    ; addressed using different schemes. The following long jump normalises 
+    ; The BIOS can place us at 07c0:0000 or 0000:7c00 -- the same address, but
+    ; addressed using different schemes. The following long jump normalises
     ; things to the latter.
     jmp         long 0x0000:stage_1_start_16
 
@@ -149,7 +149,9 @@ stage_1_start_16:
 .no_disk_extensions:
     mov         ax, STAGE_1_PAYLOAD_START
     mov         bx, STAGE_2_LOCATION
-    mov         cx, STAGE_1_PAYLOAD_SECTORS    
+    mov         cx, STAGE_1_PAYLOAD_SECTORS
+    xor         di, di
+    mov         es, di
 
 .read_floppy:
     pusha
@@ -186,14 +188,14 @@ load_floppy_using_extensions_16:
     ; - defined below.
     mov         ah, 0x42
     mov         si, .data_access_packet_struct
-    stc 
+    stc
     int         0x13
     jc          .read_fail
 
     jmp         long 0x0000:stage_2_start_16
 
     ; Data Access Packet- for use with the BIOS extended disk functionality.
-    ; Currently set up and ready for use with stage 1, and later modified and 
+    ; Currently set up and ready for use with stage 1, and later modified and
     ; reused by stage 2.
 .data_access_packet_struct:
                         db  0x10                        ; Size of packet
@@ -203,14 +205,14 @@ load_floppy_using_extensions_16:
 .destination_segment    dw  0                           ; Destination segment
 .read_sector_index      dq  STAGE_1_PAYLOAD_START       ; On-disk sector index
 
-.read_fail:    
+.read_fail:
     ; Check attempt count. If zero, quit.
     dec         di
     call        floppy_read_error_16
 
     ; Reset floppy drive
     xor         ah, ah
-    stc 
+    stc
     int         0x13
     jnc         short .read_floppy
 
@@ -240,7 +242,7 @@ reboot_16:
     int         0x19        ; Warm reboot
 
     ; If the above interrupts fail, just halt
-    cli    
+    cli
     hlt
 
 
@@ -347,7 +349,7 @@ lba_to_hcs_16:
 
     ; Get the actual sector value
     xor         dx, dx                          ; Part of operand, make sure 0
-    div         word [w_sectors_per_cylinder]   
+    div         word [w_sectors_per_cylinder]
     inc         dl                              ; Remainder is sector, indexed
     mov         cl, dl                          ; from 1
 
@@ -370,7 +372,7 @@ lba_to_hcs_16:
 
 
 ; Error messages for our dear user
-; Keep these brief, for we've only 512 bytes of space                           
+; Keep these brief, for we've only 512 bytes of space
 MSG_NO_BOOT_DUE_TO_DISK db "Cannot boot due to a problem with the disk", 0
 MSG_KEY_TO_REBOOT       db "Press any key to reboot", 10, 13, 0
 MSG_DISK_ID             db "Disk:  ", 0
@@ -446,7 +448,7 @@ test_a20:
     mov         si, MSG_NO_BOOT_DUE_TO_A20
     call        print_line_16
     call        reboot_16
-    
+
 
 init_pm:
     cli
@@ -526,7 +528,7 @@ enable_a20_fast_16:
 
 ; GDT Entry Macro
 ; Defines a GDT entry, correctly arranging the fields into twisted, evil forms.
-; Params: 
+; Params:
 ;   Base   (32 bits)
 ;   Limit  (20 bits)
 ;   Access (8  bits)
@@ -542,7 +544,7 @@ enable_a20_fast_16:
 
 
 ; Utilise the above macro to define our Global Descriptor table. This will
-; later get re-written by the kernel, but we need one for the time being 
+; later get re-written by the kernel, but we need one for the time being
 ; so that we can switch into protected mode.
 ; For now our GDT specifies a data segment and a code (text) segment. They
 ; both span the entirity of the virtual address space, thus specifying that
@@ -555,7 +557,7 @@ gdt:
 .end:
 
 
-; The GDT description structure. 
+; The GDT description structure.
 gdt_description:
     dw (gdt.end - gdt.start - 1)                ; GDT Size
     dd gdt                                      ; GDT Address (32-bit)
@@ -576,7 +578,7 @@ idt_description:
 ; We're now in 32-bit land.
 ; Load the new data segment from the GDT.
 stage_2_start_32:
-    mov         ax, 0x10                        
+    mov         ax, 0x10
     mov         ds, ax                          ; Data segment is now 0x10 :-)
     mov         es, ax
     mov         ss, ax
@@ -593,7 +595,7 @@ stage_2_start_32:
     jmp         KERNEL_TARGET_LOCATION
 
 
-; Pad out the rest of this sector 
+; Pad out the rest of this sector
 times ((512 * 2) - ($ - $$)) db 0
 
     [absolute   BOOT_PARAM_BLOCK_LOCATION]
