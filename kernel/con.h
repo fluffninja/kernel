@@ -22,21 +22,24 @@
 #define COL_BRYELLOW            0x0e
 #define COL_BRWHITE             0x0f
 
+enum
+{
+    CON_CURSOR_SHAPE_NONE,
+    CON_CURSOR_SHAPE_UNDERLINE,
+    CON_CURSOR_SHAPE_BLOCK,
+};
+
 int con_init(struct kernel_boot_params *params);
 uint32_t con_set_flags(uint32_t flags, int state);
-
 void con_clear(void);
-
 int con_write_char(char c);
 int con_write_str(const char *str);
-
 void con_set_background_colour(int col);
 int con_get_background_colour(void);
-
 void con_set_foreground_colour(int col);
 int con_get_foreground_colour(void);
-
 int con_set_cursor_location(int x, int y);
 void con_get_cursor_location(int *x, int *y);
+void con_set_cursor_shape(int shape);
 
 #endif /* _INC_CON */

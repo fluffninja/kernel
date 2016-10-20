@@ -14,23 +14,12 @@ struct charinfo
     unsigned char   flags;
 };
 
-static uint32_t s_con_flags = 0;
-
-uint32_t con_set_flags(uint32_t flags, int state)
-{
-    if (state) {
-        s_con_flags |= flags;
-    } else {
-        s_con_flags &= ~flags;
-    }
-    return s_con_flags;
-}
-
 static struct charinfo  *screen_ptr;
 static int              s_screen_index;
 static int              screen_flags;
 static int              s_screen_width;
 static int              s_screen_height;
+static uint32_t         s_con_flags = 0;
 
 enum
 {
@@ -121,6 +110,17 @@ int con_init(struct kernel_boot_params *params)
     kprintf("con: %dx%d at %p\n", s_screen_width, s_screen_height, screen_ptr);
 
     return 0;
+}
+
+uint32_t con_set_flags(uint32_t flags, int state)
+{
+    if (state) {
+        s_con_flags |= flags;
+    } else {
+        s_con_flags &= ~flags;
+    }
+
+    return s_con_flags;
 }
 
 void con_clear(void)
@@ -235,6 +235,25 @@ void con_get_cursor_location(int *x, int *y)
 
     if (y) {
         *y = yy;
+    }
+}
+
+void con_set_cursor_shape(int shape)
+{
+    switch (shape) {
+    default:
+    case CON_CURSOR_SHAPE_NONE:
+        vga_disable_cursor();
+        break;
+    case CON_CURSOR_SHAPE_UNDERLINE:
+        // TODO: Keep track of the current video mode's character cell size
+        // so that we know what size constitutes a 'block' or 'underline'
+        // cursor.
+        vga_set_cursor_shape(14, 16);
+        break;
+    case CON_CURSOR_SHAPE_BLOCK:
+        vga_set_cursor_shape(0, 16);
+        break;
     }
 }
 
