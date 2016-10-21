@@ -160,43 +160,34 @@ rdmsr(uint32_t reg)
 
 struct register_set
 {
-    uint32_t a;
-    uint32_t b;
-    uint32_t c;
-    uint32_t d;
-    uint32_t si;
+    // NOTE: The function get_registers(), below, requires that these fields
+    // be in the reverse order that the registers are pushed onto the stack
+    // by the PUSHA instruction.
     uint32_t di;
+    uint32_t si;
     uint32_t bp;
     uint32_t sp;
+    uint32_t b;
+    uint32_t d;
+    uint32_t c;
+    uint32_t a;
 };
 
-ALWAYS_INLINE NO_OPTIMISE struct register_set
+ALWAYS_INLINE struct register_set
 get_registers(void)
 {
-    // NOTE: Disabled due to register allocation problems.
-    // TODO: Reimplement this in a less demanding manner.
-    struct register_set result = { 0 };
-    /*
-    ASM_VOLATILE("pusha");
-    register uint32_t a ASM("eax");
-    register uint32_t b ASM("ebx");
-    register uint32_t c ASM("ecx");
-    register uint32_t d ASM("edx");
-    register uint32_t si ASM("esi");
-    register uint32_t di ASM("edi");
-    register uint32_t bp ASM("ebp");
-    register uint32_t sp ASM("esp");
-    result.a = a;
-    result.b = b;
-    result.c = c;
-    result.d = d;
-    result.si = si;
-    result.di = di;
-    result.bp = bp;
-    result.sp = sp;
-    ASM_VOLATILE("popa");
-    */
-    return result;
+    // Push all general-purpose registers onto the stack, then return a
+    // pointer to their location on the stack, and allow the compiler to
+    // dereference it as it wants.
+    struct register_set *regset;
+    ASM_VOLATILE(
+        "pusha              \n\t"
+        "mov    %0, esp     \n\t"
+        "add    esp, %1     \n\t":
+        "=g"(regset):
+        "Z"(sizeof(struct register_set))
+    );
+    return *regset;
 }
 
 ALWAYS_INLINE NO_OPTIMISE uint32_t
