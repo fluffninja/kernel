@@ -111,17 +111,6 @@ ALWAYS_INLINE void hlt(void)
     ASM("hlt");
 }
 
-BEGIN_PACK struct gdt_entry
-{
-} END_PACK;
-
-// 48-bit GDT descriptor, for use with lgdt and sgdt
-BEGIN_PACK struct gdt_descriptor
-{
-    uint16_t            size;
-    struct gdt_entry    *base;
-} END_PACK;
-
 // Get clock-cycles since boot via RDTSC (Read Time-stamp counter)
 ALWAYS_INLINE uint64_t
 rdtsc(void)
