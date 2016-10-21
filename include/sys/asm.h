@@ -196,8 +196,8 @@ get_eflags(void)
     uint32_t result;
     ASM_VOLATILE(
         "pushf  \n\t"
-        "pop eax\n\t":
-        "=a"(result)
+        "pop %0 \n\t":
+        "=g"(result)
     );
     return result;
 }
