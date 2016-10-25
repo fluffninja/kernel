@@ -23,7 +23,7 @@
 #define SMART_KZEROMEM 1
 
 // Fill the region of memory pointed to by 'ptr' of size 'sz' with zeroes.
-INLINE void *kzeromem(void *ptr, size_t sz)
+static INLINE void *kzeromem(void *ptr, size_t sz)
 {
     #ifdef SMART_KZEROMEM
     // The compiler _should_ be clever enough to optimise this out

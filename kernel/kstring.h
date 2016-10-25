@@ -6,8 +6,7 @@
 #include <stddef.h>
 
 // Memset in 4 byte blocks
-INLINE void *
-kmemset32(void *ptr, size_t sz, uint32_t val)
+static INLINE void *kmemset32(void *ptr, size_t sz, uint32_t val)
 {
     uint32_t *ptr32 = (uint32_t *) ptr;
     sz /= sizeof(uint32_t);
@@ -18,8 +17,7 @@ kmemset32(void *ptr, size_t sz, uint32_t val)
 }
 
 // Memset in 2 byte blocks
-INLINE void *
-kmemset16(void *ptr, size_t sz, uint16_t val)
+static INLINE void *kmemset16(void *ptr, size_t sz, uint16_t val)
 {
     uint16_t *ptr16 = (uint16_t *) ptr;
     sz /= sizeof(uint16_t);
@@ -30,8 +28,7 @@ kmemset16(void *ptr, size_t sz, uint16_t val)
 }
 
 // Memset in 1 byte blocks
-INLINE void *
-kmemset(void *ptr, size_t sz, uint16_t val) 
+static INLINE void *kmemset(void *ptr, size_t sz, uint16_t val)
 {
     uint8_t *ptr8 = (uint8_t *) ptr;
     while (sz--) {
@@ -41,8 +38,7 @@ kmemset(void *ptr, size_t sz, uint16_t val)
 }
 
 // Memcpy in 4 byte blocks
-INLINE void *
-kmemcpy32(const void *src, void *dst, size_t sz)
+static INLINE void *kmemcpy32(const void *src, void *dst, size_t sz)
 {
     const uint32_t  *src32 = (const uint32_t *) src;
     uint32_t        *dst32 = (uint32_t *)       dst;
@@ -54,8 +50,7 @@ kmemcpy32(const void *src, void *dst, size_t sz)
 }
 
 // Memcpy in 2 byte blocks
-INLINE void *
-kmemcpy16(const void *src, void *dst, size_t sz)
+static INLINE void *kmemcpy16(const void *src, void *dst, size_t sz)
 {
     const uint16_t  *src16 = (const uint16_t *) src;
     uint16_t        *dst16 = (uint16_t *)       dst;
@@ -67,8 +62,7 @@ kmemcpy16(const void *src, void *dst, size_t sz)
 }
 
 // Memset in 1 byte blocks
-INLINE void *
-kmemcpy(const void *src, void *dst, size_t sz)
+static INLINE void *kmemcpy(const void *src, void *dst, size_t sz)
 {
     const uint8_t   *src8   = (const uint8_t *) src;
     uint8_t         *dst8   = (uint8_t *)       dst;
@@ -78,8 +72,7 @@ kmemcpy(const void *src, void *dst, size_t sz)
     return dst;
 }
 
-INLINE char *
-kstrcpy(const char *src, char *dst)
+static INLINE char *kstrcpy(const char *src, char *dst)
 {
     while (*src) {
         *(dst++) = *(src++);

@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 // Write a byte to the given port
-ALWAYS_INLINE void outportb(uint16_t port, uint8_t value)
+static ALWAYS_INLINE void outportb(uint16_t port, uint8_t value)
 {
     ASM_VOLATILE(
         "outb %1, %0"::
@@ -23,7 +23,7 @@ ALWAYS_INLINE void outportb(uint16_t port, uint8_t value)
 }
 
 // Write a word to the given port
-ALWAYS_INLINE void outportw(uint16_t port, uint16_t value)
+static ALWAYS_INLINE void outportw(uint16_t port, uint16_t value)
 {
     ASM_VOLATILE(
         "outw %1, %0"::
@@ -33,7 +33,7 @@ ALWAYS_INLINE void outportw(uint16_t port, uint16_t value)
 }
 
 // Write a double-word to the given port
-ALWAYS_INLINE void outportl(uint16_t port, uint32_t value)
+static ALWAYS_INLINE void outportl(uint16_t port, uint32_t value)
 {
     ASM_VOLATILE(
         "outl %1, %0"::
@@ -43,7 +43,7 @@ ALWAYS_INLINE void outportl(uint16_t port, uint32_t value)
 }
 
 // Read a byte from the given port
-ALWAYS_INLINE uint8_t inportb(uint16_t port)
+static ALWAYS_INLINE uint8_t inportb(uint16_t port)
 {
     uint8_t value;
     ASM_VOLATILE(
@@ -55,7 +55,7 @@ ALWAYS_INLINE uint8_t inportb(uint16_t port)
 }
 
 // Read a word from the given port
-ALWAYS_INLINE uint16_t inportw(uint16_t port)
+static ALWAYS_INLINE uint16_t inportw(uint16_t port)
 {
     uint16_t value;
     ASM_VOLATILE(
@@ -67,7 +67,7 @@ ALWAYS_INLINE uint16_t inportw(uint16_t port)
 }
 
 // Read a double-word from the given port
-ALWAYS_INLINE uint32_t inportl(uint16_t port)
+static ALWAYS_INLINE uint32_t inportl(uint16_t port)
 {
     uint32_t value;
     ASM_VOLATILE(
@@ -78,7 +78,7 @@ ALWAYS_INLINE uint32_t inportl(uint16_t port)
     return value;
 }
 
-ALWAYS_INLINE void portwait(void)
+static ALWAYS_INLINE void portwait(void)
 {
     // Reference: http://www.makelinux.net/ldd3/chp-9-sect-2
     // Output to an unused port to make sure any previous port-outputs have
@@ -87,25 +87,25 @@ ALWAYS_INLINE void portwait(void)
 }
 
 // Disable interrupts
-ALWAYS_INLINE void cli(void)
+static ALWAYS_INLINE void cli(void)
 {
     ASM("cli");
 }
 
 // Enable interrupts
-ALWAYS_INLINE void sti(void)
+static ALWAYS_INLINE void sti(void)
 {
     ASM("sti");
 }
 
 // Halt until next interrupt
-ALWAYS_INLINE void hlt(void)
+static ALWAYS_INLINE void hlt(void)
 {
     ASM("hlt");
 }
 
 // Get clock-cycles since boot via RDTSC (Read Time-stamp counter)
-ALWAYS_INLINE uint64_t rdtsc(void)
+static ALWAYS_INLINE uint64_t rdtsc(void)
 {
     uint64_t value;
     ASM(
@@ -116,7 +116,7 @@ ALWAYS_INLINE uint64_t rdtsc(void)
 }
 
 // Write model-specific register
-ALWAYS_INLINE void wrmsr(uint32_t reg, uint64_t value)
+static ALWAYS_INLINE void wrmsr(uint32_t reg, uint64_t value)
 {
     ASM(
         "wrmsr"::
@@ -126,7 +126,7 @@ ALWAYS_INLINE void wrmsr(uint32_t reg, uint64_t value)
 }
 
 // Read model-specific register
-ALWAYS_INLINE uint64_t rdmsr(uint32_t reg)
+static ALWAYS_INLINE uint64_t rdmsr(uint32_t reg)
 {
     uint64_t value;
     ASM(
@@ -152,7 +152,7 @@ struct register_set
     uint32_t a;
 };
 
-ALWAYS_INLINE struct register_set get_registers(void)
+static ALWAYS_INLINE struct register_set get_registers(void)
 {
     // Push all general-purpose registers onto the stack, then return a
     // pointer to their location on the stack, and allow the compiler to
@@ -168,7 +168,7 @@ ALWAYS_INLINE struct register_set get_registers(void)
     return *regset;
 }
 
-ALWAYS_INLINE NO_OPTIMISE uint32_t get_eflags(void)
+static ALWAYS_INLINE NO_OPTIMISE uint32_t get_eflags(void)
 {
     uint32_t result;
     ASM_VOLATILE(
@@ -185,7 +185,7 @@ struct cpustat
     uint32_t            eflags;
 };
 
-ALWAYS_INLINE NO_OPTIMISE struct cpustat collect_cpustat(void)
+static ALWAYS_INLINE NO_OPTIMISE struct cpustat collect_cpustat(void)
 {
     struct cpustat cs;
     cs.regset = get_registers();

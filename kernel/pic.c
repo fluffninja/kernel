@@ -87,25 +87,25 @@ int pic_remap(int master, int slave)
     return 0;
 }
 
-INLINE void master_set_mask(uint8_t mask)
+static INLINE void master_set_mask(uint8_t mask)
 {
     portwait();
     outportb(PIC_PORT_MASTER_DATA, mask);
 }
 
-INLINE uint8_t master_get_mask(void)
+static INLINE uint8_t master_get_mask(void)
 {
     portwait();
     return inportb(PIC_PORT_MASTER_DATA);
 }
 
-INLINE void slave_set_mask(uint8_t mask)
+static INLINE void slave_set_mask(uint8_t mask)
 {
     portwait();
     outportb(PIC_PORT_SLAVE_DATA, mask);
 }
 
-INLINE uint8_t slave_get_mask(void)
+static INLINE uint8_t slave_get_mask(void)
 {
     portwait();
     return inportb(PIC_PORT_SLAVE_DATA);

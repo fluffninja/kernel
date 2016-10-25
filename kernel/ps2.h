@@ -198,7 +198,7 @@ void ps2_set_config(uint8_t ps2_config);
 #define PS2_OUTPUT_BUFFER_WAIT_TIMEOUT      1024
 #define PS2_INPUT_BUFFER_FLUSH_ATTEMPTS     1024
 
-ALWAYS_INLINE int __flush_input_buffer(void)
+static ALWAYS_INLINE int __flush_input_buffer(void)
 {
     int i = PS2_INPUT_BUFFER_FLUSH_ATTEMPTS;
     while (i--) {
@@ -214,7 +214,7 @@ ALWAYS_INLINE int __flush_input_buffer(void)
     return 1;
 }
 
-ALWAYS_INLINE int __wait_for_output_buffer(void)
+static ALWAYS_INLINE int __wait_for_output_buffer(void)
 {
     int i = PS2_OUTPUT_BUFFER_WAIT_TIMEOUT;
     while (i--) {
