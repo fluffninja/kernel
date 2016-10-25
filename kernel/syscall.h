@@ -7,44 +7,40 @@
 
 #define SYSCALL_IDT_INDEX   0x40
 
-ALWAYS_INLINE void
-__syscall(void) 
+static ALWAYS_INLINE void __syscall(void)
 {
     ASM_VOLATILE(
         "int %0"::
         "N"(SYSCALL_IDT_INDEX):
-        "cc", 
+        "cc",
         "memory"
     );
 }
 
-ALWAYS_INLINE void
-__syscall1(uint32_t a)
+static ALWAYS_INLINE void __syscall1(uint32_t a)
 {
     ASM_VOLATILE(
         "int %0"::
         "N"(SYSCALL_IDT_INDEX),
         "a"(a):
-        "cc", 
+        "cc",
         "memory"
     );
 }
 
-ALWAYS_INLINE void
-__syscall2(uint32_t a, uint32_t b)
+static ALWAYS_INLINE void __syscall2(uint32_t a, uint32_t b)
 {
     ASM_VOLATILE(
         "int %0"::
         "N"(SYSCALL_IDT_INDEX),
         "a"(a),
         "b"(b):
-        "cc", 
+        "cc",
         "memory"
     );
 }
 
-ALWAYS_INLINE void
-__syscall3(uint32_t a, uint32_t b, uint32_t c)
+static ALWAYS_INLINE void __syscall3(uint32_t a, uint32_t b, uint32_t c)
 {
     ASM_VOLATILE(
         "int %0"::
@@ -52,13 +48,13 @@ __syscall3(uint32_t a, uint32_t b, uint32_t c)
         "a"(a),
         "b"(b),
         "c"(c):
-        "cc", 
+        "cc",
         "memory"
     );
 }
 
-ALWAYS_INLINE void
-__syscall4(uint32_t a, uint32_t b, uint32_t c, uint32_t d)
+static ALWAYS_INLINE void __syscall4(uint32_t a, uint32_t b, uint32_t c,
+    uint32_t d)
 {
     ASM_VOLATILE(
         "int %0"::
@@ -67,7 +63,7 @@ __syscall4(uint32_t a, uint32_t b, uint32_t c, uint32_t d)
         "b"(b),
         "c"(c),
         "d"(d):
-        "cc", 
+        "cc",
         "memory"
     );
 }

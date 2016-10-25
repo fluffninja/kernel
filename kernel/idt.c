@@ -6,7 +6,7 @@
 
 static struct idt_entry s_idt[IDT_SIZE];
 
-INLINE int __idt_is_valid_index_impl(int index)
+static INLINE int __idt_is_valid_index_impl(int index)
 {
     return !((index < 0) || (index >= (int) ARRLEN(s_idt)));
 }

@@ -29,7 +29,7 @@ static void print_cpustat(const struct cpustat cs)
     );
 }
 
-INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
+static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
     va_list args)
 {
     if (s_panic_flags & PANIC_USE_COLOUR) {

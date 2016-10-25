@@ -12,8 +12,8 @@
 #endif /* _MSC_VER */
 
 #ifdef _COMP_GCC
-    #define INLINE          static inline
-    #define ALWAYS_INLINE   static inline __attribute__((always_inline))
+    #define INLINE          inline
+    #define ALWAYS_INLINE   INLINE __attribute__((always_inline))
     #define NAKED           __attribute__((naked))
     #define NO_INLINE       __attribute__((noinline))
     #define NO_RETURN       __attribute__((noreturn))
@@ -21,7 +21,7 @@
     #define NO_OPTIMISE     __attribute__((optimize("O0")))
     #define CDECL           __attribute__((__cdecl__))
     #define ALIGN(A)        __attribute__((aligned(A)))
-    #define BEGIN_PACK      
+    #define BEGIN_PACK
     #define END_PACK        __attribute__((packed))
     #define ASM             __asm__
     #define ASM_VOLATILE    __asm__ volatile
@@ -37,9 +37,9 @@
     #define NO_OPTIMISE
     #define CDECL
     #define ALIGN(A)
-    #define BEGIN_PACK      
+    #define BEGIN_PACK
     #define END_PACK
-    #define ASM     
+    #define ASM
     #define ASM_VOLATILE
     #define ASM_GOTO
 #endif

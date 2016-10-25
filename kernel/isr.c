@@ -22,13 +22,13 @@ static ISR_DEF_HANDLER(isr_general_protection_fault);
 static ISR_DEF_HANDLER(isr_page_fault);
 static ISR_DEF_HANDLER(isr_fpu_error);
 
-INLINE int __set_handler(int isrnum, void (*handler)(void))
+static INLINE int __set_handler(int isrnum, void (*handler)(void))
 {
     return idt_set_entry(isrnum, handler, 0x8, IDT_PRESENT | IDT_PRIVILEGE_0 |
         IDT_GATE_INTERRUPT_32);
 }
 
-INLINE int __remove_handler(int isrnum)
+static INLINE int __remove_handler(int isrnum)
 {
     return idt_set_entry(isrnum, 0, 0, 0);
 }
