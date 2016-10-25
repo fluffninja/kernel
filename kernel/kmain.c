@@ -14,8 +14,7 @@
 #include "vga.h"
 #include "syscall.h"
 
-void CDECL NO_RETURN
-kmain(void)
+void CDECL NO_RETURN kmain(void)
 {
     // Get the kernel boot parameter block left by the bootloader.
     struct kernel_boot_params *params = boot_get_params(BOOT_PARAM_BLOCK_ADDR);
