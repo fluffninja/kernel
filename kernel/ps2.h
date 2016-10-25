@@ -37,8 +37,8 @@
 
 // PS/2 Controller Output Flags
 // See PS2_CMD_GET_OUTPUT_FLAGS and PS2_CMD_SET_OUTPUT_FLAGS
-#define PS2_OUT_SYSTEM_RESET                0x01 // System reset 
-#define PS2_OUT_A20                         0x02 
+#define PS2_OUT_SYSTEM_RESET                0x01 // System reset
+#define PS2_OUT_A20                         0x02
 #define PS2_OUT_CH2_CLOCK                   0x04 // Channel 2 clock high
 #define PS2_OUT_CH2_DATA                    0x08 // Channel 2 data high
 #define PS2_OUT_CH1_OUTPUT_FULL             0x10 // Channel 1 buffer full
@@ -54,7 +54,7 @@
 #define PS2_CMD_CH2_TEST                    0xa9 // Test channel 2
 #define PS2_CMD_CONTROLLER_TEST             0xaa // Test controller
 #define PS2_CMD_CH1_TEST                    0xab // Test channel 1
-#define PS2_CMD_DUMP                        0xac // Dump internal RAM 
+#define PS2_CMD_DUMP                        0xac // Dump internal RAM
 #define PS2_CMD_CH1_DISABLE                 0xad // Disable channel 1
 #define PS2_CMD_CH1_ENABLE                  0xae // Enable channel 1
 #define PS2_CMD_READ_INPUT_PORT             0xc0 // Read data port
@@ -90,14 +90,14 @@
 #define PS2_DEVICE_ID_MOUSE_5_BUTTON        0x04
 
 // PS/2 Keyboard Commands
-#define PS2_KB_CMD_SET_LED                  0xed // Set keyboard LEDs 
-#define PS2_KB_CMD_ECHO                     0xee 
+#define PS2_KB_CMD_SET_LED                  0xed // Set keyboard LEDs
+#define PS2_KB_CMD_ECHO                     0xee
 #define PS2_KB_CMD_SET_SCANCODE_SET         0xf0
-#define PS2_KB_CMD_IDENTIFY                 0xf2 
+#define PS2_KB_CMD_IDENTIFY                 0xf2
 #define PS2_KB_CMD_SET_TYPEMATIC_CONFIG     0xf3 // Set typematic config byte
 #define PS2_KB_CMD_ENABLE_SCANNING          0xf4
 #define PS2_KB_CMD_DISABLE_SCANNING         0xf5
-#define PS2_KB_CMD_SET_DEFAULTS             0xf6 
+#define PS2_KB_CMD_SET_DEFAULTS             0xf6
 #define PS2_KB_CMD_SET_ALL_TPMTC            0xf7 // Set all typematic
 #define PS2_KB_CMD_SET_ALL_MK_BRK           0xf8 // Set all make/break
 #define PS2_KB_CMD_SET_ALL_MK               0xf9 // Set all make
@@ -119,7 +119,7 @@
 #define PS2_KB_SCANCODE_SET_2               2
 #define PS2_KB_SCANCODE_SET_3               3
 
-// PS/2 Keyboard Typematic Byte 
+// PS/2 Keyboard Typematic Byte
 BEGIN_PACK struct ps2_kb_typematic_byte
 {
     uint8_t repeat_rate     : 5; // 0x00 = 30Hz; 0x17 = 2Hz
@@ -164,7 +164,7 @@ struct ps2_mouse_status_packet
 #define PS2_MOUSE_STATUS_RIGHT_BTN          0x02
 #define PS2_MOUSE_STATUS_MIDDLE_BTN         0x04
 #define PS2_MOUSE_STATUS_SCALING_2_1        0x10 // Scaling is 2:1, not 1:1
-#define PS2_MOUSE_STATUS_DATA_ENABLED       0x20 
+#define PS2_MOUSE_STATUS_DATA_ENABLED       0x20
 #define PS2_MOUSE_STATUS_IS_REMOTE_MODE     0x40
 
 // PS/2 Mouse Move Packet
