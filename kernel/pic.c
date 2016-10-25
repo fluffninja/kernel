@@ -48,7 +48,7 @@ static int remap_check_offset_set(int offset)
 }
 
 int pic_remap(int master, int slave)
-{   
+{
     int bad_index = 0;
     if ((bad_index = remap_check_offset_set(slave)) > 0) {
         return bad_index;
@@ -74,12 +74,12 @@ int pic_remap(int master, int slave)
 
     // ICW4 - Set x86 mode
     command = PIC_ICW4_X86_MODE;
-    outportb(PIC_PORT_MASTER_DATA, command);    
-    outportb(PIC_PORT_SLAVE_DATA, command);    
+    outportb(PIC_PORT_MASTER_DATA, command);
+    outportb(PIC_PORT_SLAVE_DATA, command);
 
     // Set masks, disabling all interrupts
-    outportb(PIC_PORT_MASTER_DATA, 0xff);    
-    outportb(PIC_PORT_SLAVE_DATA, 0xff);    
+    outportb(PIC_PORT_MASTER_DATA, 0xff);
+    outportb(PIC_PORT_SLAVE_DATA, 0xff);
 
     // That was surprisingly painless :)
     kprintf("pic: remapped master to %#2x, slave to %#2x\n", master, slave);
