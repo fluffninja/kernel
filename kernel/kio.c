@@ -17,8 +17,7 @@ static int s_outbuf_zeroed = 0;
 extern int con_write_str(const char *);
 extern int con_write_char(char);
 
-size_t
-__sputs(char **dst, const char *src, size_t sz)
+size_t __sputs(char **dst, const char *src, size_t sz)
 {
     size_t i = 0;
 
@@ -36,8 +35,7 @@ __sputs(char **dst, const char *src, size_t sz)
     return i;
 }
 
-size_t
-__itoa10(int val, char *dst)
+size_t __itoa10(int val, char *dst)
 {
     int buf[10];
     size_t i = 0;
@@ -73,8 +71,7 @@ __itoa10(int val, char *dst)
     return count;
 }
 
-size_t
-__itoa16(int val, char *dst)
+size_t __itoa16(int val, char *dst)
 {
     static const char HEX_DIGIT_CHARS[16] = "0123456789abcdef";
 
@@ -154,10 +151,7 @@ struct fmtinfo
 // Note: this whole monolithic mess of a function will eventually get redone
 // in a far nicer manner. For now, I'm just trying to get it working.
 
-size_t
-__va_str_format_proc(
-    const char      *fmt,
-    struct fmtinfo  *fip)
+size_t __va_str_format_proc(const char *fmt, struct fmtinfo *fip)
 {
     // Format specifiers follow this scheme (fixed order, thank God):
     //  %[flags][width]['.', precision][length]<specifier>
@@ -448,12 +442,8 @@ __va_str_format_proc(
 
 // Processes string 'fmt' into buffer 'str' of size 'sz' using data from 'args'
 // Returns the number of characters written into buffer 'str'
-size_t
-__va_str_format_impl(
-    char        *str,
-    size_t      sz,
-    const char  *fmt,
-    va_list     args)
+size_t __va_str_format_impl(char *str, size_t sz, const char *fmt,
+    va_list args)
 {
     // Remember the size we were originally given, so we can report the diff.
     size_t          old_sz = sz;

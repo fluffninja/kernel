@@ -7,9 +7,8 @@
 
 typedef uint8_t (*adjust_reg_delegate_t)(uint8_t);
 
-ALWAYS_INLINE void
-__adjust_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
-    adjust_reg_delegate_t adjustment_delegate)
+ALWAYS_INLINE void __adjust_reg(uint16_t index_port, uint16_t data_port,
+    uint8_t regindex, adjust_reg_delegate_t adjustment_delegate)
 {
     outportb(index_port, regindex);
     uint8_t value = inportb(data_port);
@@ -29,8 +28,8 @@ int vga_adjust_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
     return 0;
 }
 
-ALWAYS_INLINE uint8_t
-__get_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex)
+ALWAYS_INLINE uint8_t __get_reg(uint16_t index_port, uint16_t data_port,
+    uint8_t regindex)
 {
     outportb(index_port, regindex);
     return inportb(data_port);
@@ -41,9 +40,8 @@ uint8_t vga_get_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex)
     return __get_reg(index_port, data_port, regindex);
 }
 
-ALWAYS_INLINE void
-__set_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
-    uint8_t value)
+ALWAYS_INLINE void __set_reg(uint16_t index_port, uint16_t data_port,
+    uint8_t regindex, uint8_t value)
 {
     outportb(index_port, regindex);
     outportb(data_port, value);
