@@ -14,11 +14,13 @@
 #endif
 
 // Casts a type's member to the containing type
-// ITEM_PTR         - pointer to a member
-// CONTAINER_TYPE   - type of the containing type
-// MEMBER           - name of the member within the type
-#define CONTAINER_OF(ITEM_PTR, CONTAINER_TYPE, MEMBER) \
-    (CONTAINER_TYPE *) ((char *) ITEM_PTR - offsetof(CONTAINER_TYPE, MEMBER)
+// ITEM_PTR:    - pointer to a member
+// CONT_TYPE:   - type of the containing type
+// MEMBER:      - name of the member within the type
+#ifndef CONTAINER_OF
+#define CONTAINER_OF(ITEM_PTR, CONT_TYPE, MEMBER) \
+    (CONT_TYPE *) ((char *) (ITEM_PTR) - offsetof(CONT_TYPE, MEMBER))
+#endif
 
 #define SMART_KZEROMEM 1
 
