@@ -7,8 +7,7 @@
 // The kernel boot parameter block allows the bootloader to hand-over binary
 // information to the kernel during the boot process. Its presence and validity
 // are confirmed via a signature.
-BEGIN_PACK struct kernel_boot_params
-{
+BEGIN_PACK struct kernel_boot_params {
     uint16_t    signature;
     uint8_t     cursor_x;
     uint8_t     cursor_y;

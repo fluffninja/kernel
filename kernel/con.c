@@ -8,8 +8,7 @@
 
 #define TAB_WIDTH 4
 
-struct charinfo
-{
+struct charinfo {
     char            c;
     unsigned char   flags;
 };
@@ -21,8 +20,7 @@ static int              s_screen_width;
 static int              s_screen_height;
 static uint32_t         s_con_flags = 0;
 
-enum
-{
+enum {
     SEEK_REL = 0,
     SEEK_ABS = 1,
 };

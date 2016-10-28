@@ -3,13 +3,11 @@
 
 #include <stddef.h>
 
-enum
-{
+enum {
     HEAP_ZERO,
 };
 
-enum
-{
+enum {
     HEAP_ERROR_NULL = 1,
     HEAP_ERROR_OUT_OF_MEMORY = 2,
     HEAP_ERROR_BAD_SIZE = 3,

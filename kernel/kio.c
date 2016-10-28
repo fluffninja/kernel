@@ -94,8 +94,7 @@ size_t __itoa16(int val, char *dst)
 
 // Format specifiers (the type of the var arg)
 // Note that differences in case ('X' vs 'x') are signified by fmtinfo.is_upper
-enum fmttype
-{
+enum fmttype {
     FT_INVALID,
     FT_SIGNED,              // 'd', 'i'
     FT_UNSIGNED,            // 'u'
@@ -113,8 +112,7 @@ enum fmttype
 };
 
 // Format specifier flags
-enum fmtflags
-{
+enum fmtflags {
     FF_NONE     = 0x00,
     FF_LJUSTIFY = 0x10, // '-': Left-justify within width
     FF_ZEROPAD  = 0x01, // '0': Zero-pad within width
@@ -124,8 +122,7 @@ enum fmtflags
 };
 
 // Format specifier size (long vs short int, etc.)
-enum fmtlen
-{
+enum fmtlen {
     FL_INT,         // (none)
     FL_CHAR,        // hh
     FL_SHORT,       // h
@@ -138,8 +135,7 @@ enum fmtlen
 };
 
 // Pack all of this information up neatly
-struct fmtinfo
-{
+struct fmtinfo {
     enum fmttype    ft;
     enum fmtflags   ff;
     enum fmtlen     fl;

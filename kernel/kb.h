@@ -1,8 +1,7 @@
 #ifndef _INC_KB
 #define _INC_KB 1
 
-enum
-{
+enum {
     KB_KEY_NONE = 128,
     KB_KEY_ESCAPE,
     KB_KEY_ENTER,
