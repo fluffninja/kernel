@@ -1,10 +1,9 @@
 #ifndef _INC_PANIC
 #define _INC_PANIC 1
 
-#include <sys/asm.h>
+#include <kernel/asm/cpustat.h>
 
-enum
-{
+enum {
     PANIC_SHOW_DUMP         = 0x0001,
     PANIC_CLEAR_SCREEN      = 0x0002,
     PANIC_USE_COLOUR        = 0x0004,

@@ -1,5 +1,6 @@
 #include <stdarg.h>
-#include <sys/asm.h>
+#include <kernel/asm/cpustat.h>
+#include <kernel/asm/misc.h>
 
 #include "kio.h"
 #include "con.h"

@@ -1,5 +1,3 @@
-#include <sys/asm.h>
-
 #include "syscall.h"
 #include "panic.h"
 #include "kio.h"

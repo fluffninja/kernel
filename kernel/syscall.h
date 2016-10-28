@@ -2,10 +2,9 @@
 #define _INC_SYSCALL 1
 
 #include <cccompat.h>
-#include <sys/asm.h>
 #include <stdint.h>
 
-#define SYSCALL_IDT_INDEX   0x40
+#define SYSCALL_IDT_INDEX 0x40
 
 static ALWAYS_INLINE void __syscall(void)
 {

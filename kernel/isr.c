@@ -1,5 +1,3 @@
-#include <sys/asm.h>
-
 #include "isr.h"
 #include "idt.h"
 #include "kio.h"

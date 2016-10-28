@@ -1,4 +1,4 @@
-#include <sys/asm.h>
+#include <kernel/asm/portio.h>
 #include <ctype.h>
 
 #include "kb.h"

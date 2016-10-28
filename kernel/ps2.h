@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <cccompat.h>
+#include <kernel/asm/portio.h>
 
 // PS/2 Ports
 #define PS2_PORT_DATA                       0x60 // Data Port (Read/Write)
