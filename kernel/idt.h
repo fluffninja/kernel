@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 // IDT Entry Flags
-#define IDT_PRESENT             0x80 // Interrupt entry should be used    
+#define IDT_PRESENT             0x80 // Interrupt entry should be used
 #define IDT_PRIVILEGE_0         0x00 // Highest ring that can use interrupt
 #define IDT_PRIVILEGE_1         0x20 // ^
 #define IDT_PRIVILEGE_2         0x40 // ^
@@ -16,8 +16,7 @@
 #define IDT_GATE_INTERRUPT_32   0x0e // This is a 32-bit interrupt gate
 #define IDT_GATE_TRAP_32        0x0f // This is a 32-bit trap gate
 
-BEGIN_PACK struct idt_entry
-{
+BEGIN_PACK struct idt_entry {
     uint16_t handler_offset_00_15;  // Offset of handler code in GDT segment
     uint16_t gdt_handler_selector;  // GDT segment - as table selector
     uint8_t  _reserved0;            // Reserved byte
@@ -35,8 +34,7 @@ BEGIN_PACK struct idt_entry
     }
 
 // 48-bit IDT descriptor, for use with lidt and sidt
-BEGIN_PACK struct idt_descriptor
-{
+BEGIN_PACK struct idt_descriptor {
     uint16_t            size;
     struct idt_entry    *base;
 } END_PACK;

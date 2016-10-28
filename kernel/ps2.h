@@ -121,8 +121,7 @@
 #define PS2_KB_SCANCODE_SET_3               3
 
 // PS/2 Keyboard Typematic Byte
-BEGIN_PACK struct ps2_kb_typematic_byte
-{
+BEGIN_PACK struct ps2_kb_typematic_byte {
     uint8_t repeat_rate     : 5; // 0x00 = 30Hz; 0x17 = 2Hz
     uint8_t typematic_delay : 2; // Values defined below
 } END_PACK;
@@ -153,8 +152,7 @@ BEGIN_PACK struct ps2_kb_typematic_byte
 #define PS2_MOUSE_CMD_SET_DEFAULTS          0xf6
 
 // PS/2 Mouse Status Packet
-struct ps2_mouse_status_packet
-{
+struct ps2_mouse_status_packet {
     uint8_t flags;
     uint8_t resolution;
     uint8_t sample_rate;
@@ -169,8 +167,7 @@ struct ps2_mouse_status_packet
 #define PS2_MOUSE_STATUS_IS_REMOTE_MODE     0x40
 
 // PS/2 Mouse Move Packet
-struct ps2_mouse_move_packet
-{
+struct ps2_mouse_move_packet {
     uint8_t flags;
     uint8_t x_movement;
     uint8_t y_movement;

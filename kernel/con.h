@@ -22,8 +22,7 @@
 #define COL_BRYELLOW            0x0e
 #define COL_BRWHITE             0x0f
 
-enum
-{
+enum {
     CON_CURSOR_SHAPE_NONE,
     CON_CURSOR_SHAPE_UNDERLINE,
     CON_CURSOR_SHAPE_BLOCK,

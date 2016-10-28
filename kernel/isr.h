@@ -13,8 +13,7 @@
 // function a given ISR. One must be defined for each ISR.
 
 // ISRs are given
-struct isr_params
-{
+struct isr_params {
     struct cpustat cs;
 };
 
