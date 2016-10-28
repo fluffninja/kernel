@@ -1,4 +1,4 @@
-#include <sys/asm.h>
+#include <kernel/asm/portio.h>
 
 #include "mouse.h"
 #include "kio.h"

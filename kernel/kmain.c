@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <kernel/asm/misc.h>
 
 #include "boot.h"
 #include "con.h"

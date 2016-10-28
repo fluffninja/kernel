@@ -1,4 +1,4 @@
-#include <sys/asm.h>
+#include <kernel/asm/portio.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -62,7 +62,7 @@ int ps2_disable_scancode_translation(void)
 {
     uint32_t ps2_config = ps2_get_config();
     ps2_config &= ~PS2_CONFIG_CH1_TRANSLATION;
-    ps2_set_config(ps2_config);    
+    ps2_set_config(ps2_config);
 
     kprintf("ps2: scancode translation disabled\n");
 
@@ -70,7 +70,7 @@ int ps2_disable_scancode_translation(void)
 }
 
 int ps2_init(void)
-{    
+{
     ps2_set_enabled(1, 0);
     ps2_set_enabled(2, 0);
 

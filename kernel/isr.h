@@ -1,7 +1,7 @@
 #ifndef _INC_ISR
 #define _INC_ISR 1
 
-#include <sys/asm.h>
+#include <kernel/asm/cpustat.h>
 #include <cccompat.h>
 
 // Contains functions and utilities for registering handlers of interrupt

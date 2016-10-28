@@ -1,8 +1,6 @@
 #ifndef _INC_IRQ
 #define _INC_IRQ 1
 
-#include <sys/asm.h>
-
 #define IRQ_PIC_MASTER_IDT_OFFSET   0x20
 #define IRQ_PIC_SLAVE_IDT_OFFSET    0x28
 
