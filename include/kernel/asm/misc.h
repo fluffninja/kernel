@@ -59,6 +59,11 @@ static ALWAYS_INLINE uint64_t rdmsr(uint32_t reg)
     return value;
 }
 
+static ALWAYS_INLINE void ud2(void)
+{
+    ASM_VOLATILE("ud2");
+}
+
 #ifdef __cplusplus
 }
 #endif
