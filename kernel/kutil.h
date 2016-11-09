@@ -3,6 +3,7 @@
 
 #include <cccompat.h>
 #include <stddef.h>
+#include <kernel/asm/cpustat.h>
 
 #include "kstring.h"
 
@@ -40,5 +41,8 @@ static INLINE void *kzeromem(void *ptr, size_t sz)
     return kmemset(ptr, sz, 0);
     #endif /* SMARK_KZEROMEM */
 }
+
+void print_cpustat(const struct cpustat cs);
+void hexdump(int *ptr, int words_per_row, int rows);
 
 #endif /* _INC_KUTIL */

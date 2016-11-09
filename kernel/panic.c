@@ -5,6 +5,7 @@
 #include "kio.h"
 #include "con.h"
 #include "panic.h"
+#include "kutil.h"
 
 static uint32_t s_panic_flags = PANIC_SHOW_DUMP;
 
@@ -16,18 +17,6 @@ uint32_t panic_set_flags(uint32_t flags, int state)
         s_panic_flags &= ~flags;
     }
     return s_panic_flags;
-}
-
-static void print_cpustat(const struct cpustat cs)
-{
-    kprintf(
-        " eax=%08x ebx=%08x ecx=%08x edx=%08x\n"
-        " esi=%08x edi=%08x ebp=%08x esp=%08x\n"
-        " efl=%08x\n",
-        cs.regset.a, cs.regset.b, cs.regset.c, cs.regset.d,
-        cs.regset.si, cs.regset.di, cs.regset.bp, cs.regset.sp,
-        cs.eflags
-    );
 }
 
 static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
@@ -58,7 +47,10 @@ static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
     kvprintf(fmt, args);
 
     if (s_panic_flags & PANIC_SHOW_DUMP) {
+        kprintf(" **CPU**\n");
         print_cpustat(cs);
+        kprintf(" **STACK**\n");
+        hexdump((int *) cs.regset.bp, 2, 8);
     }
 
     cli();
