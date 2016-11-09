@@ -453,8 +453,11 @@ size_t __va_str_format_impl(char *str, size_t sz, const char *fmt,
     // Storage place for each arg type retrieved from args.
     union {
         int32_t         i32;
-        int32_t         u32;
-        int8_t          i16;
+        uint32_t        u32;
+        int16_t         i16;
+        uint16_t        u16;
+        int8_t          i8;
+        uint8_t         u8;
         const char      *str;
     } arg;
 
@@ -473,6 +476,15 @@ size_t __va_str_format_impl(char *str, size_t sz, const char *fmt,
 
             if (fi.ft == FT_INVALID) {
                 sz -= __sputs(&str, "<invalid>", sz);
+                continue;
+            }
+
+            if (fi.ft == FT_CHAR) {
+                arg.i8 = va_arg(args, char);
+                if (sz--) {
+                    *str = arg.i8;
+                    ++str;
+                }
                 continue;
             }
 
