@@ -1,0 +1,8 @@
+// ciso646 for IsaacOS
+
+#ifndef _INC_CISO646
+#define _INC_CISO646 1
+
+/* Intentionally Empty */
+
+#endif /* _INC_CISO646 */
