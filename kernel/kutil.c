@@ -38,12 +38,12 @@ void hexdump(int *ptr, int words_per_row, int rows)
         // Print out row _words_ as hex
         __hexdump_hex_row(ptr, words_per_row);
 
-        kprintf("  |");
+        kprintf("  ");
 
         // Print out ASCII reinterpretation
         __hexdump_char_row((char *) ptr, (int) (words_per_row * sizeof(int)));
 
-        kprintf("|");
+        kprintf("");
 
         // Increment pointer past row
         ptr += words_per_row;
