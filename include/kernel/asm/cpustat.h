@@ -39,7 +39,7 @@ static ALWAYS_INLINE struct register_set get_registers(void)
     return *regset;
 }
 
-static ALWAYS_INLINE NO_OPTIMISE uint32_t get_eflags(void)
+static ALWAYS_INLINE uint32_t get_eflags(void)
 {
     uint32_t result;
     ASM_VOLATILE(
@@ -56,7 +56,7 @@ struct cpustat
     uint32_t            eflags;
 };
 
-static ALWAYS_INLINE NO_OPTIMISE struct cpustat collect_cpustat(void)
+static ALWAYS_INLINE struct cpustat collect_cpustat(void)
 {
     struct cpustat cs;
     cs.regset = get_registers();
