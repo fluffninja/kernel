@@ -9,6 +9,10 @@
 
 static uint32_t s_panic_flags = PANIC_FULL_DUMP;
 
+#define STACK_WORDS 64
+#define STACK_WIDTH 4
+#define STACK_ROWS  (STACK_WORDS / STACK_WIDTH)
+
 uint32_t panic_set_flags(uint32_t flags, int state)
 {
     if (state) {
@@ -53,7 +57,10 @@ static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
 
     if (s_panic_flags & PANIC_DUMP_STACK) {
         kprintf(" **STACK**\n");
-        hexdump((int *) cs.regset.bp, 2, 8);
+        hexdump(
+            (int *) ((int) cs.regset.sp & ~(STACK_WIDTH * sizeof(int) - 1)),
+            STACK_WIDTH,
+            STACK_ROWS);
     }
 
     cli();
