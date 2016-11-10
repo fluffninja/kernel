@@ -7,7 +7,7 @@
 #include "panic.h"
 #include "kutil.h"
 
-static uint32_t s_panic_flags = PANIC_SHOW_DUMP;
+static uint32_t s_panic_flags = PANIC_FULL_DUMP;
 
 uint32_t panic_set_flags(uint32_t flags, int state)
 {
@@ -22,16 +22,16 @@ uint32_t panic_set_flags(uint32_t flags, int state)
 static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
     va_list args)
 {
-    if (s_panic_flags & PANIC_USE_COLOUR) {
+    if (s_panic_flags & PANIC_COLOUR) {
         con_set_background_colour(COL_BLUE);
         con_set_foreground_colour(COL_BRWHITE);
     }
 
-    if (s_panic_flags & PANIC_CLEAR_SCREEN) {
+    if (s_panic_flags & PANIC_CLEAR) {
         con_clear();
     }
 
-    if (s_panic_flags & PANIC_SHOW_HELP) {
+    if (s_panic_flags & PANIC_HELP_TEXT) {
         kprintf(
             "\n"
             "A problem has been detected and your computer has been\n"
@@ -46,9 +46,12 @@ static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
     kprintf("panic: ");
     kvprintf(fmt, args);
 
-    if (s_panic_flags & PANIC_SHOW_DUMP) {
+    if (s_panic_flags & PANIC_DUMP_CPU) {
         kprintf(" **CPU**\n");
         print_cpustat(cs);
+    }
+
+    if (s_panic_flags & PANIC_DUMP_STACK) {
         kprintf(" **STACK**\n");
         hexdump((int *) cs.regset.bp, 2, 8);
     }
