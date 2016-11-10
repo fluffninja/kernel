@@ -44,6 +44,7 @@
 %define STAGE_1_SIGNATURE           (0xaa55)
 %define KERNEL_TARGET_LOCATION      (0x100000)
 %define UNINITIALISED_LOCATION      (0x7a00)
+%define KERNEL_STACK_LOCATION       (0x0a0000)
 
 ; Note that these values MUST agree with the values in kernel/boot.h
 %define BOOT_PARAM_BLOCK_LOCATION   (0x7000)
@@ -582,7 +583,7 @@ stage_2_start_32:
     mov         ds, ax                          ; Data segment is now 0x10 :-)
     mov         es, ax
     mov         ss, ax
-    mov         esp, 0xA0000                    ; Grow downward from 640KB
+    mov         esp, KERNEL_STACK_LOCATION      ; Grows downwards
 
     ; Move the kernel to its target location (Above 1MB)
     cld
