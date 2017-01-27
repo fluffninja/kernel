@@ -1,8 +1,8 @@
-#ifndef _INC_CPUID
-#define _INC_CPUID 1
+#ifndef _INC_KERNEL_ASM_CPUID
+#define _INC_KERNEL_ASM_CPUID 1
 
+#include <kernel/kernel.h>
 #include <kernel/compiler.h>
-#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,4 +59,4 @@ INLINE struct cpuid_result cpuid(uint32_t query)
 }
 #endif
 
-#endif /* _INC_CPUID */
+#endif /* _INC_KERNEL_ASM_CPUID */

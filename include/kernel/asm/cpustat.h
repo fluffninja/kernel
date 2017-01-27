@@ -1,5 +1,5 @@
-#ifndef _INC_CPUSTAT
-#define _INC_CPUSTAT 1
+#ifndef _INC_KERNEL_ASM_CPUSTAT
+#define _INC_KERNEL_ASM_CPUSTAT 1
 
 #include <kernel/kernel.h>
 #include <kernel/compiler.h>
@@ -70,4 +70,4 @@ int dump_cpustat(char *buffer, size_t buffer_size, const struct cpustat cs);
 }
 #endif
 
-#endif /* _INC_CPUSTAT */
+#endif /* _INC_KERNEL_ASM_CPUSTAT */

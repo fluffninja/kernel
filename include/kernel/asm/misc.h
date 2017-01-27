@@ -1,8 +1,8 @@
 #ifndef _INC_KERNEL_ASM_MISC
 #define _INC_KERNEL_ASM_MISC 1
 
+#include <kernel/kernel.h>
 #include <kernel/compiler.h>
-#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
