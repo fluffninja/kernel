@@ -42,7 +42,6 @@ static INLINE void *kzeromem(void *ptr, size_t sz)
     #endif /* SMARK_KZEROMEM */
 }
 
-void print_cpustat(const struct cpustat cs);
 void hexdump(int *ptr, int words_per_row, int rows);
 
 #endif /* _INC_KUTIL */

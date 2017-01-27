@@ -1,8 +1,8 @@
 #ifndef _INC_CPUSTAT
 #define _INC_CPUSTAT 1
 
+#include <kernel/kernel.h>
 #include <kernel/compiler.h>
-#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,6 +63,8 @@ static ALWAYS_INLINE struct cpustat collect_cpustat(void)
     cs.eflags = get_eflags();
     return cs;
 }
+
+int dump_cpustat(char *buffer, size_t buffer_size, const struct cpustat cs);
 
 #ifdef __cplusplus
 }
