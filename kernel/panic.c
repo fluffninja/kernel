@@ -1,4 +1,5 @@
 #include <stdarg.h>
+
 #include <kernel/asm/cpustat.h>
 #include <kernel/asm/misc.h>
 
@@ -26,6 +27,8 @@ uint32_t panic_set_flags(uint32_t flags, int state)
 static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
     va_list args)
 {
+    char cpustat_dump_buffer[256];
+
     if (s_panic_flags & PANIC_COLOUR) {
         con_set_background_colour(COL_BLUE);
         con_set_foreground_colour(COL_BRWHITE);
@@ -52,7 +55,8 @@ static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
 
     if (s_panic_flags & PANIC_DUMP_CPU) {
         kprintf(" **CPU**\n");
-        print_cpustat(cs);
+        dump_cpustat(cpustat_dump_buffer, sizeof(cpustat_dump_buffer), cs);
+        kprintf("%s", cpustat_dump_buffer);
     }
 
     if (s_panic_flags & PANIC_DUMP_STACK) {
