@@ -1,16 +1,16 @@
 #include <kernel/kernel.h>
+#include <kernel/klog.h>
 
 #include "irq.h"
 #include "cpu/isr.h"
 #include "pic.h"
-#include "kio.h"
 
 // Reference for IRQs' respective devices:
 // https://en.wikipedia.org/wiki/Interrupt_request_(PC_architecture)
 
 static irq_hook_t irq_hooks[16];
 
-#define DEFAULT_HOOK_FUNC   __irq_default_hook_func
+#define DEFAULT_HOOK_FUNC __irq_default_hook_func
 
 static int DEFAULT_HOOK_FUNC(int irqnum)
 {
@@ -65,9 +65,9 @@ int irq_init(void)
 {
     int res = 0;
 
-    kprintf("irq: remapping pic\n");
+    klog_printf("irq: remapping pic\n");
     if (pic_remap(IRQ_PIC_MASTER_IDT_OFFSET, IRQ_PIC_SLAVE_IDT_OFFSET)) {
-        kprintf("irq: irq init failed\n");
+        klog_printf("irq: irq init failed\n");
         return 1;
     }
 
@@ -97,11 +97,11 @@ int irq_init(void)
     res |= isr_set_handler(IRQ_PIC_SLAVE_IDT_OFFSET + 7, IRQ_ISR_HANDLER(15));
 
     if (res) {
-        kprintf("irq: failed to register one or more irq isr handlers\n");
+        klog_printf("irq: failed to register one or more irq isr handlers\n");
         return 1;
     }
 
-    kprintf("irq: registered irq isr handlers\n");
+    klog_printf("irq: registered irq isr handlers\n");
     return 0;
 }
 
@@ -121,23 +121,21 @@ int irq_has_hook(int irqnum)
 
 int irq_set_hook(int irqnum, irq_hook_t hookfn)
 {
-    char fail_str[256];
-
     if (__irq_is_valid_irqnum_impl(irqnum)) {
         if (!__irq_has_hook_impl(irqnum)) {
             irq_hooks[irqnum] = hookfn;
             pic_set_enabled(irqnum, 1);
-            kprintf("irq: irq %d hooked at %p\n", irqnum, (void *) hookfn);
+            klog_printf("irq: irq %d hooked at %p\n", irqnum, (void *) hookfn);
             return 0;
         } else {
-            ksnprintf(fail_str, sizeof(fail_str), "already hooked at %p",
+            klog_printf("irq: irq %d already hooked at %p\n", irqnum,
                 (void *) irq_hooks[irqnum]);
     	}
     } else {
-        ksnprintf(fail_str, sizeof(fail_str), "invalid irqnum");
+        klog_printf("irq: %d is an invalid irq number\n", irqnum);
     }
 
-    kprintf("irq: failed to hook irq %d at %p: %s\n", irqnum,
+    klog_printf("irq: failed to hook irq %d at %p: %s\n", irqnum,
         (void *) hookfn);
 
     return 1;
@@ -150,7 +148,7 @@ int irq_remove_hook(int irqnum)
             irq_hook_t old_hook = irq_hooks[irqnum];
             irq_hooks[irqnum] = DEFAULT_HOOK_FUNC;
             pic_set_enabled(irqnum, 0);
-            kprintf("irq: irq %d unhooked from %p\n", irqnum,
+            klog_printf("irq: irq %d unhooked from %p\n", irqnum,
                 (void *) old_hook);
             return 0;
         }

@@ -1,10 +1,9 @@
+#include <kernel/klog.h>
 #include <kernel/asm/portio.h>
 
 #include "mouse.h"
-#include "kio.h"
 #include "irq.h"
 #include "ps2.h"
-#include "con.h"
 
 static int mouse_irq_hook(int irqnum)
 {
@@ -23,11 +22,11 @@ static int mouse_irq_hook(int irqnum)
 int mouse_init(void)
 {
     if (irq_set_hook(12, mouse_irq_hook)) {
-        kprintf("mouse: failed to hook irq\n");
+        klog_printf("mouse: failed to hook irq\n");
         return 1;
     }
 
-    kprintf("mouse: irq hooked\n");
+    klog_printf("mouse: irq hooked\n");
 
     ps2_set_enabled(2, 1);
 

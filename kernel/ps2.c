@@ -1,9 +1,10 @@
-#include <kernel/asm/portio.h>
 #include <stddef.h>
 #include <stdint.h>
 
+#include <kernel/klog.h>
+#include <kernel/asm/portio.h>
+
 #include "ps2.h"
-#include "kio.h"
 
 uint8_t ps2_get_config(void)
 {
@@ -53,7 +54,10 @@ int ps2_set_enabled(int chnum, int enabled)
 
     ps2_set_config(ps2_config);
 
-    kprintf("ps2: channel %d %s\n", chnum, enabled ? "enabled" : "disabled");
+    klog_printf(
+        "ps2: channel %d %s\n",
+        chnum,
+        enabled ? "enabled" : "disabled");
 
     return 0;
 }
@@ -64,7 +68,7 @@ int ps2_disable_scancode_translation(void)
     ps2_config &= ~PS2_CONFIG_CH1_TRANSLATION;
     ps2_set_config(ps2_config);
 
-    kprintf("ps2: scancode translation disabled\n");
+    klog_printf("ps2: scancode translation disabled\n");
 
     return 0;
 }

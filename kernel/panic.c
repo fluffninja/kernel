@@ -1,6 +1,7 @@
 #include <stdarg.h>
 
 #include <kernel/kernel.h>
+#include <kernel/klog.h>
 #include <kernel/asm/cpustat.h>
 #include <kernel/asm/misc.h>
 
