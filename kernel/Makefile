@@ -44,14 +44,14 @@ kmain.c: boot.h con.h cpu/idt.h cpu/isr.h irq.h kb.h kio.h panic.h mouse.h \
 	ps2.h vga.h cpu/syscall.h
 
 boot.c: boot.h
-con.c: con.h kio.h vga.h
+con.c: con.h vga.h
 hexdump.c: kio.h
-irq.c: irq.h cpu/isr.h pic.h kio.h
-kb.c: kb.h kio.h irq.h ps2.h con.h panic.h keymap-en-us
+irq.c: irq.h cpu/isr.h pic.h
+kb.c: kb.h irq.h ps2.h con.h panic.h keymap-en-us
 kio.c: kio.h con.h
 klog.c: kio.h
-mouse.c: mouse.h irq.h ps2.h kio.h con.h
+mouse.c: mouse.h irq.h ps2.h con.h
 panic.c: panic.h kio.h con.h
-pic.c: pic.h cpu/idt.h kio.h
-ps2.c: ps2.h kio.h
-vga.c: vga.h kio.h
+pic.c: pic.h cpu/idt.h
+ps2.c: ps2.h
+vga.c: vga.h
