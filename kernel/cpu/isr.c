@@ -1,7 +1,7 @@
 #include "isr.h"
 #include "idt.h"
-#include "kio.h"
-#include "panic.h"
+#include "../kio.h"
+#include "../panic.h"
 
 // Reference: https://support.microsoft.com/en-us/kb/117389
 // Note: reference refers to FPU as 'coprocessor'

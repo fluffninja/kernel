@@ -2,7 +2,7 @@
 #include <stddef.h>
 
 #include "irq.h"
-#include "isr.h"
+#include "cpu/isr.h"
 #include "pic.h"
 #include "kio.h"
 #include "kutil.h"

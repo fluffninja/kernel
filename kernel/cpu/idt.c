@@ -1,6 +1,6 @@
 #include "idt.h"
-#include "kio.h"
-#include "kutil.h"
+#include "../kio.h"
+#include "../kutil.h"
 
 #define IDT_SIZE    256
 

@@ -1,7 +1,7 @@
 #include "syscall.h"
-#include "panic.h"
-#include "kio.h"
 #include "isr.h"
+#include "../panic.h"
+#include "../kio.h"
 
 static ISR_DEF_HANDLER(isr_syscall);
 
