@@ -23,7 +23,7 @@ LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
 	$(CC) $< -o $@ $(CFLAGS)
 
 # Kernel ELF File
-kernel.elf: start.bin kmain.o kstring.o con.o ps2.o pic.o idt.o isr.o \
+kernel.elf: start.bin kmain.o con.o ps2.o pic.o idt.o isr.o \
 	irq.o kb.o kio.o panic.o mouse.o vga.o syscall.o boot.o mm/heap.o \
 	kmem.o kutil.o
 	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
@@ -34,7 +34,6 @@ kernel.bin: kernel.elf
 
 kmain.c: boot.h con.h idt.h isr.h irq.h kb.h kio.h panic.h mouse.h ps2.h \
 	vga.h syscall.h kutil.h
-kstring.c: kstring.h
 con.c: con.h kutil.h kio.h vga.h
 ps2.c: ps2.h kio.h
 pic.c: pic.h idt.h kio.h
@@ -42,7 +41,7 @@ idt.c: idt.h kio.h kutil.h
 isr.c: isr.h idt.h kio.h panic.h
 irq.c: irq.h isr.h pic.h kio.h kutil.h
 kb.c: kb.h kutil.h kio.h irq.h ps2.h con.h panic.h keymap-en-us
-kio.c: kio.h con.h kutil.h kstring.h
+kio.c: kio.h con.h kutil.h
 panic.c: panic.h kio.h con.h kutil.h
 mouse.c: mouse.h irq.h ps2.h kio.h con.h
 vga.c: vga.h kio.h
