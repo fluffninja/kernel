@@ -1,12 +1,12 @@
 #include <stdarg.h>
 
+#include <kernel/kernel.h>
 #include <kernel/asm/cpustat.h>
 #include <kernel/asm/misc.h>
 
+#include "panic.h"
 #include "kio.h"
 #include "con.h"
-#include "panic.h"
-#include "kutil.h"
 
 static uint32_t s_panic_flags = PANIC_FULL_DUMP;
 

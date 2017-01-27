@@ -3,12 +3,10 @@
 #include <stddef.h>
 #include <ctype.h>
 
+#include <kernel/kernel.h>
 #include <kernel/compiler.h>
 
-#include <kernel/kernel.h>
-
 #include "kio.h"
-#include "kutil.h"
 #include "con.h"
 
 #define OUTBUF_SIZE PAGE_SIZE

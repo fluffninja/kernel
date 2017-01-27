@@ -121,6 +121,8 @@ static INLINE char *kstrcpy(const char *source, char *dest)
 #define KZEROMEM(POINTER, SIZE) kmemset((POINTER), (SIZE), 0)
 #endif
 
+void hexdump(int *ptr, int words_per_row, int rows);
+
 #ifdef __cplusplus
 }
 #endif
