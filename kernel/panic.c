@@ -11,7 +11,7 @@
 
 static uint32_t s_panic_flags = PANIC_FULL_DUMP;
 
-#define STACK_WORDS 64
+#define STACK_WORDS 32
 #define STACK_WIDTH 4
 #define STACK_ROWS  (STACK_WORDS / STACK_WIDTH)
 
@@ -39,20 +39,20 @@ static INLINE NO_RETURN void __panic(const struct cpustat cs, const char *fmt,
         con_clear();
     }
 
+    klog_printf("panic: ");
+    kvprintf(fmt, args);
+
     if (s_panic_flags & PANIC_HELP_TEXT) {
         kprintf(
             "\n"
             "A problem has been detected and your computer has been\n"
             "frozen to prevent damage to your devices and data.\n"
             "\n"
-            "It is OK to turn off or restart your computer.\n"
+            "It is OK to turn off and/or restart your computer.\n"
             "\n"
             "Problem details:\n"
         );
     }
-
-    kprintf("panic: ");
-    kvprintf(fmt, args);
 
     if (s_panic_flags & PANIC_DUMP_CPU) {
         kprintf(" **CPU**\n");
