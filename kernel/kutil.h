@@ -1,7 +1,7 @@
 #ifndef _INC_KUTIL
 #define _INC_KUTIL
 
-#include <compiler.h>
+#include <kernel/compiler.h>
 #include <stddef.h>
 
 #include <kernel/asm/cpustat.h>

@@ -9,7 +9,7 @@
 #define _INC_PS2 1
 
 #include <stdint.h>
-#include <compiler.h>
+#include <kernel/compiler.h>
 #include <kernel/asm/portio.h>
 
 // PS/2 Ports

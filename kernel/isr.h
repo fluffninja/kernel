@@ -1,8 +1,9 @@
 #ifndef _INC_ISR
 #define _INC_ISR 1
 
+#include <kernel/compiler.h>
+
 #include <kernel/asm/cpustat.h>
-#include <compiler.h>
 
 // Contains functions and utilities for registering handlers of interrupt
 // service routines (ISRs). These are functions that will be called when a

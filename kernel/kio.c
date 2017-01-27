@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <ctype.h>
 
-#include <compiler.h>
+#include <kernel/compiler.h>
 
 #include <kernel/kernel.h>
 

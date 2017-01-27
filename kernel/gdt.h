@@ -1,8 +1,9 @@
 #ifndef _INC_GDT
 #define _INC_GDT 1
 
-#include <compiler.h>
 #include <stdint.h>
+
+#include <kernel/compiler.h>
 
 BEGIN_PACK struct gdt_entry {
 } END_PACK;
