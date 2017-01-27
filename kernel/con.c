@@ -1,8 +1,8 @@
 #include <ctype.h>
-#include <stdint.h>
+
+#include <kernel/kernel.h>
 
 #include "con.h"
-#include "kutil.h"
 #include "kio.h"
 #include "vga.h"
 

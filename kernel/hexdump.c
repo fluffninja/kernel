@@ -2,7 +2,6 @@
 
 #include <kernel/kernel.h>
 
-#include "kutil.h"
 #include "kio.h"
 
 static void __hexdump_word(unsigned char *ptr, size_t word_size)

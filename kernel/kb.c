@@ -1,8 +1,9 @@
-#include <kernel/asm/portio.h>
 #include <ctype.h>
 
+#include <kernel/kernel.h>
+#include <kernel/asm/portio.h>
+
 #include "kb.h"
-#include "kutil.h"
 #include "kio.h"
 #include "irq.h"
 #include "ps2.h"
