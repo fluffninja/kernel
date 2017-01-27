@@ -14,17 +14,21 @@ LDSCRIPT	:= kernel.ld
 LDMAP		:= kernel.map
 LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
 
+# Asm Source -> Bin (ELF Object) Files
 %.bin: %.asm
 	$(ASM) $< -o $@ $(ASMFLAGS)
 
+# C Source -> ELF Object Files
 %.o: %.c
 	$(CC) $< -o $@ $(CFLAGS)
 
+# Kernel ELF File
 kernel.elf: start.bin kmain.o kstring.o con.o ps2.o pic.o idt.o isr.o \
 	irq.o kb.o kio.o panic.o mouse.o vga.o syscall.o boot.o mm/heap.o \
 	kmem.o kutil.o
 	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
 
+# Flatten Kernel ELF File
 kernel.bin: kernel.elf
 	objcopy -O binary -S $^ $@
 
