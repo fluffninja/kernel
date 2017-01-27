@@ -8,12 +8,13 @@ Please double-check the prerequisites before trying anything :-)
 
 To build and create a bootable floppy image, use `make image`.
 
-To run (and build if not already built), use `make run`.
+To run once built, use `make run`.
 
 ## Prerequisites
 
 * make
 * gcc
 * nasm
-* dd - to make a floppy image
-* qemu - for quick emulation
+* dd - to create the floppy image
+
+For quick emulation I recommend using QEMU - specifically qemu-system-i386 for 32-bit x86 emulation.
