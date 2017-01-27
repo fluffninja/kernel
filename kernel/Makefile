@@ -20,7 +20,7 @@ LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
 %.o: %.c
 	$(CC) $< -o $@ $(CFLAGS)
 
-kernel.elf: bootstrap.bin kmain.o kstring.o con.o ps2.o pic.o idt.o isr.o \
+kernel.elf: start.bin kmain.o kstring.o con.o ps2.o pic.o idt.o isr.o \
 	irq.o kb.o kio.o panic.o mouse.o vga.o syscall.o boot.o mm/heap.o \
 	kmem.o kutil.o
 	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)

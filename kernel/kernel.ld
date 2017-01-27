@@ -1,4 +1,4 @@
-STARTUP(bootstrap.bin)
+STARTUP(start.bin)
 SECTIONS
 {
     . = 0;
