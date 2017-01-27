@@ -1,10 +1,10 @@
 #include <ctype.h>
 
 #include <kernel/kernel.h>
+#include <kernel/klog.h>
 #include <kernel/asm/portio.h>
 
 #include "kb.h"
-#include "kio.h"
 #include "irq.h"
 #include "ps2.h"
 #include "con.h"
@@ -93,11 +93,11 @@ static int kb_irq_hook(int irqnum)
 int kb_init(void)
 {
     if (irq_set_hook(1, kb_irq_hook)) {
-        kprintf("kb: failed to hook irq\n");
+        klog_printf("kb: failed to hook irq\n");
         return 1;
     }
 
-    kprintf("kb: irq hooked\n");
+    klog_printf("kb: irq hooked\n");
 
     ps2_set_enabled(1, 1);
 

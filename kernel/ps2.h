@@ -9,6 +9,8 @@
 #define _INC_PS2 1
 
 #include <stdint.h>
+
+#include <kernel/klog.h>
 #include <kernel/compiler.h>
 #include <kernel/asm/portio.h>
 
@@ -230,7 +232,7 @@ static ALWAYS_INLINE int __wait_for_output_buffer(void)
 #define FLUSH_INPUT_BUFFER()                                                \
     {                                                                       \
         if (__flush_input_buffer()) {                                       \
-            kprintf("ps2: input buffer flush failed (%s:%d)\n",             \
+            klog_printf("ps2: input buffer flush failed (%s:%d)\n",         \
                 __FILE__, __LINE__);                                        \
         }                                                                   \
     }
@@ -239,7 +241,7 @@ static ALWAYS_INLINE int __wait_for_output_buffer(void)
 #define WAIT_FOR_OUTPUT_BUFFER()                                            \
     {                                                                       \
         if (__wait_for_output_buffer()) {                                   \
-            kprintf("ps2: output buffer wait failed (%s:%d)\n",             \
+            klog_printf("ps2: output buffer wait failed (%s:%d)\n",         \
                 __FILE__, __LINE__);                                        \
         }                                                                   \
     }

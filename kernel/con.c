@@ -1,9 +1,9 @@
 #include <ctype.h>
 
 #include <kernel/kernel.h>
+#include <kernel/klog.h>
 
 #include "con.h"
-#include "kio.h"
 #include "vga.h"
 
 #define TAB_WIDTH 4
@@ -105,7 +105,8 @@ int con_init(struct kernel_boot_params *params)
     // initial cursor position.
     screen_flags = (int) (screen_ptr[s_screen_index].flags);
 
-    kprintf("con: %dx%d at %p\n", s_screen_width, s_screen_height, screen_ptr);
+    klog_printf("con: %dx%d at %p\n", s_screen_width, s_screen_height,
+        screen_ptr);
 
     return 0;
 }

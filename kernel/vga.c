@@ -1,10 +1,10 @@
 #include <stdint.h>
-#include <kernel/compiler.h>
 
+#include <kernel/klog.h>
+#include <kernel/compiler.h>
 #include <kernel/asm/portio.h>
 
 #include "vga.h"
-#include "kio.h"
 
 typedef uint8_t (*adjust_reg_delegate_t)(uint8_t);
 
@@ -179,6 +179,7 @@ int vga_init(void)
     // Perform an inconsequential write to the DAC to normalise its state
     vga_dac_write_rgb(0xff, 0, 0, 0);
 
-    kprintf("vga: initialised\n");
+    klog_printf("vga: initialised\n");
+
     return 1;
 }

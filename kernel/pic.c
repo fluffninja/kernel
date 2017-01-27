@@ -1,8 +1,8 @@
+#include <kernel/klog.h>
 #include <kernel/asm/portio.h>
 
 #include "pic.h"
 #include "cpu/idt.h"
-#include "kio.h"
 
 static int s_master = 0;
 static int s_slave = 0;
@@ -39,8 +39,11 @@ static int remap_check_offset_set(int offset)
 {
     int index = 0;
     if ((index = check_offset_set(offset)) > 0) {
-        kprintf("pic: remap failed, bad index %d on offset %#2x (idt %#2x)\n",
-            index, offset, offset + index);
+        klog_printf(
+            "pic: remap failed, bad index %d on offset %#2x (idt %#2x)\n",
+            index,
+            offset,
+            offset + index);
         return (offset + index);
     }
 
@@ -82,7 +85,7 @@ int pic_remap(int master, int slave)
     outportb(PIC_PORT_SLAVE_DATA, 0xff);
 
     // That was surprisingly painless :)
-    kprintf("pic: remapped master to %#2x, slave to %#2x\n", master, slave);
+    klog_printf("pic: remapped master to %#2x, slave to %#2x\n", master, slave);
 
     return 0;
 }
@@ -114,7 +117,7 @@ static INLINE uint8_t slave_get_mask(void)
 int pic_set_enabled(int irqnum, int enabled)
 {
     if (irqnum >= 16) {
-        kprintf("pic: invalid irq: %d\n", irqnum);
+        klog_printf("pic: invalid irq: %d\n", irqnum);
         return 1;
     }
 
@@ -131,7 +134,7 @@ int pic_set_enabled(int irqnum, int enabled)
         slave_set_mask(mask);
     }
 
-    kprintf("pic: irq %d %s\n", irqnum, enabled ? "enabled" : "disabled");
+    klog_printf("pic: irq %d %s\n", irqnum, enabled ? "enabled" : "disabled");
 
     return 0;
 }
