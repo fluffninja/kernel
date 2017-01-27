@@ -1,8 +1,12 @@
-#ifndef _INC_DLIST
-#define _INC_DLIST 1
+#ifndef _INC_KERNEL_DLIST
+#define _INC_KERNEL_DLIST 1
 
+#include <kernel/kernel.h>
 #include <kernel/compiler.h>
-#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct dlist_node
 {
@@ -111,4 +115,8 @@ static INLINE void dlist_split_after(struct dlist_node *new,
         ITER = DLIST_CONTAINER_OF_NEXT(ITER, CONT_TYPE, MEMBER)     \
     )
 
-#endif /* _INC_DLIST */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _INC_KERNEL_DLIST */

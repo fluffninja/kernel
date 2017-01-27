@@ -1,8 +1,8 @@
 #ifndef _INC_KERNEL_ASM_PORTIO
 #define _INC_KERNEL_ASM_PORTIO 1
 
+#include <kernel/kernel.h>
 #include <kernel/compiler.h>
-#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,4 +89,4 @@ static ALWAYS_INLINE void portwait(void)
 }
 #endif
 
-#endif /* _INC_KERNEL_PORTIO */
+#endif /* _INC_KERNEL_ASM_PORTIO */
