@@ -32,21 +32,26 @@ kernel.elf: start.bin kmain.o con.o ps2.o pic.o cpu/idt.o cpu/isr.o \
 kernel.bin: kernel.elf
 	objcopy -O binary -S $^ $@
 
-kmain.c: boot.h con.h cpu/idt.h cpu/isr.h irq.h kb.h kio.h panic.h mouse.h \
-	ps2.h vga.h cpu/syscall.h
-con.c: con.h kio.h vga.h
-ps2.c: ps2.h kio.h
-pic.c: pic.h cpu/idt.h kio.h
+# asm
+asm/cpustat.c: kio.h
+
+# cpu
 cpu/idt.c: cpu/idt.h
 cpu/isr.c: cpu/isr.h cpu/idt.h panic.h
+cpu/syscall.c: cpu/syscall.h cpu/isr.h panic.h kio.h
+
+kmain.c: boot.h con.h cpu/idt.h cpu/isr.h irq.h kb.h kio.h panic.h mouse.h \
+	ps2.h vga.h cpu/syscall.h
+
+boot.c: boot.h
+con.c: con.h kio.h vga.h
+hexdump.c: kio.h
 irq.c: irq.h cpu/isr.h pic.h kio.h
 kb.c: kb.h kio.h irq.h ps2.h con.h panic.h keymap-en-us
 kio.c: kio.h con.h
-panic.c: panic.h kio.h con.h
-mouse.c: mouse.h irq.h ps2.h kio.h con.h
-vga.c: vga.h kio.h
-cpu/syscall.c: cpu/syscall.h cpu/isr.h panic.h kio.h
-boot.c: boot.h
-hexdump.c: kio.h
 klog.c: kio.h
-asm/cpustat.c: kio.h
+mouse.c: mouse.h irq.h ps2.h kio.h con.h
+panic.c: panic.h kio.h con.h
+pic.c: pic.h cpu/idt.h kio.h
+ps2.c: ps2.h kio.h
+vga.c: vga.h kio.h
