@@ -1,8 +1,7 @@
-#ifndef _INC_FAT16
-#define _INC_FAT16
+#ifndef _INC_FATDEF
+#define _INC_FATDEF 1
 
-struct fat_drive_header
-{
+struct fat_drive_header {
     char   oem_name[8];
     short  bytes_per_sector;
     char   sectors_per_cluster;
@@ -17,25 +16,22 @@ struct fat_drive_header
     short  hidden_sector_count;
 };
 
-struct fat_drive_header_extension
-{
+struct fat_drive_header_extension {
     char   extension_signature;
     int    partition_serial_number;
     char   volume_label[11];
     char   filesystem_type[8];
 };
 
-struct fat16_drive_header_extension
-{
+struct fat16_drive_header_extension {
     short  hidden_sector_count_upper;
     int    filesystem_sector_count;
     char   logical_drive_number;
     char   __reserved1;
 };
 
-struct fat32_drive_header_extension
-{
-    short  hidden_sector_count_upper;    
+struct fat32_drive_header_extension {
+    short  hidden_sector_count_upper;
     int    filesystem_sector_count;
     int    sectors_per_fat;
     short  mirror_flags;
@@ -48,8 +44,7 @@ struct fat32_drive_header_extension
     char   __reserved2;
 };
 
-struct fat32_filesystem_info_sector
-{
+struct fat32_filesystem_info_sector {
     int     signature1;
     char    __reserved1[480];
     int     signature2;
@@ -63,8 +58,7 @@ const int FAT32_FILESYSTEM_INFO_SECTOR_SIGNATURE1 = 0x41615252;
 const int FAT32_FILESYSTEM_INFO_SECTOR_SIGNATURE2 = 0x61417272;
 const int FAT32_FILESYSTEM_INFO_SECTOR_SIGNATURE3 = 0xaa550000;
 
-emum fat_directory_entry_attributes
-{
+emum fat_directory_entry_attributes {
     FDEA_READ_ONLY      = 0x01,
     FDEA_HIDDEN         = 0x02,
     FDEA_SYSTEM_FILE    = 0x04,
@@ -73,8 +67,7 @@ emum fat_directory_entry_attributes
     FDEA_ARCHIVE        = 0x20,
 };
 
-struct fat_directory_entry
-{
+struct fat_directory_entry {
     char   filename[11];
     char   attributes;
     char   __reserved1[10];
@@ -84,4 +77,4 @@ struct fat_directory_entry
     int    file_size;
 };
 
-#endif /* _INC_FAT16 */
+#endif /* _INC_FATDEF */
