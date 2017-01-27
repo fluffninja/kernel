@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
+
 #include <kernel/asm/misc.h>
 
 #include "boot.h"
@@ -8,12 +9,10 @@
 #include "cpu/isr.h"
 #include "irq.h"
 #include "kb.h"
-#include "kio.h"
 #include "panic.h"
 #include "mouse.h"
 #include "ps2.h"
 #include "vga.h"
-#include "syscall.h"
 
 void CDECL NO_RETURN kmain(void)
 {
@@ -50,6 +49,8 @@ void CDECL NO_RETURN kmain(void)
 
     // Enable VGA cursor by setting shape.
     con_set_cursor_shape(CON_CURSOR_SHAPE_UNDERLINE);
+
+    klog_printf("init ok\n");
 
     while (1);
 }
