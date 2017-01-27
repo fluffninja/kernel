@@ -1,9 +1,9 @@
+#include <kernel/kernel.h>
 #include <kernel/klog.h>
 
 #include "idt.h"
-#include "../kutil.h"
 
-#define IDT_SIZE    256
+#define IDT_SIZE 256
 
 static struct idt_entry s_idt[IDT_SIZE];
 
@@ -14,7 +14,7 @@ static INLINE int __idt_is_valid_index_impl(int index)
 
 int idt_init(void)
 {
-    kzeromem(s_idt, sizeof(s_idt));
+    KZEROMEM(s_idt, sizeof(s_idt));
 
     struct idt_descriptor descriptor = { sizeof(s_idt), s_idt };
 

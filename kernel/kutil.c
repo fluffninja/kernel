@@ -1,5 +1,7 @@
 #include <ctype.h>
 
+#include <kernel/kernel.h>
+
 #include "kutil.h"
 #include "kio.h"
 

@@ -1,11 +1,9 @@
-#include <stdint.h>
-#include <stddef.h>
+#include <kernel/kernel.h>
 
 #include "irq.h"
 #include "cpu/isr.h"
 #include "pic.h"
 #include "kio.h"
-#include "kutil.h"
 
 // Reference for IRQs' respective devices:
 // https://en.wikipedia.org/wiki/Interrupt_request_(PC_architecture)
