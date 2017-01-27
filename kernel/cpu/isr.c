@@ -1,6 +1,7 @@
+#include <kernel/klog.h>
+
 #include "isr.h"
 #include "idt.h"
-#include "../kio.h"
 #include "../panic.h"
 
 // Reference: https://support.microsoft.com/en-us/kb/117389
@@ -55,11 +56,11 @@ int isr_init(void)
     result |= __set_handler(0x10, ISR_HANDLER(isr_fpu_error));
 
     if (result) {
-        kprintf("isr: failed to register one or more cpu isr handlers\n");
+        klog_printf("isr: failed to register one or more cpu isr handlers\n");
         return 1;
     }
 
-    kprintf("isr: registered cpu isr handlers\n");
+    klog_printf("isr: registered cpu isr handlers\n");
     return 0;
 }
 

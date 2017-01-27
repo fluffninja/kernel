@@ -1,5 +1,6 @@
+#include <kernel/klog.h>
+
 #include "idt.h"
-#include "../kio.h"
 #include "../kutil.h"
 
 #define IDT_SIZE    256
@@ -18,7 +19,8 @@ int idt_init(void)
     struct idt_descriptor descriptor = { sizeof(s_idt), s_idt };
 
     ASM_VOLATILE("lidt [eax]"::"a"(&descriptor));
-    kprintf("idt: loaded with size %d at %p\n", ARRLEN(s_idt), s_idt);
+
+    klog_printf("idt: loaded with size %d at %p\n", ARRLEN(s_idt), s_idt);
 
     return 0;
 }
