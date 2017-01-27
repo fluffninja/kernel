@@ -1,7 +1,7 @@
 #ifndef _INC_GDT
 #define _INC_GDT 1
 
-#include <cccompat.h>
+#include <compiler.h>
 #include <stdint.h>
 
 BEGIN_PACK struct gdt_entry {

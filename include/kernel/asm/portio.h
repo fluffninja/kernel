@@ -1,7 +1,7 @@
 #ifndef _INC_KERNEL_ASM_PORTIO
 #define _INC_KERNEL_ASM_PORTIO 1
 
-#include <cccompat.h>
+#include <compiler.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

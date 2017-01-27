@@ -1,7 +1,5 @@
-// C/C++ Compiler Compatibility
-
-#ifndef _INC_CCCOMPAT
-#define _INC_CCCOMPAT 1
+#ifndef _INC_COMPILER
+#define _INC_COMPILER 1
 
 #ifdef __GNUC__
     #define _COMP_GCC
@@ -45,4 +43,4 @@
     #define NO_REMOVE
 #endif
 
-#endif /* _INC_CCCOMPAT */
+#endif /* _INC_COMPILER */

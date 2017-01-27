@@ -1,7 +1,7 @@
 #ifndef _INC_KSTRING
 #define _INC_KSTRING 1
 
-#include <cccompat.h>
+#include <compiler.h>
 #include <stdint.h>
 #include <stddef.h>
 

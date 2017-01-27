@@ -2,7 +2,7 @@
 #define _INC_BOOT 1
 
 #include <stdint.h>
-#include <cccompat.h>
+#include <compiler.h>
 
 // The kernel boot parameter block allows the bootloader to hand-over binary
 // information to the kernel during the boot process. Its presence and validity
