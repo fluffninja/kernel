@@ -1,12 +1,14 @@
-#include <compiler.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <ctype.h>
 
-#include "kstring.h"
-#include "kutil.h"
+#include <compiler.h>
+
+#include <kernel/kernel.h>
+
 #include "kio.h"
+#include "kutil.h"
 #include "con.h"
 
 #define OUTBUF_SIZE PAGE_SIZE

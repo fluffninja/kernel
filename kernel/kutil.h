@@ -3,9 +3,9 @@
 
 #include <compiler.h>
 #include <stddef.h>
-#include <kernel/asm/cpustat.h>
 
-#include "kstring.h"
+#include <kernel/asm/cpustat.h>
+#include <kernel/kernel.h>
 
 #define PAGE_SIZE       4096
 #define PAGE_ALIGNED    ALIGN(PAGE_SIZE)
