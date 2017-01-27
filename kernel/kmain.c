@@ -4,8 +4,8 @@
 
 #include "boot.h"
 #include "con.h"
-#include "idt.h"
-#include "isr.h"
+#include "cpu/idt.h"
+#include "cpu/isr.h"
 #include "irq.h"
 #include "kb.h"
 #include "kio.h"

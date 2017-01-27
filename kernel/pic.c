@@ -1,7 +1,7 @@
 #include <kernel/asm/portio.h>
 
 #include "pic.h"
-#include "idt.h"
+#include "cpu/idt.h"
 #include "kio.h"
 
 static int s_master = 0;
