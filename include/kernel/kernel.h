@@ -1,17 +1,14 @@
 #ifndef _INC_KERNEL_KERNEL
 #define _INC_KERNEL_KERNEL 1
 
-
 #include <stddef.h>
 #include <stdint.h>
 
 #include <kernel/compiler.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 static INLINE void *kmemset32(void *pointer, size_t size, uint32_t val)
 {
@@ -26,7 +23,6 @@ static INLINE void *kmemset32(void *pointer, size_t size, uint32_t val)
     return pointer;
 }
 
-
 static INLINE void *kmemset16(void *pointer, size_t size, uint16_t val)
 {
     uint16_t *pointer16 = (uint16_t *) pointer;
@@ -40,7 +36,6 @@ static INLINE void *kmemset16(void *pointer, size_t size, uint16_t val)
     return pointer;
 }
 
-
 static INLINE void *kmemset(void *pointer, size_t size, uint16_t val)
 {
     uint8_t *pointer8 = (uint8_t *) pointer;
@@ -51,7 +46,6 @@ static INLINE void *kmemset(void *pointer, size_t size, uint16_t val)
 
     return pointer;
 }
-
 
 static INLINE void *kmemcpy32(const void *source, void *dest, size_t size)
 {
@@ -67,7 +61,6 @@ static INLINE void *kmemcpy32(const void *source, void *dest, size_t size)
     return dest;
 }
 
-
 static INLINE void *kmemcpy16(const void *source, void *dest, size_t size)
 {
     const uint16_t *source16 = source;
@@ -81,7 +74,6 @@ static INLINE void *kmemcpy16(const void *source, void *dest, size_t size)
         return dest;
 }
 
-
 static INLINE void *kmemcpy(const void *source, void *dest, size_t size)
 {
     const uint8_t *source8 = source;
@@ -94,7 +86,6 @@ static INLINE void *kmemcpy(const void *source, void *dest, size_t size)
     return dest;
 }
 
-
 static INLINE char *kstrcpy(const char *source, char *dest)
 {
     while (*source) {
@@ -104,10 +95,8 @@ static INLINE char *kstrcpy(const char *source, char *dest)
     return dest;
 }
 
-
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* _INC_KERNEL_KERNEL */
