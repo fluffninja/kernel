@@ -1,7 +1,7 @@
 #ifndef _INC_DLIST
 #define _INC_DLIST 1
 
-#include <compiler.h>
+#include <kernel/compiler.h>
 #include <stddef.h>
 
 struct dlist_node

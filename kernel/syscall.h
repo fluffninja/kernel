@@ -1,7 +1,7 @@
 #ifndef _INC_SYSCALL
 #define _INC_SYSCALL 1
 
-#include <compiler.h>
+#include <kernel/compiler.h>
 #include <stdint.h>
 
 #define SYSCALL_IDT_INDEX 0x40

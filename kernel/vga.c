@@ -1,6 +1,7 @@
-#include <kernel/asm/portio.h>
 #include <stdint.h>
-#include <compiler.h>
+#include <kernel/compiler.h>
+
+#include <kernel/asm/portio.h>
 
 #include "vga.h"
 #include "kio.h"

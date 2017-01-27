@@ -1,7 +1,7 @@
 #ifndef _INC_CPUSTAT
 #define _INC_CPUSTAT 1
 
-#include <compiler.h>
+#include <kernel/compiler.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

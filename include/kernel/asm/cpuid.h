@@ -1,7 +1,7 @@
 #ifndef _INC_CPUID
 #define _INC_CPUID 1
 
-#include <compiler.h>
+#include <kernel/compiler.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

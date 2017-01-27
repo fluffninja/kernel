@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <compiler.h>
+#include <kernel/compiler.h>
 
 
 #ifdef __cplusplus

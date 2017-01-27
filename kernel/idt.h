@@ -1,8 +1,9 @@
 #ifndef _INC_IDT
 #define _INC_IDT 1
 
-#include <compiler.h>
 #include <stdint.h>
+
+#include <kernel/compiler.h>
 
 // IDT Entry Flags
 #define IDT_PRESENT             0x80 // Interrupt entry should be used

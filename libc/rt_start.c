@@ -1,4 +1,4 @@
-#include <compiler.h>
+#include <kernel/compiler.h>
 
 void NO_INLINE CDECL
 _start(void) {

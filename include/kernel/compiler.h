@@ -1,5 +1,5 @@
-#ifndef _INC_COMPILER
-#define _INC_COMPILER 1
+#ifndef _INC_KERNEL_COMPILER
+#define _INC_KERNEL_COMPILER 1
 
 #ifdef __GNUC__
     #define _COMP_GCC
@@ -43,4 +43,4 @@
     #define NO_REMOVE
 #endif
 
-#endif /* _INC_COMPILER */
+#endif /* _INC_KERNEL_COMPILER */
