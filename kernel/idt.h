@@ -1,7 +1,7 @@
 #ifndef _INC_IDT
 #define _INC_IDT 1
 
-#include <cccompat.h>
+#include <compiler.h>
 #include <stdint.h>
 
 // IDT Entry Flags

@@ -1,4 +1,4 @@
-#include <cccompat.h>
+#include <compiler.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stddef.h>
