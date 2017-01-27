@@ -121,22 +121,30 @@ int irq_has_hook(int irqnum)
 
 int irq_set_hook(int irqnum, irq_hook_t hookfn)
 {
+    // Is the irqnum valid?
     if (__irq_is_valid_irqnum_impl(irqnum)) {
+        // Is there already a hook for this irqnum?
         if (!__irq_has_hook_impl(irqnum)) {
+            // Set the hook function
             irq_hooks[irqnum] = hookfn;
+
+            // Enable the IRQ on the PIC
             pic_set_enabled(irqnum, 1);
+
             klog_printf("irq: irq %d hooked at %p\n", irqnum, (void *) hookfn);
+
             return 0;
         } else {
+            // Already a hook
             klog_printf("irq: irq %d already hooked at %p\n", irqnum,
                 (void *) irq_hooks[irqnum]);
     	}
     } else {
+        // Invalid irqnum
         klog_printf("irq: %d is an invalid irq number\n", irqnum);
     }
 
-    klog_printf("irq: failed to hook irq %d at %p: %s\n", irqnum,
-        (void *) hookfn);
+    klog_printf("irq: failed to hook irq %d at %p\n", irqnum, (void *) hookfn);
 
     return 1;
 }
