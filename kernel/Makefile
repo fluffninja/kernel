@@ -24,8 +24,8 @@ LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
 
 # Kernel ELF File
 kernel.elf: start.bin kmain.o con.o ps2.o pic.o cpu/idt.o cpu/isr.o \
-	irq.o kb.o kio.o panic.o mouse.o vga.o cpu/syscall.o boot.o mm/heap.o \
-	kmem.o klog.o asm/cpustat.o hexdump.o
+	irq.o kb.o kio.o panic.o mouse.o vga.o cpu/syscall.o boot.o \
+	klog.o asm/cpustat.o hexdump.o
 	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
 
 # Flatten Kernel ELF File
@@ -47,8 +47,6 @@ mouse.c: mouse.h irq.h ps2.h kio.h con.h
 vga.c: vga.h kio.h
 cpu/syscall.c: cpu/syscall.h cpu/isr.h panic.h kio.h
 boot.c: boot.h
-mm/heap.c: mm/heap.h
-kmem.c: kmem.h
 hexdump.c: kio.h
 klog.c: kio.h
 asm/cpustat.c: kio.h
