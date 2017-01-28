@@ -1,17 +1,15 @@
-#include <stdint.h>
-#include <stddef.h>
-
+#include <kernel/kernel.h>
+#include <kernel/klog.h>
 #include <kernel/asm/misc.h>
 
 #include "boot.h"
 #include "con.h"
+#include "panic.h"
 #include "cpu/idt.h"
 #include "cpu/isr.h"
+#include "ps2.h"
 #include "irq.h"
 #include "kb.h"
-#include "panic.h"
-#include "mouse.h"
-#include "ps2.h"
 #include "vga.h"
 
 void CDECL NO_RETURN kmain(void)
