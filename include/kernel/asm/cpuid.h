@@ -8,10 +8,6 @@
 extern "C" {
 #endif
 
-#ifndef BITFLAG
-#define BITFLAG(N)                      (1UL << (N))
-#endif
-
 #define CPUID_QUERY_VENDOR_ID           0x00
 #define CPUID_QUERY_FEATURES            0x01
 #define CPUID_QUERY_EXTENDED_FEATURES   0x07

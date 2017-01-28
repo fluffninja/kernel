@@ -17,6 +17,10 @@ extern "C" {
 #define ARRLEN(A)       (sizeof(A) / sizeof(*(A)))
 #endif
 
+#ifndef BITFLAG
+#define BITFLAG(N)      (1UL << (N))
+#endif
+
 // CONTAINER_OF:
 //   Cast a pointer to a member within a container to a pointer to the
 //   container of the container type.
