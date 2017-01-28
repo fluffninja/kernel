@@ -9,7 +9,7 @@ enum {
     // Success
     KERROR_NONE = 0,
 
-    // Failcode
+    KERROR_UNSPECIFIED,
     KERROR_ARG_NULL,
     KERROR_ARG_OUT_OF_RANGE,
     KERROR_ARG_INVALID,
