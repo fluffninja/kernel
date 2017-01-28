@@ -2,6 +2,7 @@
 #define _INC_KERNEL_ASM_CPUSTAT 1
 
 #include <kernel/kernel.h>
+#include <kernel/types.h>
 #include <kernel/compiler.h>
 
 #ifdef __cplusplus
@@ -13,14 +14,14 @@ struct register_set
     // NOTE: The function get_registers(), below, requires that these fields
     // be in the reverse order that the registers are pushed onto the stack
     // by the PUSHA instruction.
-    uint32_t di;
-    uint32_t si;
-    uint32_t bp;
-    uint32_t sp;
-    uint32_t b;
-    uint32_t d;
-    uint32_t c;
-    uint32_t a;
+    u32 di;
+    u32 si;
+    u32 bp;
+    u32 sp;
+    u32 b;
+    u32 d;
+    u32 c;
+    u32 a;
 };
 
 static ALWAYS_INLINE struct register_set get_registers(void)
@@ -30,18 +31,18 @@ static ALWAYS_INLINE struct register_set get_registers(void)
     // dereference it as it wants.
     struct register_set *regset;
     ASM_VOLATILE(
-        "pusha              \n\t"
-        "mov    %0, esp     \n\t"
-        "add    esp, %1     \n\t":
+        "pusha;"
+        "mov    %0, esp;"
+        "add    esp, %1;":
         "=g"(regset):
         "Z"(sizeof(struct register_set))
     );
     return *regset;
 }
 
-static ALWAYS_INLINE uint32_t get_eflags(void)
+static ALWAYS_INLINE u32 get_eflags(void)
 {
-    uint32_t result;
+    u32 result;
     ASM_VOLATILE(
         "pushf  \n\t"
         "pop %0 \n\t":
@@ -53,7 +54,7 @@ static ALWAYS_INLINE uint32_t get_eflags(void)
 struct cpustat
 {
     struct register_set regset;
-    uint32_t            eflags;
+    u32                 eflags;
 };
 
 static ALWAYS_INLINE struct cpustat collect_cpustat(void)
