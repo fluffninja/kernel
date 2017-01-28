@@ -9,19 +9,20 @@
 #include "kio.h"
 #include "con.h"
 
-static uint32_t s_panic_flags = PANIC_FULL_DUMP;
+static int s_panic_flags = PANIC_FULL_DUMP;
 
 #define STACK_WORDS 32
 #define STACK_WIDTH 4
 #define STACK_ROWS  (STACK_WORDS / STACK_WIDTH)
 
-uint32_t panic_set_flags(uint32_t flags, int state)
+int panic_set_flags(int flags, int state)
 {
     if (state) {
         s_panic_flags |= flags;
     } else {
         s_panic_flags &= ~flags;
     }
+
     return s_panic_flags;
 }
 
