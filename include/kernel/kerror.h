@@ -1,5 +1,9 @@
-#ifndef _INC_KERNEL_ERROR
-#define _INC_KERNEL_ERROR 1
+#ifndef _INC_KERNEL_KERROR
+#define _INC_KERNEL_KERROR 1
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void kerror_clear(void);
 void kerror_set(int error);
@@ -9,6 +13,7 @@ enum {
     // Success
     KERROR_NONE = 0,
 
+    // Error values
     KERROR_UNSPECIFIED,
     KERROR_ARG_NULL,
     KERROR_ARG_OUT_OF_RANGE,
@@ -18,4 +23,8 @@ enum {
     KERROR_LAST,
 };
 
-#endif /* _INC_KERNEL_ERROR */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _INC_KERNEL_KERROR */
