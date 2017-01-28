@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include <kernel/asm/cpustat.h>
 
 #include "../kio.h"
