@@ -1,6 +1,7 @@
 #ifndef _INC_PANIC
 #define _INC_PANIC 1
 
+#include <kernel/compiler.h>
 #include <kernel/asm/cpustat.h>
 
 enum {
@@ -17,8 +18,7 @@ enum {
                             | PANIC_FULL_DUMP,
 };
 
-uint32_t panic_set_flags(uint32_t flags, int state);
-
+int panic_set_flags(int flags, int state);
 void NO_RETURN paniccs(const struct cpustat cs, const char *fmt, ...);
 void NO_RETURN panic(const char *fmt, ...);
 
