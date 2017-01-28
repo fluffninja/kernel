@@ -1,4 +1,4 @@
-// stdio.h
+/* stdio.h - C Standard Library */
 
 #ifndef _INC_STDIO
 #define _INC_STDIO 1

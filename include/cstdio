@@ -1,4 +1,4 @@
-// cstdio
+/* cstdio - C++ Standard Library */
 
 #ifndef _INC_CSTDIO
 #define _INC_CSTDIO 1

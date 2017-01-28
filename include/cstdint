@@ -1,4 +1,4 @@
-// cstdint
+/* cstdint - C++ Standard Library */
 
 #ifndef _INC_CSTDINT
 #define _INC_CSTDINT 1

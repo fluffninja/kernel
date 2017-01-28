@@ -1,4 +1,4 @@
-// ctype.h
+/* ctype.h - C Standard Library */
 
 #ifndef _INC_CTYPE
 #define _INC_CTYPE 1

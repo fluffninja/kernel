@@ -1,4 +1,4 @@
-// cstddef
+/* cstddef - C++ Standard Library */
 
 #ifndef _INC_CSTDDEF
 #define _INC_CSTDDEF 1

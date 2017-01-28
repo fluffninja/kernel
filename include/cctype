@@ -1,4 +1,4 @@
-// cctype
+/* cctype - C++ Standard Library */
 
 #ifndef _INC_CCTYPE
 #define _INC_CCTYPE 1

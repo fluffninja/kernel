@@ -1,4 +1,4 @@
-// stdalign.h
+/* stdalign.h - C Standard Library */
 
 #ifndef _INC_STDALIGN
 #define _INC_STDALIGN 1

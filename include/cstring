@@ -1,4 +1,4 @@
-// cstring
+/* cstring - C++ Standard Library */
 
 #ifndef _INC_CSTRING
 #define _INC_CSTRING 1

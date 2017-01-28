@@ -1,4 +1,4 @@
-// ctime
+/* ctime - C++ Standard Library */
 
 #ifndef _INC_CTIME
 #define _INC_CTIME 1

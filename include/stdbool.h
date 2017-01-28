@@ -1,4 +1,4 @@
-// stdbool.h
+/* stdbool.h - C Standard Library */
 
 #ifndef _INC_STDBOOL
 #define _INC_STDBOOL 1

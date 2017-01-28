@@ -1,4 +1,4 @@
-// time.h
+/* time.h - C Standard Library */
 
 #ifndef _INC_TIME
 #define _INC_TIME 1
@@ -36,7 +36,7 @@ char *asctime(const struct tm *timeptr);
 char *ctime(const time_t *timer);
 struct tm *gmtime(const time_t *timer);
 struct tm *localtime(const time_t *timer);
-size_t strftime(char *ptr, size_t maxsize, const char *format, 
+size_t strftime(char *ptr, size_t maxsize, const char *format,
                 const struct tm *timeptr);
 
 #ifdef __cplusplus
