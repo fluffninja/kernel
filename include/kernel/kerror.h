@@ -1,6 +1,10 @@
 #ifndef _INC_KERNEL_ERROR
 #define _INC_KERNEL_ERROR 1
 
+void kerror_clear(void);
+void kerror_set(int error);
+int kerror_get_last(void);
+
 enum {
     // Success
     KERROR_NONE = 0,
