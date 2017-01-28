@@ -1,4 +1,4 @@
-// stddef.h for Isaac OS
+/* stddef.h - C Standard Library */
 
 #ifndef _INC_STDDEF
 #define _INC_STDDEF 1

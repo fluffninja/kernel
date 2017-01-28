@@ -1,4 +1,4 @@
-// string.h for Isaac OS
+/* string.h - C Standard Library */
 
 #ifndef _INC_STRING
 #define _INC_STRING 1

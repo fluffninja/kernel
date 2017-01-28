@@ -1,4 +1,4 @@
-// iso646.h for IsaacOS
+/* iso646.h - C Standard Library */
 
 #ifndef _INC_ISO646
 #define _INC_ISO646 1

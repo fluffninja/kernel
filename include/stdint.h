@@ -1,4 +1,4 @@
-// stdint.h for Isaac OS
+/* stdint.h - C Standard Library */
 
 #ifndef _INC_STDINT
 #define _INC_STDINT 1

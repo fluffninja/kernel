@@ -1,8 +1,8 @@
-// ciso646 for IsaacOS
+/* ciso646 - C++ Standard Library */
 
 #ifndef _INC_CISO646
 #define _INC_CISO646 1
 
-/* Intentionally Empty */
+/* Intentionally empty in compliance to standard. */
 
 #endif /* _INC_CISO646 */

@@ -1,4 +1,4 @@
-// stdarg.h for Isaac OS
+/* stdarg.h - C Standard Library */
 
 #ifndef _INC_STDARG
 #define _INC_STDARG 1

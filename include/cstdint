@@ -1,4 +1,4 @@
-// cstdint for Isaac OS
+/* cstdint - C++ Standard Library */
 
 #ifndef _INC_CSTDINT
 #define _INC_CSTDINT 1

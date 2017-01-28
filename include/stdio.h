@@ -1,4 +1,4 @@
-// stdio.h for Isaac OS
+/* stdio.h - C Standard Library */
 
 #ifndef _INC_STDIO
 #define _INC_STDIO 1

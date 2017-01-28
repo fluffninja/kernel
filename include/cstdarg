@@ -1,4 +1,4 @@
-// cstdarg for Isaac OS
+/* cstdarg - C++ Standard Library */
 
 #ifndef _INC_CSTDARG
 #define _INC_CSTDARG 1

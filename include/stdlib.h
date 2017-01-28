@@ -1,4 +1,4 @@
-// stdlib.h for Isaac OS
+/* stdlib.h - C Standard Library */
 
 #ifndef _INC_STDLIB
 #define _INC_STDLIB 1

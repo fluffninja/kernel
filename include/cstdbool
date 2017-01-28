@@ -1,4 +1,4 @@
-// cstdbool for Isaac OS
+/* cstdbool - C++ Standard Library */
 
 #ifndef _INC_CSTDBOOL
 #define _INC_CSTDBOOL 1
