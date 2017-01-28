@@ -2,6 +2,7 @@
 #define _INC_KERNEL_ASM_MISC 1
 
 #include <kernel/kernel.h>
+#include <kernel/types.h>
 #include <kernel/compiler.h>
 
 #ifdef __cplusplus
@@ -27,9 +28,9 @@ static ALWAYS_INLINE void hlt(void)
 }
 
 // Get clock-cycles since boot via RDTSC (Read Time-stamp counter)
-static ALWAYS_INLINE uint64_t rdtsc(void)
+static ALWAYS_INLINE u64 rdtsc(void)
 {
-    uint64_t value;
+    u64 value;
     ASM(
         "rdtsc":
         "=A"(value)
@@ -38,7 +39,7 @@ static ALWAYS_INLINE uint64_t rdtsc(void)
 }
 
 // Write model-specific register
-static ALWAYS_INLINE void wrmsr(uint32_t reg, uint64_t value)
+static ALWAYS_INLINE void wrmsr(u32 reg, u64 value)
 {
     ASM(
         "wrmsr"::
@@ -48,9 +49,9 @@ static ALWAYS_INLINE void wrmsr(uint32_t reg, uint64_t value)
 }
 
 // Read model-specific register
-static ALWAYS_INLINE uint64_t rdmsr(uint32_t reg)
+static ALWAYS_INLINE u64 rdmsr(u32 reg)
 {
-    uint64_t value;
+    u64 value;
     ASM(
         "rdmsr":
         "=A"(value):

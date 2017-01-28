@@ -2,6 +2,7 @@
 #define _INC_KERNEL_ASM_PORTIO 1
 
 #include <kernel/kernel.h>
+#include <kernel/types.h>
 #include <kernel/compiler.h>
 
 #ifdef __cplusplus
@@ -12,7 +13,7 @@ extern "C" {
 #define PORTWAIT_PORT 0x80
 
 // Write a byte to the given port
-static ALWAYS_INLINE void outportb(uint16_t port, uint8_t value)
+static ALWAYS_INLINE void outportb(u16 port, u8 value)
 {
     ASM_VOLATILE(
         "outb %1, %0"::
@@ -22,7 +23,7 @@ static ALWAYS_INLINE void outportb(uint16_t port, uint8_t value)
 }
 
 // Write a word to the given port
-static ALWAYS_INLINE void outportw(uint16_t port, uint16_t value)
+static ALWAYS_INLINE void outportw(u16 port, u16 value)
 {
     ASM_VOLATILE(
         "outw %1, %0"::
@@ -32,7 +33,7 @@ static ALWAYS_INLINE void outportw(uint16_t port, uint16_t value)
 }
 
 // Write a double-word to the given port
-static ALWAYS_INLINE void outportl(uint16_t port, uint32_t value)
+static ALWAYS_INLINE void outportl(u16 port, u32 value)
 {
     ASM_VOLATILE(
         "outl %1, %0"::
@@ -42,9 +43,9 @@ static ALWAYS_INLINE void outportl(uint16_t port, uint32_t value)
 }
 
 // Read a byte from the given port
-static ALWAYS_INLINE uint8_t inportb(uint16_t port)
+static ALWAYS_INLINE u8 inportb(u16 port)
 {
-    uint8_t value;
+    u8 value;
     ASM_VOLATILE(
         "inb %0, %1":
         "=a"(value):      // Value of A
@@ -54,9 +55,9 @@ static ALWAYS_INLINE uint8_t inportb(uint16_t port)
 }
 
 // Read a word from the given port
-static ALWAYS_INLINE uint16_t inportw(uint16_t port)
+static ALWAYS_INLINE u16 inportw(u16 port)
 {
-    uint16_t value;
+    u16 value;
     ASM_VOLATILE(
         "inw %0, %1":
         "=a"(value):
@@ -66,9 +67,9 @@ static ALWAYS_INLINE uint16_t inportw(uint16_t port)
 }
 
 // Read a double-word from the given port
-static ALWAYS_INLINE uint32_t inportl(uint16_t port)
+static ALWAYS_INLINE u32 inportl(u16 port)
 {
-    uint32_t value;
+    u32 value;
     ASM_VOLATILE(
         "inl %0, %1":
         "=a"(value):

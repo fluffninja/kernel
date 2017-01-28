@@ -2,9 +2,9 @@
 #define _INC_KERNEL_KERNEL 1
 
 #include <stddef.h>
-#include <stdint.h>
 
 #include <kernel/compiler.h>
+#include <kernel/types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,11 +36,11 @@ extern "C" {
     )
 #endif
 
-static INLINE void *kmemset32(void *pointer, size_t size, uint32_t val)
+static INLINE void *kmemset32(void *pointer, size_t size, u32 val)
 {
-    uint32_t *pointer32 = (uint32_t *) pointer;
+    u32 *pointer32 = (u32 *) pointer;
 
-    size /= sizeof(uint32_t);
+    size /= sizeof(u32);
 
     while (size--) {
         *(pointer32++) = val;
@@ -49,11 +49,11 @@ static INLINE void *kmemset32(void *pointer, size_t size, uint32_t val)
     return pointer;
 }
 
-static INLINE void *kmemset16(void *pointer, size_t size, uint16_t val)
+static INLINE void *kmemset16(void *pointer, size_t size, u16 val)
 {
-    uint16_t *pointer16 = (uint16_t *) pointer;
+    u16 *pointer16 = (u16 *) pointer;
 
-    size /= sizeof(uint16_t);
+    size /= sizeof(u16);
 
     while (size--) {
         *(pointer16++) = val;
@@ -62,9 +62,9 @@ static INLINE void *kmemset16(void *pointer, size_t size, uint16_t val)
     return pointer;
 }
 
-static INLINE void *kmemset(void *pointer, size_t size, uint16_t val)
+static INLINE void *kmemset(void *pointer, size_t size, u16 val)
 {
-    uint8_t *pointer8 = (uint8_t *) pointer;
+    u8 *pointer8 = (u8 *) pointer;
 
     while (size--) {
         *(pointer8++) = val;
@@ -75,10 +75,10 @@ static INLINE void *kmemset(void *pointer, size_t size, uint16_t val)
 
 static INLINE void *kmemcpy32(const void *source, void *dest, size_t size)
 {
-    const uint32_t *source32 = source;
-    uint32_t *dest32 = dest;
+    const u32 *source32 = source;
+    u32 *dest32 = dest;
 
-    size /= sizeof(uint32_t);
+    size /= sizeof(u32);
 
     while (size--) {
         *(dest32++) = *(source32++);
@@ -89,21 +89,22 @@ static INLINE void *kmemcpy32(const void *source, void *dest, size_t size)
 
 static INLINE void *kmemcpy16(const void *source, void *dest, size_t size)
 {
-    const uint16_t *source16 = source;
-    uint16_t *dest16 = dest;
+    const u16 *source16 = source;
+    u16 *dest16 = dest;
 
-    size /= sizeof(uint16_t);
+    size /= sizeof(u16);
 
     while (size--) {
         *(dest16++) = *(source16++);
     }
-        return dest;
+
+    return dest;
 }
 
 static INLINE void *kmemcpy(const void *source, void *dest, size_t size)
 {
-    const uint8_t *source8 = source;
-    uint8_t *dest8 = dest;
+    const u8 *source8 = source;
+    u8 *dest8 = dest;
 
     while (size--) {
         *(dest8++) = *(source8++);

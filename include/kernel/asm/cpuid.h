@@ -2,6 +2,7 @@
 #define _INC_KERNEL_ASM_CPUID 1
 
 #include <kernel/kernel.h>
+#include <kernel/types.h>
 #include <kernel/compiler.h>
 
 #ifdef __cplusplus
@@ -31,13 +32,13 @@ extern "C" {
 // Result fields of CPUID
 struct cpuid_result
 {
-    uint32_t a;
-    uint32_t b;
-    uint32_t c;
-    uint32_t d;
+    u32 a;
+    u32 b;
+    u32 c;
+    u32 d;
 };
 
-INLINE struct cpuid_result cpuid(uint32_t query)
+INLINE struct cpuid_result cpuid(u32 query)
 {
     struct cpuid_result result;
     ASM(
