@@ -5,9 +5,10 @@
 extern "C" {
 #endif
 
-void kerror_clear(void);
-void kerror_set(int error);
-int kerror_get_last(void);
+void kerror_set_last(int error);
+void kerror_clear_last(void);
+int kerror_pop_last(void);
+int kerror_peek_last(void);
 
 enum {
     // Success
