@@ -22,19 +22,4 @@ uint32_t panic_set_flags(uint32_t flags, int state);
 void NO_RETURN paniccs(const struct cpustat cs, const char *fmt, ...);
 void NO_RETURN panic(const char *fmt, ...);
 
-// Panic if the given predicate is not met, outputting a message
-#define KASSERTV(PRED, MSG)                     \
-    if (!(PRED)) {                              \
-        struct cpustat cs = collect_cpustat();  \
-        paniccs(cs,                             \
-            "kernel assertion\n"                \
-            " site: %s:%d\n"                    \
-            " pred: %s\n"                       \
-            " msg:  %s\n",                      \
-            __FILE__, __LINE__, #PRED, MSG);    \
-    }
-
-// Panic if the given predicate is not met
-#define KASSERT(PRED)   KASSERTV(PRED, "nil")
-
 #endif /* _INC_PANIC */
