@@ -2,7 +2,7 @@
 #define _INC_SYSCALL 1
 
 #include <kernel/compiler.h>
-#include <stdint.h>
+#include <kernel/types.h>
 
 #define SYSCALL_IDT_INDEX 0x40
 
@@ -16,7 +16,7 @@ static ALWAYS_INLINE void __syscall(void)
     );
 }
 
-static ALWAYS_INLINE void __syscall1(uint32_t a)
+static ALWAYS_INLINE void __syscall1(u32 a)
 {
     ASM_VOLATILE(
         "int %0"::
@@ -27,7 +27,7 @@ static ALWAYS_INLINE void __syscall1(uint32_t a)
     );
 }
 
-static ALWAYS_INLINE void __syscall2(uint32_t a, uint32_t b)
+static ALWAYS_INLINE void __syscall2(u32 a, u32 b)
 {
     ASM_VOLATILE(
         "int %0"::
@@ -39,7 +39,7 @@ static ALWAYS_INLINE void __syscall2(uint32_t a, uint32_t b)
     );
 }
 
-static ALWAYS_INLINE void __syscall3(uint32_t a, uint32_t b, uint32_t c)
+static ALWAYS_INLINE void __syscall3(u32 a, u32 b, u32 c)
 {
     ASM_VOLATILE(
         "int %0"::
@@ -52,8 +52,7 @@ static ALWAYS_INLINE void __syscall3(uint32_t a, uint32_t b, uint32_t c)
     );
 }
 
-static ALWAYS_INLINE void __syscall4(uint32_t a, uint32_t b, uint32_t c,
-    uint32_t d)
+static ALWAYS_INLINE void __syscall4(u32 a, u32 b, u32 c, u32 d)
 {
     ASM_VOLATILE(
         "int %0"::
