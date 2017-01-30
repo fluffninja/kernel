@@ -36,6 +36,7 @@ struct kb_key {
 };
 
 int kb_init(void);
+int kb_set_typematic_config(int repeat_rate, int typematic_delay);
 int kb_add_hook(int (*func)(const struct kb_key *));
 int kb_remove_hook(int (*func)(const struct kb_key *));
 
