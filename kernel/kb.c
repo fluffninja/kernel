@@ -24,17 +24,33 @@ struct ps2_kb_packet {
     u8 data;
 };
 
-static struct kb_key convert_packet(const struct ps2_kb_packet *p)
+struct kb_device {
+    bool shift_pressed;
+    bool ctrl_pressed;
+    bool alt_pressed;
+};
+
+static struct kb_key convert_packet(const struct kb_device *device,
+    const struct ps2_kb_packet *packet)
 {
-    struct kb_key key;
-    struct ps2_kb_packet packet = *p;
-    u8 scancode = packet.data & 0x7f;
+    struct kb_key key = { 0 };
 
-    KZEROMEM(&key, sizeof(key));
+    key.raw = packet->data;
+    key.scancode = key.raw & 0x7f;;
+    key.keycode = s_keymap[key.scancode];
+    key.event = (key.raw & 0x80) ? KB_RELEASE : KB_PRESS;
 
-    key.scancode = scancode;
-    key.is_pressed = !(packet.data & 0x80);
-    key.keycode = s_keymap[scancode];
+    if (device->shift_pressed) {
+        key.modifiers |= KB_MOD_SHIFT;
+    }
+
+    if (device->ctrl_pressed) {
+        key.modifiers |= KB_MOD_CTRL;
+    }
+
+    if (device->alt_pressed) {
+        key.modifiers |= KB_MOD_ALT;
+    }
 
     return key;
 }
@@ -92,12 +108,29 @@ static int call_listeners(const struct kb_key *key)
 }
 
 int kb_irq_hook(int irqnum) {
+    static struct kb_device device = { 0 };
     struct ps2_kb_packet buffer[PS2_POLL_BUFFER_SIZE];
     int num_received = poll_ps2(buffer, PS2_POLL_BUFFER_SIZE);
     struct kb_key key;
 
+    // TODO: Actually check subsequent keyboard packets.
+    // For now, only check the first packet.
     if (num_received) {
-        key = convert_packet(buffer);
+        key = convert_packet(&device, buffer);
+
+        if (key.keycode >= 250) {
+            switch (key.keycode & ~1) {
+            case KB_KEY_LSHIFT:
+                device.shift_pressed = (key.event == KB_PRESS);
+                break;
+            case KB_KEY_LCTRL:
+                device.ctrl_pressed = (key.event == KB_PRESS);
+                break;
+            case KB_KEY_LALT:
+                device.alt_pressed = (key.event == KB_PRESS);
+                break;
+            }
+        }
 
         call_listeners(&key);
     }
