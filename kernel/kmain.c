@@ -89,7 +89,7 @@ void CDECL NO_RETURN kmain(void)
 
     // Keyboard driver.
     kb_init();
-    kb_add_hook(on_key_event);
+    kb_add_listener(on_key_event);
 
     // VGA - we assume that VGA functions are safely usable after this.
     vga_init();

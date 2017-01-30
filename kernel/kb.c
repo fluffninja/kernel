@@ -7,16 +7,13 @@
 #include "kb.h"
 #include "irq.h"
 #include "ps2.h"
-#include "con.h"
 #include "panic.h"
-#include "kio.h"
 
-// TODO: Once we have dynamic memory allocation, remove this limit.
-#define KB_HOOK_FUNC_COUNT_MAX 16
-
-static int (*s_hook_funcs[KB_HOOK_FUNC_COUNT_MAX])(const struct kb_key *);
-
+#define KB_LISTENER_FUNC_LIST_SIZE 16   // TODO: Once we have dynamic memory
+                                    // allocation, remove this limit.
 #define PS2_POLL_BUFFER_SIZE 16
+
+static kb_listener_func s_listener_func_list[KB_LISTENER_FUNC_LIST_SIZE];
 
 static const u8 s_keymap[128] = {
     #include "keymap-en-us"
@@ -81,13 +78,13 @@ static int poll_ps2(struct ps2_kb_packet *buffer, int buffer_size)
     return i;
 }
 
-static int call_hook_funcs(const struct kb_key *key)
+static int call_listeners(const struct kb_key *key)
 {
     int i;
 
-    for (i = 0; i < KB_HOOK_FUNC_COUNT_MAX; ++i) {
-        if (s_hook_funcs[i]) {
-            s_hook_funcs[i](key);
+    for (i = 0; i < KB_LISTENER_FUNC_LIST_SIZE; ++i) {
+        if (s_listener_func_list[i]) {
+            s_listener_func_list[i](key);
         }
     }
 
@@ -101,7 +98,8 @@ int kb_irq_hook(int irqnum) {
 
     if (num_received) {
         key = convert_packet(buffer);
-        call_hook_funcs(&key);
+
+        call_listeners(&key);
     }
 
     irq_done(irqnum);
@@ -110,7 +108,7 @@ int kb_irq_hook(int irqnum) {
 
 int kb_init(void)
 {
-    KZEROMEM(s_hook_funcs, sizeof(s_hook_funcs));
+    KZEROMEM(s_listener_func_list, sizeof(s_listener_func_list));
 
     if (irq_set_hook(1, kb_irq_hook)) {
         klog_printf("kb: failed to hook irq\n");
@@ -160,7 +158,7 @@ int kb_set_typematic_config(int repeat_rate, int typematic_delay)
     return 0;
 }
 
-int kb_add_hook(int (*func)(const struct kb_key *))
+int kb_add_listener(kb_listener_func func)
 {
     int i;
 
@@ -168,20 +166,20 @@ int kb_add_hook(int (*func)(const struct kb_key *))
         return KERROR_ARG_NULL;
     }
 
-    for (i = 0; i < KB_HOOK_FUNC_COUNT_MAX; ++i) {
-        if (!s_hook_funcs[i]) {
-            s_hook_funcs[i] = func;
+    for (i = 0; i < KB_LISTENER_FUNC_LIST_SIZE; ++i) {
+        if (!s_listener_func_list[i]) {
+            s_listener_func_list[i] = func;
             return 0;
         }
     }
 
-    klog_printf("kb: cannot add hook %p, limit of %d reached\n",
-        func, KB_HOOK_FUNC_COUNT_MAX);
+    klog_printf("kb: cannot add listener at %p, limit of %d reached\n",
+        func, KB_LISTENER_FUNC_LIST_SIZE);
 
     return KERROR_LIMIT_EXCEEDED;
 }
 
-int kb_remove_hook(int (*func)(const struct kb_key *))
+int kb_remove_listener(kb_listener_func func)
 {
     int i;
 
@@ -189,9 +187,9 @@ int kb_remove_hook(int (*func)(const struct kb_key *))
         return KERROR_ARG_NULL;
     }
 
-    for (i = 0; i < KB_HOOK_FUNC_COUNT_MAX; ++i) {
-        if (s_hook_funcs[i] == func) {
-            s_hook_funcs[i] = NULL;
+    for (i = 0; i < KB_LISTENER_FUNC_LIST_SIZE; ++i) {
+        if (s_listener_func_list[i] == func) {
+            s_listener_func_list[i] = NULL;
             return 0;
         }
     }
