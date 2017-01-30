@@ -150,7 +150,7 @@ int kb_set_typematic_config(int repeat_rate, int typematic_delay)
     outportb(PS2_PORT_DATA, *((u8 *) &tb));
     portwait();
 
-    if (inportb(PS2_PORT_DATA) == PS2_DEV_RESP_OK) {
+    if (inportb(PS2_PORT_DATA) != PS2_DEV_RESP_OK) {
         return KERROR_HARDWARE_PORT;
     }
 
