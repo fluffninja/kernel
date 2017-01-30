@@ -8,9 +8,8 @@
 #ifndef _INC_PS2
 #define _INC_PS2 1
 
-#include <stdint.h>
-
 #include <kernel/klog.h>
+#include <kernel/types.h>
 #include <kernel/compiler.h>
 #include <kernel/asm/portio.h>
 
@@ -124,8 +123,8 @@
 
 // PS/2 Keyboard Typematic Byte
 BEGIN_PACK struct ps2_kb_typematic_byte {
-    uint8_t repeat_rate     : 5; // 0x00 = 30Hz; 0x17 = 2Hz
-    uint8_t typematic_delay : 2; // Values defined below
+    u8 repeat_rate     : 5; // 0x00 to 0x1F (30Hz to 2Hz)
+    u8 typematic_delay : 2; // Values defined below
 } END_PACK;
 
 // PS/2 Keyboard Typematic Byte Repeat Delay Values (in milliseconds)
@@ -155,9 +154,9 @@ BEGIN_PACK struct ps2_kb_typematic_byte {
 
 // PS/2 Mouse Status Packet
 struct ps2_mouse_status_packet {
-    uint8_t flags;
-    uint8_t resolution;
-    uint8_t sample_rate;
+    u8 flags;
+    u8 resolution;
+    u8 sample_rate;
 };
 
 // PS/2 Mouse Status Packet Flags
@@ -170,9 +169,9 @@ struct ps2_mouse_status_packet {
 
 // PS/2 Mouse Move Packet
 struct ps2_mouse_move_packet {
-    uint8_t flags;
-    uint8_t x_movement;
-    uint8_t y_movement;
+    u8 flags;
+    u8 x_movement;
+    u8 y_movement;
 };
 
 // PS/2 Mouse Move Packet Flags (bit 3 always 1)
@@ -192,8 +191,8 @@ struct ps2_mouse_move_packet {
 
 int ps2_init(void);
 int ps2_set_enabled(int chnum, int enabled);
-uint8_t ps2_get_config(void);
-void ps2_set_config(uint8_t ps2_config);
+u8 ps2_get_config(void);
+void ps2_set_config(u8 ps2_config);
 
 #define PS2_OUTPUT_BUFFER_WAIT_TIMEOUT      1024
 #define PS2_INPUT_BUFFER_FLUSH_ATTEMPTS     1024
@@ -202,7 +201,7 @@ static ALWAYS_INLINE int __flush_input_buffer(void)
 {
     int i = PS2_INPUT_BUFFER_FLUSH_ATTEMPTS;
     while (i--) {
-        uint8_t status = inportb(PS2_PORT_STATUS);
+        u8 status = inportb(PS2_PORT_STATUS);
         if (status & PS2_STATUS_INPUT_BUFFER_FULL) {
             (void) inportb(PS2_PORT_DATA);
         } else {
@@ -218,7 +217,7 @@ static ALWAYS_INLINE int __wait_for_output_buffer(void)
 {
     int i = PS2_OUTPUT_BUFFER_WAIT_TIMEOUT;
     while (i--) {
-        uint8_t status = inportb(PS2_PORT_STATUS);
+        u8 status = inportb(PS2_PORT_STATUS);
         if (!(status & PS2_STATUS_OUTPUT_BUFFER_FULL)) {
             return 0;
         }
