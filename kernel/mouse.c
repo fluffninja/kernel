@@ -1,4 +1,5 @@
 #include <kernel/klog.h>
+#include <kernel/types.h>
 #include <kernel/asm/portio.h>
 
 #include "mouse.h"
@@ -9,7 +10,7 @@ static int mouse_irq_hook(int irqnum)
 {
     while (inportb(PS2_PORT_STATUS) & PS2_STATUS_INPUT_BUFFER_FULL) {
         for (int i = 0; i < 3; ++i) {
-            uint8_t data = inportb(PS2_PORT_DATA);
+            u8 data = inportb(PS2_PORT_DATA);
             (void) data;
         }
     }
