@@ -6,12 +6,6 @@ enum {
     KB_KEY_ESCAPE,
     KB_KEY_ENTER,
     KB_KEY_BACKSPACE,
-    KB_KEY_LSHIFT,
-    KB_KEY_RSHIFT,
-    KB_KEY_LALT,
-    KB_KEY_RALT,
-    KB_KEY_LCTRL,
-    KB_KEY_RCTRL,
     KB_KEY_CAPSLOCK,
     KB_KEY_NUMLOCK,
     KB_KEY_SCROLLLOCK,
@@ -27,12 +21,34 @@ enum {
     KB_KEY_F10,
     KB_KEY_F11,
     KB_KEY_F12,
+
+    // Make key modifiers easier to detect by giving them easy values
+    KB_KEY_LSHIFT = 250,
+    KB_KEY_RSHIFT = 251,
+    KB_KEY_LCTRL = 252,
+    KB_KEY_RCTRL = 253,
+    KB_KEY_LALT = 254,
+    KB_KEY_RALT = 255,
+};
+
+enum {
+    KB_PRESS,
+    KB_RELEASE,
+};
+
+enum {
+    KB_MOD_NONE = 0x00,
+    KB_MOD_SHIFT = 0x01,
+    KB_MOD_CTRL = 0x02,
+    KB_MOD_ALT = 0x04,
 };
 
 struct kb_key {
-    u8   scancode;
-    bool is_pressed;
-    u8   keycode;
+    u8  raw;
+    u8  scancode;
+    u8  keycode;
+    int event;
+    int modifiers;
 };
 
 typedef int (*kb_listener_func)(const struct kb_key *);
