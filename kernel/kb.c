@@ -121,6 +121,42 @@ int kb_init(void)
 
     ps2_set_enabled(1, 1);
 
+    kb_set_typematic_config(0x0b, 2);
+
+    return 0;
+}
+
+int kb_set_typematic_config(int repeat_rate, int typematic_delay)
+{
+    struct ps2_kb_typematic_byte tb = { 0, 0 };
+
+    if ((repeat_rate < 0) || (repeat_rate > 0x1f)) {
+        return KERROR_ARG_OUT_OF_RANGE;
+    }
+
+    if ((typematic_delay < 0) || (typematic_delay > 3)) {
+        return KERROR_ARG_OUT_OF_RANGE;
+    }
+
+    tb.repeat_rate = repeat_rate;
+    tb.typematic_delay = typematic_delay;
+
+    WAIT_FOR_OUTPUT_BUFFER();
+    FLUSH_INPUT_BUFFER();
+
+    outportb(PS2_PORT_CMD, PS2_KB_CMD_SET_TYPEMATIC_CONFIG);
+    portwait();
+
+    outportb(PS2_PORT_DATA, *((u8 *) &tb));
+    portwait();
+
+    if (inportb(PS2_PORT_DATA) == PS2_DEV_RESP_OK) {
+        return KERROR_HARDWARE_PORT;
+    }
+
+    klog_printf("kb: set repeat rate to %#02x, typematic delay to %d\n",
+        repeat_rate, typematic_delay);
+
     return 0;
 }
 
