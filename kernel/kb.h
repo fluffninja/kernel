@@ -29,6 +29,14 @@ enum {
     KB_KEY_F12,
 };
 
+struct kb_key {
+    u8   scancode;
+    bool is_pressed;
+    u8   keycode;
+};
+
 int kb_init(void);
+int kb_add_hook(int (*func)(const struct kb_key *));
+int kb_remove_hook(int (*func)(const struct kb_key *));
 
 #endif /* _INC_KB */

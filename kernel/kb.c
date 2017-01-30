@@ -1,6 +1,6 @@
-#include <ctype.h>
-
 #include <kernel/kernel.h>
+#include <kernel/types.h>
+#include <kernel/kerror.h>
 #include <kernel/klog.h>
 #include <kernel/asm/portio.h>
 
@@ -9,81 +9,99 @@
 #include "ps2.h"
 #include "con.h"
 #include "panic.h"
+#include "kio.h"
 
-static const int s_scancodes[128] = {
+// TODO: Once we have dynamic memory allocation, remove this limit.
+#define KB_HOOK_FUNC_COUNT_MAX 16
+
+static int (*s_hook_funcs[KB_HOOK_FUNC_COUNT_MAX])(const struct kb_key *);
+
+#define PS2_POLL_BUFFER_SIZE 16
+
+static const u8 s_keymap[128] = {
     #include "keymap-en-us"
 };
 
-static int s_shift  = 0;
-static int s_alt    = 0;
-static int s_ctrl   = 0;
+struct ps2_kb_packet {
+    u8 status;
+    u8 data;
+};
 
-static int process_command(char c)
+static struct kb_key convert_packet(const struct ps2_kb_packet *p)
 {
-    if (c == 'l') {
-        // CTRL+L clears the screen
-        con_clear();
-    } else if (c == 'p') {
-        // CTRL+P triggers kernel panic
-        panic("triggered panic (ctrl+p)\n");
-    } else if (c == 'a') {
-        // CTRL+A puts cursor at line start
-        int y;
-        con_get_cursor_location(NULL, &y);
-        con_set_cursor_location(0, y);
-    } else {
-        return 1;
+    struct kb_key key;
+    struct ps2_kb_packet packet = *p;
+    u8 scancode = packet.data & 0x7f;
+
+    KZEROMEM(&key, sizeof(key));
+
+    key.scancode = scancode;
+    key.is_pressed = !(packet.data & 0x80);
+    key.keycode = s_keymap[scancode];
+
+    return key;
+}
+
+// Poll the ps2 controller until it returns no more data. Combine the keyboard
+// device data with the controller status at that time, and place it into the
+// given buffer of the specified length.
+static int poll_ps2(struct ps2_kb_packet *buffer, int buffer_size)
+{
+    struct ps2_kb_packet *packet;
+    u8 ps2_status;
+    int i = 0;
+
+    while (true) {
+        // If the buffer size is reached, don't process any more packets.
+        if (i > buffer_size) {
+            klog_printf("kb: ps2 poll packet buffer full (%d packets)\n",
+                buffer_size);
+            FLUSH_INPUT_BUFFER();
+            return -1;
+        }
+
+        // Get ps2 controller status
+        ps2_status = inportb(PS2_PORT_STATUS);
+        portwait();
+
+        // Check that there's data waiting
+        if (ps2_status & PS2_STATUS_OUTPUT_BUFFER_FULL) {
+            packet = buffer + i;
+            packet->status = ps2_status;
+            packet->data = inportb(PS2_PORT_DATA);
+            portwait();
+
+            ++i;
+        } else {
+            break;
+        }
+    }
+
+    // Return number of packets received
+    return i;
+}
+
+static int call_hook_funcs(const struct kb_key *key)
+{
+    int i;
+
+    for (i = 0; i < KB_HOOK_FUNC_COUNT_MAX; ++i) {
+        if (s_hook_funcs[i]) {
+            s_hook_funcs[i](key);
+        }
     }
 
     return 0;
 }
 
-static int kb_irq_hook(int irqnum)
-{
-    uint8_t raw_data = inportb(PS2_PORT_DATA);
-    uint8_t scancode = raw_data & 0x7f;
-    int is_key_release = raw_data & 0x80;
-    int key_char = s_scancodes[scancode];
+int kb_irq_hook(int irqnum) {
+    struct ps2_kb_packet buffer[PS2_POLL_BUFFER_SIZE];
+    int num_received = poll_ps2(buffer, PS2_POLL_BUFFER_SIZE);
+    struct kb_key key;
 
-    if (key_char & 0x80) {
-        switch (key_char) {
-        case KB_KEY_LSHIFT:
-        case KB_KEY_RSHIFT:
-            s_shift = !is_key_release;
-            break;
-        case KB_KEY_LALT:
-        case KB_KEY_RALT:
-            s_alt = !is_key_release;
-            break;
-        case KB_KEY_LCTRL:
-        case KB_KEY_RCTRL:
-            s_ctrl = !is_key_release;
-            break;
-        default:
-            /* Unknown */
-            break;
-        }
-    } else if (!is_key_release) {
-        if (s_ctrl) {
-            // If control is held, process keyboard
-            // commands (which are CTRL+... combos)
-            if (process_command(key_char)) {
-                // If no command exists for the
-                // given key combo, output a caret
-                // and the typed key
-                con_write_char('^');
-                con_write_char(toupper(key_char));
-            }
-        } else {
-            // If control is not held, type text
-
-            // Convert to caps if shift is held
-            if (s_shift && islower(key_char)) {
-                key_char = toupper(key_char);
-            }
-
-            con_write_char(key_char);
-        }
+    if (num_received) {
+        key = convert_packet(buffer);
+        call_hook_funcs(&key);
     }
 
     irq_done(irqnum);
@@ -92,6 +110,8 @@ static int kb_irq_hook(int irqnum)
 
 int kb_init(void)
 {
+    KZEROMEM(s_hook_funcs, sizeof(s_hook_funcs));
+
     if (irq_set_hook(1, kb_irq_hook)) {
         klog_printf("kb: failed to hook irq\n");
         return 1;
@@ -102,4 +122,43 @@ int kb_init(void)
     ps2_set_enabled(1, 1);
 
     return 0;
+}
+
+int kb_add_hook(int (*func)(const struct kb_key *))
+{
+    int i;
+
+    if (!func) {
+        return KERROR_ARG_NULL;
+    }
+
+    for (i = 0; i < KB_HOOK_FUNC_COUNT_MAX; ++i) {
+        if (!s_hook_funcs[i]) {
+            s_hook_funcs[i] = func;
+            return 0;
+        }
+    }
+
+    klog_printf("kb: cannot add hook %p, limit of %d reached\n",
+        func, KB_HOOK_FUNC_COUNT_MAX);
+
+    return KERROR_LIMIT_EXCEEDED;
+}
+
+int kb_remove_hook(int (*func)(const struct kb_key *))
+{
+    int i;
+
+    if (!func) {
+        return KERROR_ARG_NULL;
+    }
+
+    for (i = 0; i < KB_HOOK_FUNC_COUNT_MAX; ++i) {
+        if (s_hook_funcs[i] == func) {
+            s_hook_funcs[i] = NULL;
+            return 0;
+        }
+    }
+
+    return KERROR_ARG_INVALID;
 }

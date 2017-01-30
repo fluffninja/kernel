@@ -19,6 +19,8 @@ enum {
     KERROR_ARG_NULL,
     KERROR_ARG_OUT_OF_RANGE,
     KERROR_ARG_INVALID,
+    KERROR_HARDWARE_PORT,
+    KERROR_LIMIT_EXCEEDED,
 
     // Must always be last
     KERROR_LAST,
