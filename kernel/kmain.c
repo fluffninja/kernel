@@ -1,3 +1,5 @@
+#include <ctype.h>
+
 #include <kernel/kernel.h>
 #include <kernel/klog.h>
 #include <kernel/asm/misc.h>
@@ -11,6 +13,52 @@
 #include "irq.h"
 #include "kb.h"
 #include "vga.h"
+
+static int on_key_event(const struct kb_key *key)
+{
+    static bool b_shift_pressed = false;
+    static bool b_ctrl_pressed = false;
+
+    u8 keycode = key->keycode;
+    bool is_pressed = key->is_pressed;
+
+    if (keycode & 0x80) {
+        switch (keycode) {
+        case KB_KEY_LSHIFT:
+        case KB_KEY_RSHIFT:
+            b_shift_pressed = is_pressed;
+            break;
+        case KB_KEY_LCTRL:
+        case KB_KEY_RCTRL:
+            b_ctrl_pressed = is_pressed;
+            break;
+        }
+    } else if (is_pressed) {
+        if (b_ctrl_pressed) {
+            if (keycode == 'l') {
+                con_clear();
+            } else if (keycode == 'p') {
+                panic("manual panic (ctrl+p)\n");
+            } else if (keycode == 'a') {
+                int y;
+                con_get_cursor_location(NULL, &y);
+                con_set_cursor_location(0, y);
+            } else {
+                con_write_char('^');
+                con_write_char(toupper(keycode));
+            }
+        } else {
+            if (b_shift_pressed && islower(keycode)) {
+                keycode = toupper(keycode);
+            }
+
+            con_write_char(keycode);
+        }
+
+    }
+
+    return 0;
+}
 
 void CDECL NO_RETURN kmain(void)
 {
@@ -41,6 +89,7 @@ void CDECL NO_RETURN kmain(void)
 
     // Keyboard driver.
     kb_init();
+    kb_add_hook(on_key_event);
 
     // VGA - we assume that VGA functions are safely usable after this.
     vga_init();
