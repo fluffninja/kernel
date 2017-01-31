@@ -1,8 +1,7 @@
 #ifndef _INC_CON
 #define _INC_CON 1
 
-#include <stdint.h>
-
+// For struct kernel_boot_params
 #include "boot.h"
 
 #define COL_BLACK               0x00
@@ -29,7 +28,7 @@ enum {
 };
 
 int con_init(struct kernel_boot_params *params);
-uint32_t con_set_flags(uint32_t flags, int state);
+int con_set_flags(int flags, int state);
 void con_clear(void);
 int con_write_char(char c);
 int con_write_str(const char *str);
