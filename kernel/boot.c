@@ -1,8 +1,6 @@
-#include <stddef.h>
-
 #include "boot.h"
 
-struct kernel_boot_params *boot_get_params(intptr_t addr)
+struct kernel_boot_params *boot_get_params(void *addr)
 {
     struct kernel_boot_params *params = (struct kernel_boot_params *) addr;
 
