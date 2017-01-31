@@ -28,7 +28,6 @@ enum {
 };
 
 int con_init(struct kernel_boot_params *params);
-int con_set_flags(int flags, int state);
 void con_clear(void);
 int con_write_char(char c);
 int con_write_str(const char *str);
