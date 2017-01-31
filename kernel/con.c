@@ -20,7 +20,6 @@ static int              s_screen_index;
 static int              screen_flags;
 static int              s_screen_width;
 static int              s_screen_height;
-static int              s_con_flags = 0;
 
 enum {
     SEEK_REL = 0,
@@ -111,17 +110,6 @@ int con_init(struct kernel_boot_params *params)
         screen_ptr);
 
     return 0;
-}
-
-int con_set_flags(int flags, int state)
-{
-    if (state) {
-        s_con_flags |= flags;
-    } else {
-        s_con_flags &= ~flags;
-    }
-
-    return s_con_flags;
 }
 
 void con_clear(void)
