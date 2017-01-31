@@ -153,8 +153,7 @@ int vga_init(void)
     // Perform an inconsequential write to the DAC to normalise its state
     vga_dac_write_rgb(0xff, 0, 0, 0);
 
-    klog_printf("vga: initialised, mapping address at %p\n",
-        vga_get_mapping_address());
+    klog_printf("vga: initialised\n");
 
     return 1;
 }
