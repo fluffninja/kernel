@@ -1,8 +1,6 @@
 #ifndef _INC_IDT
 #define _INC_IDT 1
 
-#include <kernel/types.h>
-
 #define IDT_MAX 256
 
 // IDT Entry Flags
