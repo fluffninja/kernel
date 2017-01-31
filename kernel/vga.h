@@ -247,6 +247,7 @@ void vga_set_mapping_address(u32 address);
 u32 vga_get_mapping_address(void);
 
 void vga_dac_write_rgb(u8 index, u8 r, u8 g, u8 b);
-void vga_dat_write_rgb_list(u8 start_index, const u8 *value_list, int list_length);
+void vga_dat_write_rgb_list(u8 start_index, const u8 *value_list,
+    int list_length);
 
 #endif /* _INC_VGA */
