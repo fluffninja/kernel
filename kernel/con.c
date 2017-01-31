@@ -2,6 +2,7 @@
 
 #include <kernel/kernel.h>
 #include <kernel/klog.h>
+#include <kernel/kerror.h>
 #include <kernel/types.h>
 #include <kernel/compiler.h>
 
@@ -10,74 +11,84 @@
 
 #define TAB_WIDTH 4
 
-struct charinfo {
-    char            c;
-    unsigned char   flags;
+struct video_cell {
+    char cellchar;
+    u8   flags;
 };
 
-static struct charinfo  *screen_ptr;
-static int              s_screen_index;
-static int              screen_flags;
-static int              s_screen_width;
-static int              s_screen_height;
+static struct video_cell *s_video_ptr;
+static int s_index;
+static int s_video_cell_flags;
+static int s_video_width;
+static int s_video_height;
 
-enum {
-    SEEK_REL = 0,
-    SEEK_ABS = 1,
-};
-
-static int seek_cursor(int offset, int seek)
+static int set_index(int index)
 {
-    if (offset && (seek == SEEK_REL)) {
-        s_screen_index += offset;
-    } else if (seek == SEEK_ABS) {
-        s_screen_index = offset;
-    }
+    index = MAX(index, 0);
+    index = MIN(index, s_video_width * s_video_height);
+    s_index = index;
 
-    vga_set_cursor_location((u16) s_screen_index);
+    // Place the VGA cursor at the location
+    vga_set_cursor_location((u16) index);
 
-    return s_screen_index;
+    return s_index;
 }
 
-static void scroll_screen(unsigned int lines)
+static void scroll_screen(int lines)
 {
-    struct charinfo *ptr0;
-    struct charinfo *ptr1;
-    struct charinfo clearchar;
-    unsigned int n;
+    int i;
+    struct video_cell *curr_line_ptr;
+    struct video_cell *next_line_ptr;
+    const struct video_cell clear_cell = {
+        .cellchar = 0,
+        .flags = (u8) s_video_cell_flags
+    };
 
-    ptr0 = screen_ptr;
-    ptr1 = ptr0 + s_screen_width * lines;
+    lines = MAX(lines, 0);
+    lines = MIN(lines, s_video_height);
+
+    curr_line_ptr = s_video_ptr;
+    next_line_ptr = curr_line_ptr + s_video_width * lines;
+
+    i = s_video_width * (s_video_height - lines);
 
     // Move the topmost lines upwards
-    n = (unsigned int) (s_screen_width * (s_screen_height - lines));
-    while (n--) {
-        *(ptr0++) = *(ptr1++);
+    while (i--) {
+        *(curr_line_ptr++) = *(next_line_ptr++);
     }
 
-    clearchar.c     = 0;
-    clearchar.flags = screen_flags;
+    // Clear the remainder of the sreen
+    i = s_video_width * lines;
 
-    n = (unsigned int) (s_screen_width * lines);
-    while (n--) {
-        *(ptr0++) = clearchar;
+    while (i--) {
+        *(curr_line_ptr++) = clear_cell;
     }
 
-    seek_cursor(-(lines * s_screen_width), SEEK_REL);
+    set_index(s_index - lines * s_video_width);
+}
+
+static int seek(int offset)
+{
+    int new_index = set_index(s_index + offset);
+
+    if (new_index >= s_video_width * s_video_height) {
+        scroll_screen(
+            (new_index - s_video_width * s_video_height) / s_video_height + 1);
+    }
+
+    return s_index;
 }
 
 static void put_char(char c)
 {
-    struct charinfo info;
-    info.c      = c;
-    info.flags  = (unsigned char) screen_flags;
+    struct video_cell info = {
+        .cellchar = c,
+        .flags = (u8) s_video_cell_flags
+    };
 
-    if (s_screen_index >= (s_screen_width * s_screen_height) - 1) {
-        scroll_screen(1);
-    }
+    seek(1);
 
-    screen_ptr[s_screen_index] = info;
-    seek_cursor(1, SEEK_REL);
+    s_video_ptr[s_index - 1] = info;
 }
 
 int con_init(struct kernel_boot_params *params)
@@ -85,37 +96,70 @@ int con_init(struct kernel_boot_params *params)
     int cursor_x = 0;
     int cursor_y = 0;
 
-    screen_ptr = (struct charinfo *) 0xb8000;
-    s_screen_width = 80;
-    s_screen_height = 25;
+    s_video_ptr = (struct video_cell *) 0xb8000;
+    s_video_width = 80;
+    s_video_height = 25;
 
     // Use the cursor co-ordinates from the boot parameter block, providing
     // the block is present and the co-ordinates it describes are valid.
     // Note that the cursor co-ordinates in the param block are unsigned bytes.
     if (params &&
-        ((int) params->cursor_x < s_screen_width) &&
-        ((int) params->cursor_y < s_screen_height)) {
+        ((int) params->cursor_x < s_video_width) &&
+        ((int) params->cursor_y < s_video_height)) {
 
         cursor_x = (int) params->cursor_x;
         cursor_y = (int) params->cursor_y;
     }
 
-    seek_cursor(cursor_x + cursor_y * s_screen_width, SEEK_ABS);
+    set_index(cursor_x + cursor_y * s_video_width);
 
     // Our default flags are the flags of whatever character cell is at the
     // initial cursor position.
-    screen_flags = (int) (screen_ptr[s_screen_index].flags);
+    s_video_cell_flags = (int) (s_video_ptr[s_index].flags);
 
-    klog_printf("con: %dx%d at %p\n", s_screen_width, s_screen_height,
-        screen_ptr);
+    klog_printf("con: %dx%d at %p\n", s_video_width, s_video_height,
+        s_video_ptr);
 
     return 0;
 }
 
 void con_clear(void)
 {
-    scroll_screen(s_screen_height);
-    seek_cursor(0, SEEK_ABS);
+    scroll_screen(s_video_height);
+    set_index(0);
+}
+
+static void type_carriage_return()
+{
+    seek(-(s_index % s_video_width));
+}
+
+static void type_newline()
+{
+    seek(s_video_width - (s_index % s_video_width));
+}
+
+static void type_tabulator()
+{
+    seek(TAB_WIDTH - s_index % TAB_WIDTH);
+}
+
+static void type_backspace()
+{
+    if (s_index > 0) {
+        seek(-1);
+        put_char(' ');
+        seek(-1);
+    }
+}
+
+static void type_unknown(char c)
+{
+    static const char HEX_DIGITS[16] = "0123456789abcdef";
+
+    put_char('~');
+    put_char(HEX_DIGITS[(c & 0xf0) >> 4]);
+    put_char(HEX_DIGITS[c & 0x0f]);
 }
 
 int con_write_char(char c)
@@ -123,34 +167,24 @@ int con_write_char(char c)
     if (isprint(c)) {
         put_char(c);
         return 1;
-    } else if (c == '\n') {
-        int count = s_screen_width - s_screen_index % s_screen_width;
-        for (int i = 0; i < count; ++i) {
-            put_char(0);
-        }
-        return 0;
-    } else if (c == '\t') {
-        int count = TAB_WIDTH - s_screen_index % TAB_WIDTH;
-        for (int i = 0; i < count; ++i) {
-            put_char(' ');
-        }
-        return count;
-    } else if (c == '\r') {
-        seek_cursor(s_screen_index % s_screen_width, SEEK_REL);
-        return 0;
-    } else if (c == '\b') {
-        if (s_screen_index > 0) {
-            seek_cursor(-1, SEEK_REL);
-            put_char(' ');
-            seek_cursor(-1, SEEK_REL);
-            return 0;
-        }
-    } else {
-        static const char hex_digits[16] = "0123456789abcdef";
-        put_char('~');
-        put_char(hex_digits[(c & 0xf0) >> 4]);
-        put_char(hex_digits[c & 0x0f]);
-        return 3;
+    }
+
+    switch (c) {
+    default:
+        type_unknown(c);
+        break;
+    case '\r':
+        type_carriage_return();
+        break;
+    case '\n':
+        type_newline();
+        break;
+    case '\t':
+        type_tabulator();
+        break;
+    case '\b':
+        type_backspace();
+        break;
     }
 
     return 0;
@@ -159,64 +193,48 @@ int con_write_char(char c)
 int con_write_str(const char *str)
 {
     if (!str) {
-        return 0;
+        return KERROR_ARG_NULL;
     }
 
-    int char_count = 0;
     while (*str) {
-        char_count += con_write_char(*(str++));
+        con_write_char(*(str++));
     }
-
-    return char_count;
-}
-
-void con_set_background_colour(int colour)
-{
-    int flags = screen_flags;
-    flags &= ~(0x07 << 4);
-    flags |= ((colour & 0x07) << 4);
-    screen_flags = flags;
-}
-
-int con_get_background_colour(void)
-{
-    int flags = screen_flags;
-    return ((flags >> 4) & 0x07);
-}
-
-void con_set_foreground_colour(int colour)
-{
-    int flags = screen_flags;
-    flags &= ~0x0f;
-    flags |= (colour & 0x0f);
-    screen_flags = flags;
-}
-
-int con_get_foreground_colour(void)
-{
-    int flags = screen_flags;
-    return (flags & 0x0f);
-}
-
-int con_set_cursor_location(int x, int y)
-{
-    if (x < 0 || x >= s_screen_width) {
-        return 1;
-    }
-
-    if (y < 0 || y >= s_screen_height) {
-        return 1;
-    }
-
-    seek_cursor(x + y * s_screen_width, SEEK_ABS);
 
     return 0;
 }
 
+int con_get_background_colour(void)
+{
+    int flags = s_video_cell_flags;
+    return ((flags >> 4) & 0x07);
+}
+
+void con_set_background_colour(int colour)
+{
+    int flags = s_video_cell_flags;
+    flags &= ~(0x07 << 4);
+    flags |= ((colour & 0x07) << 4);
+    s_video_cell_flags = flags;
+}
+
+int con_get_foreground_colour(void)
+{
+    int flags = s_video_cell_flags;
+    return (flags & 0x0f);
+}
+
+void con_set_foreground_colour(int colour)
+{
+    int flags = s_video_cell_flags;
+    flags &= ~0x0f;
+    flags |= (colour & 0x0f);
+    s_video_cell_flags = flags;
+}
+
 void con_get_cursor_location(int *x, int *y)
 {
-    int xx = s_screen_index % s_screen_width;
-    int yy = s_screen_index / s_screen_width;
+    int xx = s_index % s_video_width;
+    int yy = s_index / s_video_width;
 
     if (x) {
         *x = xx;
@@ -225,6 +243,21 @@ void con_get_cursor_location(int *x, int *y)
     if (y) {
         *y = yy;
     }
+}
+
+int con_set_cursor_location(int x, int y)
+{
+    if (x < 0 || x >= s_video_width) {
+        return KERROR_ARG_OUT_OF_RANGE;
+    }
+
+    if (y < 0 || y >= s_video_height) {
+        return KERROR_ARG_OUT_OF_RANGE;
+    }
+
+    set_index(x + y * s_video_width);
+
+    return 0;
 }
 
 void con_set_cursor_shape(int shape)
