@@ -21,6 +21,14 @@ extern "C" {
 #define BITFLAG(N)      (1UL << (N))
 #endif
 
+#ifndef MAX
+#define MAX(A, B)       (((A) > (B)) ? (A) : (B))
+#endif
+
+#ifndef MIN
+#define MIN(A, B)       (((A) < (B)) ? (A) : (B))
+#endif
+
 // CONTAINER_OF:
 //   Cast a pointer to a member within a container to a pointer to the
 //   container of the container type.
