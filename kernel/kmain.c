@@ -29,10 +29,7 @@ static int on_key_event(const struct kb_key *key)
                 // Manually panic
                 panic("manual panic (ctrl+p)\n");
             } else if (keycode == 'a') {
-                // Reset the cursor's X co-ordinate
-                int y;
-                con_get_cursor_location(NULL, &y);
-                con_set_cursor_location(0, y);
+                con_write_char('\r');
             } else {
                 // No appropriate command, print the letter preceded by a '^'
                 con_write_char('^');
