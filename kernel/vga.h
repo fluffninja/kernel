@@ -1,8 +1,7 @@
 #ifndef _INC_VGA
 #define _INC_VGA 1
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <kernel/types.h>
 
 //
 // VGA External Registers
@@ -23,7 +22,7 @@
 #define VGA_EXT_MISC_COMPATIBLE_CRT_PORTS       0x01 // Change CRT port map*
 #define VGA_EXT_MISC_ENABLE_RAM_MAP             0x02 // Map VRAM to RAM
 #define VGA_EXT_MISC_CLOCK_25MHZ                0x00 // 25MHz Clock
-#define VGA_EXT_MISC_CLOCK_28MHZ                0x04 // 28MHz Clock 
+#define VGA_EXT_MISC_CLOCK_28MHZ                0x04 // 28MHz Clock
 #define VGA_EXT_MISC_SELECT_HIGH_PAGE_ODD_EVEN  0x20 // High page in OE mode
 #define VGA_EXT_MISC_HSYNC_POLARITY             0x40 // 0: Positive; 1: Neg.
 #define VGA_EXT_MISC_VSYNC_POLARITY             0x80 // 0: Positive; 1: Neg.
@@ -232,18 +231,22 @@
 
 int vga_init(void);
 
-uint8_t vga_get_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex);
-void vga_set_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
-    uint8_t value);
-void vga_set_reg_list(uint16_t index_port, uint16_t data_port, 
-    uint8_t start_regindex, uint8_t *values, size_t lsz);
+u8 vga_get_reg(u16 index_port, u16 data_port, u8 index);
+void vga_set_reg(u16 index_port, u16 data_port, u8 index, u8 value);
+
+void vga_set_reg_list(u16 index_port, u16 data_port, u8 start_index,
+    const u8 *value_list, int list_length);
+
 void vga_disable_cursor(void);
-void vga_set_cursor_shape(uint8_t first_line, uint8_t end_line);
-void vga_set_cursor_location(uint16_t index);
-uint16_t vga_get_cursor_location(void);
-void vga_set_mapping_address(uint32_t address);
-uint32_t vga_get_mapping_address(void);
-void vga_dac_write_rgb(uint8_t dacindex, uint8_t r, uint8_t g, uint8_t b);
-void vga_dat_write_rgb_list(uint8_t start_dacindex, uint8_t *list, size_t lsz);
+void vga_set_cursor_shape(u8 first_line, u8 end_line);
+
+void vga_set_cursor_location(u16 index);
+u16 vga_get_cursor_location(void);
+
+void vga_set_mapping_address(u32 address);
+u32 vga_get_mapping_address(void);
+
+void vga_dac_write_rgb(u8 index, u8 r, u8 g, u8 b);
+void vga_dat_write_rgb_list(u8 start_index, const u8 *value_list, int list_length);
 
 #endif /* _INC_VGA */

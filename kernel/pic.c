@@ -90,25 +90,25 @@ int pic_remap(int master, int slave)
     return 0;
 }
 
-static INLINE void master_set_mask(uint8_t mask)
+static INLINE void master_set_mask(u8 mask)
 {
     portwait();
     outportb(PIC_PORT_MASTER_DATA, mask);
 }
 
-static INLINE uint8_t master_get_mask(void)
+static INLINE u8 master_get_mask(void)
 {
     portwait();
     return inportb(PIC_PORT_MASTER_DATA);
 }
 
-static INLINE void slave_set_mask(uint8_t mask)
+static INLINE void slave_set_mask(u8 mask)
 {
     portwait();
     outportb(PIC_PORT_SLAVE_DATA, mask);
 }
 
-static INLINE uint8_t slave_get_mask(void)
+static INLINE u8 slave_get_mask(void)
 {
     portwait();
     return inportb(PIC_PORT_SLAVE_DATA);
@@ -121,7 +121,7 @@ int pic_set_enabled(int irqnum, int enabled)
         return 1;
     }
 
-    uint8_t mask;
+    u8 mask;
     int irqbit = (1 << (irqnum & 7));
 
     if (irqnum < 8) {
@@ -150,10 +150,10 @@ int pic_end_of_interrupt(int irqnum)
     return 0;
 }
 
-static uint16_t pic_get_register(int reg)
+static u16 pic_get_register(int reg)
 {
-    uint16_t master_val;
-    uint16_t slave_val;
+    u16 master_val;
+    u16 slave_val;
 
     portwait();
     outportb(PIC_PORT_MASTER_COMMAND, reg);
@@ -162,20 +162,20 @@ static uint16_t pic_get_register(int reg)
     outportb(PIC_PORT_SLAVE_COMMAND, reg);
 
     portwait();
-    master_val = (uint16_t) inportb(PIC_PORT_MASTER_COMMAND);
+    master_val = (u16) inportb(PIC_PORT_MASTER_COMMAND);
 
     portwait();
-    slave_val = (uint16_t) inportb(PIC_PORT_SLAVE_COMMAND);
+    slave_val = (u16) inportb(PIC_PORT_SLAVE_COMMAND);
 
     return (master_val | (slave_val << 8));
 }
 
-uint16_t pic_get_irr(void)
+u16 pic_get_irr(void)
 {
     return pic_get_register(PIC_OCW3_READ_IRR);
 }
 
-uint16_t pic_get_isr(void)
+u16 pic_get_isr(void)
 {
     return pic_get_register(PIC_OCW3_READ_ISR);
 }

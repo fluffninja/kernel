@@ -1,8 +1,6 @@
 #ifndef _INC_PIC
 #define _INC_PIC 1
 
-#include <stdint.h>
-
 // PIC - Programmable Interrupt Controller
 #define PIC_PORT_MASTER_COMMAND     0x20 // PIC Master Command / Status
 #define PIC_PORT_MASTER_DATA        0x21 // PIC Master Data / Mask
@@ -18,12 +16,12 @@
 #define PIC_ICW1_LEVEL_TRIGGERED    0x08 // Level- rather than edge-triggered
 #define PIC_ICW1_INITIALISE         0x10 // Must be set: initialise PIC
 
-// ICW4 - Initialisation Control Word 4 
+// ICW4 - Initialisation Control Word 4
 // Send after ICW1 if the 'expect ICW4' flag is set in ICW1.
 #define PIC_ICW4_X86_MODE           0x01 // To be used with x86 (must be set)
 #define PIC_ICW4_AUTO_EOI           0x02 // Auto EoI on int. acknowledge
 #define PIC_ICW4_BUFFER_MASTER      0x04 // Master is buffered (slave must too)
-#define PIC_ICW4_BUFFER_SLAVE       0x08 // Slave is buffered 
+#define PIC_ICW4_BUFFER_SLAVE       0x08 // Slave is buffered
 #define PIC_ICW4_FULLY_NESTED       0x10 // Many cascading controllers (unused)
 
 // OCW1 - Operation Control Word 1
@@ -36,7 +34,7 @@
 #define PIC_OCW2_L2                 0x02 // Interrupt level 2
 #define PIC_OCW2_L3                 0x04 // Interrupt level 3
 #define PIC_OCW2_EOI                0x20 // End of Interrupt
-#define PIC_OCW2_SELECT             0x40 
+#define PIC_OCW2_SELECT             0x40
 #define PIC_OCW2_ROTATE             0x80
 
 // OCW3 - Operation Command Word 3
@@ -51,8 +49,8 @@
 int pic_remap(int master, int slave);
 int pic_set_enabled(int irqnum, int enabled);
 int pic_end_of_interrupt(int irqnum);
-uint16_t pic_get_irr(void);
-uint16_t pic_get_isr(void);
+u16 pic_get_irr(void);
+u16 pic_get_isr(void);
 void pic_get_offsets(int *master, int *slave);
 
 #endif /* _INC_PIC */

@@ -1,64 +1,37 @@
-#include <stdint.h>
-
 #include <kernel/klog.h>
 #include <kernel/compiler.h>
 #include <kernel/asm/portio.h>
 
 #include "vga.h"
 
-typedef uint8_t (*adjust_reg_delegate_t)(uint8_t);
-
-static ALWAYS_INLINE void __adjust_reg(uint16_t index_port, uint16_t data_port,
-    uint8_t regindex, adjust_reg_delegate_t adjustment_delegate)
+static ALWAYS_INLINE u8 __get_reg(u16 index_port, u16 data_port, u8 index)
 {
-    outportb(index_port, regindex);
-    uint8_t value = inportb(data_port);
-    value = adjustment_delegate(value);
-    outportb(data_port, value);
-}
-
-int vga_adjust_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
-    adjust_reg_delegate_t adjustment_delegate)
-{
-    if (!adjustment_delegate) {
-        return 1;
-    }
-
-    __adjust_reg(index_port, data_port, regindex, adjustment_delegate);
-
-    return 0;
-}
-
-static ALWAYS_INLINE uint8_t __get_reg(uint16_t index_port, uint16_t data_port,
-    uint8_t regindex)
-{
-    outportb(index_port, regindex);
+    outportb(index_port, index);
     return inportb(data_port);
 }
 
-uint8_t vga_get_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex)
+static ALWAYS_INLINE void __set_reg(u16 index_port, u16 data_port, u8 index,
+    u8 value)
 {
-    return __get_reg(index_port, data_port, regindex);
-}
-
-static ALWAYS_INLINE void __set_reg(uint16_t index_port, uint16_t data_port,
-    uint8_t regindex, uint8_t value)
-{
-    outportb(index_port, regindex);
+    outportb(index_port, index);
     outportb(data_port, value);
 }
 
-void vga_set_reg(uint16_t index_port, uint16_t data_port, uint8_t regindex,
-    uint8_t value)
+u8 vga_get_reg(u16 index_port, u16 data_port, u8 index)
 {
-    __set_reg(index_port, data_port, regindex, value);
+    return __get_reg(index_port, data_port, index);
 }
 
-void vga_set_reg_list(uint16_t index_port, uint16_t data_port,
-    uint8_t start_regindex, uint8_t *values, size_t lsz)
+void vga_set_reg(u16 index_port, u16 data_port, u8 index, u8 value)
 {
-    while (lsz--) {
-        __set_reg(index_port, data_port, start_regindex++, *(values++));
+    __set_reg(index_port, data_port, index, value);
+}
+
+void vga_set_reg_list(u16 index_port, u16 data_port, u8 start_index,
+    const u8 *value_list, int list_length)
+{
+    while (list_length--) {
+        __set_reg(index_port, data_port, start_index++, *(value_list++));
     }
 }
 
@@ -74,7 +47,7 @@ void vga_disable_cursor(void)
         VGA_CRT_INDEX_CURSOR_END, 0x00);
 }
 
-void vga_set_cursor_shape(uint8_t first_line, uint8_t last_line)
+void vga_set_cursor_shape(u8 first_line, u8 last_line)
 {
     first_line &= 0x1f;
     last_line  &= 0x1f;
@@ -86,10 +59,10 @@ void vga_set_cursor_shape(uint8_t first_line, uint8_t last_line)
         VGA_CRT_INDEX_CURSOR_END, last_line);
 }
 
-void vga_set_cursor_location(uint16_t index)
+void vga_set_cursor_location(u16 index)
 {
-    uint8_t high = (index & 0xff00) >> 8;
-    uint8_t low  = (index & 0xff);
+    u8 high = (index & 0xff00) >> 8;
+    u8 low  = (index & 0xff);
 
     __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
         VGA_CRT_INDEX_CURSOR_LOCATION_HIGH, high);
@@ -98,7 +71,7 @@ void vga_set_cursor_location(uint16_t index)
         VGA_CRT_INDEX_CURSOR_LOCATION_LOW, low);
 }
 
-uint16_t vga_get_cursor_location(void)
+u16 vga_get_cursor_location(void)
 {
     int high;
     int low;
@@ -108,21 +81,21 @@ uint16_t vga_get_cursor_location(void)
     low  = (int) __get_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
         VGA_CRT_INDEX_CURSOR_LOCATION_LOW);
 
-    return (uint16_t) (low | (high << 8));
+    return (u16) (low | (high << 8));
 }
 
-void vga_set_mapping_address(uint32_t address)
+void vga_set_mapping_address(u32 address)
 {
     int high = (int) (address & 0xff00) >> 8;
     int low  = (int) (address & 0xff);
 
     __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
-        VGA_CRT_INDEX_START_ADDR_HIGH, (uint8_t) high);
+        VGA_CRT_INDEX_START_ADDR_HIGH, (u8) high);
     __set_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
-        VGA_CRT_INDEX_START_ADDR_LOW, (uint8_t) low);
+        VGA_CRT_INDEX_START_ADDR_LOW, (u8) low);
 }
 
-uint32_t vga_get_mapping_address(void)
+u32 vga_get_mapping_address(void)
 {
     int high;
     int low;
@@ -132,31 +105,32 @@ uint32_t vga_get_mapping_address(void)
     low  = (int) __get_reg(VGA_PORT_CRT_INDEX_W, VGA_PORT_CRT_DATA_RW,
         VGA_CRT_INDEX_START_ADDR_LOW);
 
-    return (uint32_t) (low | (high << 8));
+    return (u32) (low | (high << 8));
 }
 
-void vga_dac_write_rgb(uint8_t dacindex, uint8_t r, uint8_t g, uint8_t b)
+void vga_dac_write_rgb(u8 index, u8 r, u8 g, u8 b)
 {
-    outportb(VGA_PORT_DAC_INDEX_W, dacindex);
+    outportb(VGA_PORT_DAC_INDEX_W, index);
     outportb(VGA_PORT_DAC_DATA_RW, r);
     outportb(VGA_PORT_DAC_DATA_RW, g);
     outportb(VGA_PORT_DAC_DATA_RW, b);
 }
 
-void vga_dac_write_rgb_list(uint8_t start_dacindex, uint8_t *list, size_t lsz)
+void vga_dac_write_rgb_list(u8 start_index, const u8 *value_list,
+    int list_length)
 {
-    outportb(VGA_PORT_DAC_INDEX_W, start_dacindex);
+    outportb(VGA_PORT_DAC_INDEX_W, start_index);
 
-    while (lsz--) {
-        outportb(VGA_PORT_DAC_DATA_RW, *(list++));
-        outportb(VGA_PORT_DAC_DATA_RW, *(list++));
-        outportb(VGA_PORT_DAC_DATA_RW, *(list++));
+    while (list_length--) {
+        outportb(VGA_PORT_DAC_DATA_RW, *(value_list++));
+        outportb(VGA_PORT_DAC_DATA_RW, *(value_list++));
+        outportb(VGA_PORT_DAC_DATA_RW, *(value_list++));
     }
 }
 
 int vga_init(void)
 {
-    uint8_t regval;
+    u8 regval;
 
     // Turn on compatible port remapping
     regval = inportb(VGA_PORT_EXT_MISC_OUT_R);
@@ -179,7 +153,8 @@ int vga_init(void)
     // Perform an inconsequential write to the DAC to normalise its state
     vga_dac_write_rgb(0xff, 0, 0, 0);
 
-    klog_printf("vga: initialised\n");
+    klog_printf("vga: initialised, mapping address at %p\n",
+        vga_get_mapping_address());
 
     return 1;
 }
