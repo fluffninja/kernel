@@ -112,11 +112,10 @@ int kb_irq_hook(int irqnum) {
     struct ps2_kb_packet buffer[PS2_POLL_BUFFER_SIZE];
     int num_received = poll_ps2(buffer, PS2_POLL_BUFFER_SIZE);
     struct kb_key key;
+    int i;
 
-    // TODO: Actually check subsequent keyboard packets.
-    // For now, only check the first packet.
-    if (num_received) {
-        key = convert_packet(&device, buffer);
+    for (i = 0; i < num_received; ++i) {
+        key = convert_packet(&device, buffer + i);
 
         if (key.keycode >= 250) {
             switch (key.keycode & ~1) {
