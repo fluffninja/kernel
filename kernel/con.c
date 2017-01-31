@@ -2,6 +2,8 @@
 
 #include <kernel/kernel.h>
 #include <kernel/klog.h>
+#include <kernel/types.h>
+#include <kernel/compiler.h>
 
 #include "con.h"
 #include "vga.h"
@@ -18,7 +20,7 @@ static int              s_screen_index;
 static int              screen_flags;
 static int              s_screen_width;
 static int              s_screen_height;
-static uint32_t         s_con_flags = 0;
+static int              s_con_flags = 0;
 
 enum {
     SEEK_REL = 0,
@@ -33,7 +35,7 @@ static int seek_cursor(int offset, int seek)
         s_screen_index = offset;
     }
 
-    vga_set_cursor_location((uint16_t) s_screen_index);
+    vga_set_cursor_location((u16) s_screen_index);
 
     return s_screen_index;
 }
@@ -111,7 +113,7 @@ int con_init(struct kernel_boot_params *params)
     return 0;
 }
 
-uint32_t con_set_flags(uint32_t flags, int state)
+int con_set_flags(int flags, int state)
 {
     if (state) {
         s_con_flags |= flags;
