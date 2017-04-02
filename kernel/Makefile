@@ -25,12 +25,14 @@ LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
 # Kernel ELF File
 kernel.elf: start.bin kmain.o con.o ps2.o pic.o cpu/idt.o cpu/isr.o \
 	irq.o kb.o kio.o panic.o mouse.o vga.o cpu/syscall.o boot.o \
-	klog.o asm/cpustat.o hexdump.o kerror.o cpu/gdt.o
+	klog.o asm/cpustat.o hexdump.o kerror.o cpu/gdt.o mem/heap.o
 	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
 
 # Flatten Kernel ELF File
 kernel.bin: kernel.elf
 	objcopy -O binary -S $^ $@
+
+# Private Header Dependencies
 
 # asm
 asm/cpustat.c: kio.h
@@ -41,9 +43,14 @@ cpu/isr.c: cpu/isr.h cpu/idt.h panic.h
 cpu/gdt.c: cpu/gdt.h
 cpu/syscall.c: cpu/syscall.h cpu/isr.h panic.h kio.h
 
+# mem
+mem/heap.c: mem/heap.h
+
+# init \ kmain
 kmain.c: boot.h con.h cpu/idt.h cpu/isr.h irq.h kb.h kio.h panic.h mouse.h \
 	ps2.h vga.h cpu/syscall.h
 
+# components
 boot.c: boot.h
 con.c: con.h vga.h
 hexdump.c: kio.h
