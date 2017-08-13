@@ -29,6 +29,16 @@ extern "C" {
 #define MIN(A, B)       (((A) < (B)) ? (A) : (B))
 #endif
 
+#ifndef STATIC_ASSERT
+#define STATIC_ASSERT(e)    struct{int:-!!!(e);}
+#endif
+
+#ifndef GUARANTEE_SIZE
+#define GUARANTEE_SIZE(ty, size) \
+    typedef struct ty##_is_size##size{int:-!!!(sizeof(ty)==size);} ty##_is_size##size;
+#endif
+
+
 // CONTAINER_OF:
 //   Cast a pointer to a member within a container to a pointer to the
 //   container of the container type.

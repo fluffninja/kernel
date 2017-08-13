@@ -13,6 +13,7 @@
 #include "irq.h"
 #include "kb.h"
 #include "vga.h"
+#include "mem/page.h"
 
 static int on_key_event(const struct kb_key *key)
 {
@@ -89,6 +90,8 @@ void CDECL NO_RETURN kmain(void)
 
     // Enable VGA cursor by setting shape.
     con_set_cursor_shape(CON_CURSOR_SHAPE_UNDERLINE);
+
+    page_init();
 
     klog_printf("init ok\n");
 

@@ -16,4 +16,12 @@ typedef unsigned long long  u64;
     #define false   (0)
 #endif
 
+#ifndef slice_of
+#define slice_of(T) \
+struct {\
+    T* ptr;\
+    size_t length;\
+}
+#endif
+
 #endif /* _INC_KERNEL_TYPES */
