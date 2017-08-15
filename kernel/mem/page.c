@@ -98,7 +98,7 @@ static allocator_page_allocator kp_allocator_allocator =
     }
 };
 
-page_indirection* kpalloc()
+page_indirection* kpalloc(void)
 {
     page_indirection* next_page_ref = page_alloc(&kp_allocator);
     if(!next_page_ref)
@@ -122,8 +122,8 @@ page_indirection* kpalloc()
     {
         next_page_ref->page = next_page;
         next_page += PAGE_SIZE;
-        klog_printf("Allocated page at %8x, indirecting to %8x\n",
-            next_page_ref, next_page_ref->page);
+        //klog_printf("Allocated page at %8x, indirecting to %8x\n",
+        //    next_page_ref, next_page_ref->page);
     }
 
     return next_page_ref;
@@ -166,8 +166,70 @@ int page_allocator_can_free(page_allocator const allocator)
 
 mk_allocator(page_allocator);
 
+static void setup_paging(void)
+{
+    //Set up root directory
+    page_directory* pd = (page_directory*) (kpalloc())->page;
+    for(int i = 0; i < 0x1; i++)
+    {
+        page_directory_entry pde;
+        page_table* pt = (page_table*) (kpalloc()->page);
+
+        for(int j = 0; j < 0x400; j++)
+        {
+            page_table_entry page;
+            page.page_address_4k_aligned = ((u32)i*0x400000+j*0x1000)>>12;
+            page.has_been_accessed = 0;
+            page.available = 0;
+            page.is_present = 1;
+            page.is_cache_disabled = 0;
+            page.is_dirty = 0;
+            page.is_user = 0;
+            page.is_write_through = 0;
+            page.is_writeable = 1;
+
+            pt->pte[j] = page;
+        }
+
+        pde.page_table_address_4k_aligned = (((u32)pt) >> 12);
+        pde.available = 0;
+        pde.has_been_accessed = 0;
+        pde.ignored_1 = 0;
+        pde.is_4MB_size = 0;
+        pde.is_cache_disabled = 0;
+        pde.is_present = 1;
+        pde.is_user = 0;
+        pde.is_write_through = 0;
+        pde.is_writeable = 1;
+        pde.reserved_1 = 0;
+        
+        pd->pde[i] = pde;
+    }
+    pd->pde[0x200] = pd->pde[0];
+    pd->pde[0x201] = pd->pde[0];
+    /*kprintf("Has assignment worked? %p -> %p\n", pd->pde[0], pd->pde[0x200]);
+    kprintf("Virtual memory is now overmapped:\n"
+            "\tpd[0x000] -----> pt[0] --+--> p[0x000]\n"
+            "\tpd[ ... ] --x     ^      |--> p[0x001]\n"
+            "\tpd[0x200] --------+      |--> p[ ... ]\n");*/
+
+
+    CR3 cr3;
+    cr3.page_directory_4k_aligned = ((u32)pd) >> 12;
+    set_cr3(cr3);
+
+    CR0 cr0 = get_cr0();
+    cr0.enable_paging = 1;
+    cr0.protected_mode = 1;
+    cr0.ring_0_write_protection = 1;
+    set_cr0(cr0);
+
+    enter_high_half();
+}
+
 int page_init(void)
 {
+    
     page_indirection *alloc_alloc_page = kpalloc();
     kp_allocator_allocator.head = (page_allocator*) alloc_alloc_page->page;
 
@@ -176,8 +238,11 @@ int page_init(void)
     kp_allocator_allocator.underlying_buffer.length = 
         0x1000 / sizeof(page_allocator);
 
-    
-    klog_printf("page: initialised\n");
+    klog_printf("page: allocator initialised\n");
+
+    setup_paging();
+
+    klog_printf("page: virtual paging established\n");
 
     //Example
     //for(int i = 0; i < 0x402; i++) kpalloc();

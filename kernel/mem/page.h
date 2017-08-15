@@ -61,6 +61,26 @@ typedef struct page_directory
 
 GUARANTEE_SIZE(page_directory, 0x1000);
 
+typedef struct CR0
+{
+    u32 protected_mode:1;
+    u32 monitor_coprocessor:1;
+    u32 emulated_x87:1;
+    u32 task_switched:1;
+    u32 extension_type:1;
+    u32 numeric_error:1;
+    u32 pad1:10;
+    u32 ring_0_write_protection:1;
+    u32 pad2:1;
+    u32 alignment_mask:1;
+    u32 pad3:10;
+    u32 disabled_write_through:1;
+    u32 disabled_cache:1;
+    u32 enable_paging:1;
+} CR0;
+
+GUARANTEE_SIZE(CR0, 0x4);
+
 typedef struct CR3
 {
     u32 unused:12;
@@ -243,8 +263,15 @@ int page_allocator_can_free(page_allocator const allocator);
 
 decl_allocator(page_allocator);
 
-CR3 get_cr3();
-void set_cr3(u32 val);
+CR3 get_cr3(void);
+void set_cr3(CR3 val);
+
+CR0 get_cr0(void);
+void set_cr0(CR0 val);
+
+void enter_high_half(void);
+
+u32 get_ip(void);
 
 page_directory* get_page_directory(CR3 cr3);
 
