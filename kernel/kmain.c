@@ -14,6 +14,7 @@
 #include "kb.h"
 #include "vga.h"
 #include "mem/page.h"
+#include "pit.h"
 
 static int on_key_event(const struct kb_key *key)
 {
@@ -92,8 +93,12 @@ void CDECL NO_RETURN kmain(void)
     con_set_cursor_shape(CON_CURSOR_SHAPE_UNDERLINE);
 
     page_init();
+    
+    pit_init();
 
     klog_printf("init ok\n");
 
-    while (1);
+    
+
+    while (1) cpu_hlt();
 }
