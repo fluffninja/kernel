@@ -175,7 +175,7 @@ static void setup_paging(void)
         page_directory_entry pde;
         page_table* pt = (page_table*) (kpalloc()->page);
 
-        for(int j = 0; j < 0x400; j++)
+        for(int j = 0; j < 0x3ff; j++)
         {
             page_table_entry page;
             page.page_address_4k_aligned = ((u32)i*0x400000+j*0x1000)>>12;
@@ -189,6 +189,20 @@ static void setup_paging(void)
             page.is_writeable = 1;
 
             pt->pte[j] = page;
+        }
+        {
+            page_table_entry page;
+            page.page_address_4k_aligned = ((u32)pd)>>12;
+            page.has_been_accessed = 0;
+            page.available = 0;
+            page.is_present = 1;
+            page.is_cache_disabled = 0;
+            page.is_dirty = 0;
+            page.is_user = 0;
+            page.is_write_through = 0;
+            page.is_writeable = 1;
+
+            pt->pte[0x400] = page;
         }
 
         pde.page_table_address_4k_aligned = (((u32)pt) >> 12);
@@ -240,7 +254,8 @@ int page_init(void)
 
     klog_printf("page: allocator initialised\n");
 
-    setup_paging();
+    //irq_enter_high_half();
+    //setup_paging();
 
     klog_printf("page: virtual paging established\n");
 

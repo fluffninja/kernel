@@ -23,7 +23,7 @@ LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
 	$(CC) $< -o $@ $(CFLAGS)
 
 # Kernel ELF File
-kernel.elf: start.bin kmain.o con.o ps2.o pic.o cpu/idt.o cpu/isr.o \
+kernel.elf: start.bin kmain.o con.o ps2.o pic.o pit.o pit.bin cpu/idt.o cpu/isr.o \
 	irq.o kb.o kio.o panic.o mouse.o vga.o cpu/syscall.o boot.o \
 	klog.o asm/cpustat.o hexdump.o kerror.o cpu/gdt.o mem/heap.o \
 	mem/page.o mem/page.bin
@@ -62,6 +62,7 @@ klog.c: kio.h
 mouse.c: mouse.h irq.h ps2.h con.h
 panic.c: panic.h kio.h con.h
 pic.c: pic.h cpu/idt.h
+pit.c: pit.h pit.asm
 ps2.c: ps2.h
 vga.c: vga.h
 mem/page.c: mem/page.h kio.h
