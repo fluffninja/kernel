@@ -1,16 +1,14 @@
 # Kernel
 
-I'm making a kernel.
+A basic bootloader and kernel for the 32-bit x86.
 
 ## Building and Running
-
-Please double-check the prerequisites before trying anything :-)
 
 To build and create a bootable floppy image, use `make image`.
 
 To run once built, use `make run`.
 
-## Prerequisites
+### Prerequisites
 
 * make
 * gcc
