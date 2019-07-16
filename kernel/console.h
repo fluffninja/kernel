@@ -1,5 +1,5 @@
-#ifndef _INC_CON
-#define _INC_CON 1
+#ifndef _INC_CONSOLE
+#define _INC_CONSOLE 1
 
 // For struct kernel_boot_params
 #include "boot.h"
@@ -45,4 +45,4 @@ int con_set_cursor_location(int x, int y);
 
 void con_set_cursor_shape(int shape);
 
-#endif /* _INC_CON */
+#endif /* _INC_CONSOLE */

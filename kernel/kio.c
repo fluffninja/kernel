@@ -7,7 +7,7 @@
 #include <kernel/compiler.h>
 
 #include "kio.h"
-#include "con.h"
+#include "console.h"
 
 #define OUTBUF_SIZE PAGE_SIZE
 

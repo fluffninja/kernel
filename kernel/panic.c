@@ -7,7 +7,7 @@
 
 #include "panic.h"
 #include "kio.h"
-#include "con.h"
+#include "console.h"
 
 static int s_panic_flags = PANIC_FULL_DUMP;
 

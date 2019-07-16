@@ -5,7 +5,7 @@
 #include <kernel/asm/misc.h>
 
 #include "boot.h"
-#include "con.h"
+#include "console.h"
 #include "panic.h"
 #include "cpu/idt.h"
 #include "cpu/isr.h"

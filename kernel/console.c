@@ -6,7 +6,7 @@
 #include <kernel/types.h>
 #include <kernel/compiler.h>
 
-#include "con.h"
+#include "console.h"
 #include "vga.h"
 
 #define TAB_WIDTH 4

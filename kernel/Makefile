@@ -23,7 +23,7 @@ LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
 	$(CC) $< -o $@ $(CFLAGS)
 
 # Kernel ELF File
-kernel.elf: start.bin kmain.o con.o ps2.o pic.o cpu/idt.o cpu/isr.o \
+kernel.elf: start.bin kmain.o console.o ps2.o pic.o cpu/idt.o cpu/isr.o \
 	irq.o kb.o kio.o panic.o mouse.o vga.o cpu/syscall.o boot.o \
 	klog.o asm/cpustat.o hexdump.o kerror.o cpu/gdt.o
 	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
@@ -41,18 +41,18 @@ cpu/isr.c: cpu/isr.h cpu/idt.h panic.h
 cpu/gdt.c: cpu/gdt.h
 cpu/syscall.c: cpu/syscall.h cpu/isr.h panic.h kio.h
 
-kmain.c: boot.h con.h cpu/idt.h cpu/isr.h irq.h kb.h kio.h panic.h mouse.h \
+kmain.c: boot.h console.h cpu/idt.h cpu/isr.h irq.h kb.h kio.h panic.h mouse.h \
 	ps2.h vga.h cpu/syscall.h
 
 boot.c: boot.h
-con.c: con.h vga.h
+console.c: console.h vga.h
 hexdump.c: kio.h
 irq.c: irq.h cpu/isr.h pic.h
-kb.c: kb.h irq.h ps2.h con.h panic.h keymap-en-us
-kio.c: kio.h con.h
+kb.c: kb.h irq.h ps2.h console.h panic.h keymap-en-us
+kio.c: kio.h console.h
 klog.c: kio.h
-mouse.c: mouse.h irq.h ps2.h con.h
-panic.c: panic.h kio.h con.h
+mouse.c: mouse.h irq.h ps2.h console.h
+panic.c: panic.h kio.h console.h
 pic.c: pic.h cpu/idt.h
 ps2.c: ps2.h
 vga.c: vga.h
