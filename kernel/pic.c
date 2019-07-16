@@ -73,7 +73,7 @@ int pic_remap(int master, int slave)
 
     // ICW3
     outportb(PIC_PORT_MASTER_DATA, 1 << 2); // IRQ (bit) of slave, to master
-    outportb(PIC_PORT_MASTER_DATA, 2);      // IRQ (number) of slave, to slave
+    outportb(PIC_PORT_SLAVE_DATA, 2);       // IRQ (number) of slave, to slave
 
     // ICW4 - Set x86 mode
     command = PIC_ICW4_X86_MODE;
