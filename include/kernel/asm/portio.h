@@ -16,7 +16,7 @@ extern "C" {
 static ALWAYS_INLINE void outportb(u16 port, u8 value)
 {
     ASM_VOLATILE(
-        "outb %1, %0"::
+        "out %1, %0"::
         "a"  (value),       // Value in A
         "dN" (port)         // Port Number Constant in D
     );
@@ -26,7 +26,7 @@ static ALWAYS_INLINE void outportb(u16 port, u8 value)
 static ALWAYS_INLINE void outportw(u16 port, u16 value)
 {
     ASM_VOLATILE(
-        "outw %1, %0"::
+        "out %1, %0"::
         "a"  (value),
         "dN" (port)
     );
@@ -36,7 +36,7 @@ static ALWAYS_INLINE void outportw(u16 port, u16 value)
 static ALWAYS_INLINE void outportl(u16 port, u32 value)
 {
     ASM_VOLATILE(
-        "outl %1, %0"::
+        "out %1, %0"::
         "a"  (value),
         "dN" (port)
     );
@@ -47,7 +47,7 @@ static ALWAYS_INLINE u8 inportb(u16 port)
 {
     u8 value;
     ASM_VOLATILE(
-        "inb %0, %1":
+        "in %0, %1":
         "=a"(value):      // Value of A
         "dN"(port)       // Port Number Constant in D
     );
@@ -59,7 +59,7 @@ static ALWAYS_INLINE u16 inportw(u16 port)
 {
     u16 value;
     ASM_VOLATILE(
-        "inw %0, %1":
+        "in %0, %1":
         "=a"(value):
         "dN"(port)
     );
@@ -71,7 +71,7 @@ static ALWAYS_INLINE u32 inportl(u16 port)
 {
     u32 value;
     ASM_VOLATILE(
-        "inl %0, %1":
+        "in %0, %1":
         "=a"(value):
         "dN"(port)
     );
