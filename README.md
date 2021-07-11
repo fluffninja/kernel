@@ -1,18 +1,29 @@
-# Kernel
+# Basic Kernel
 
-A basic bootloader and kernel for the 32-bit x86.
+This is a very basic bootloader and kernel for the 32-bit x86 that I made when
+first learning about OS and kernel development. It's not very good, but it may
+perhaps still be of interest to anyone who is starting out with this sort of
+thing.
+
+I am no longer actively developing this project.
+
 
 ## Building and Running
-
-To build and create a bootable floppy image, use `make image`.
-
-To run once built, use `make run`.
 
 ### Prerequisites
 
 * make
 * gcc
 * nasm
-* dd - to create the floppy image
+* dd
+* qemu-system-i386 (for running)
 
-For quick emulation I recommend using QEMU - specifically qemu-system-i386 for 32-bit x86 emulation.
+
+### Building
+
+To build everything and create a bootable floppy image, use `make image`.
+
+
+### Running
+
+To run, after building, use `make run`.
