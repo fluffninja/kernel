@@ -3,8 +3,6 @@
 #ifndef _INC_STDDEF
 #define _INC_STDDEF 1
 
-// We want there to be one official definition of NULL for a given compilation
-// unit that includes stddef.h.
 #ifdef NULL
     #undef NULL
 #endif
