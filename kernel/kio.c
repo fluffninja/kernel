@@ -480,7 +480,7 @@ size_t __va_str_format_impl(char *str, size_t sz, const char *fmt,
             }
 
             if (fi.ft == FT_CHAR) {
-                arg.i8 = va_arg(args, char);
+                arg.i8 = va_arg(args, int);
                 if (sz--) {
                     *str = arg.i8;
                     ++str;
