@@ -1,41 +1,73 @@
-ASM		:= nasm
-ASMFLAGS	:= -f elf
+TargetBin := kernel.bin
+TargetElf := kernel.elf
+Dependencies := \
+	start.bin \
+	kmain.o \
+	console.o \
+	ps2.o \
+	pic.o \
+	irq.o \
+	kb.o \
+	kio.o \
+	panic.o \
+	mouse.o \
+	vga.o \
+	boot.o \
+	klog.o \
+	hexdump.o \
+	kerror.o \
+	cpu/gdt.o \
+	cpu/syscall.o \
+	cpu/idt.o \
+	cpu/isr.o \
+	asm/cpustat.o \
+	../libc/libc.a
 
-CC		:= gcc
-CFLAGS		:= -std=c11 -c -I ../include \
-		-Wall -Wextra \
-		-m32 -masm=intel \
-		-nostdinc -fno-builtin -fno-stack-protector \
-		-mno-red-zone \
-		-fno-omit-frame-pointer -fno-combine-stack-adjustments
+## C Compiler Options ##
+CC := gcc
+CFLAGS := -c
+CFLAGS += -std=c11 -masm=intel
+CFLAGS += -nostdinc -I ../include
+CFLAGS += -m32
+CFLAGS += -mno-red-zone
+CFLAGS += -fno-builtin
+CFLAGS += -fno-stack-protector
+CFLAGS += -fno-omit-frame-pointer
+CFLAGS += -fno-combine-stack-adjustments
+CFLAGS += -Wall -Wextra
+CFLAGS += -Wno-implicit-fallthrough
 
-LD		:= ld
-LDSCRIPT	:= kernel.ld
-LDMAP		:= kernel.map
-LDFLAGS		:= -T $(LDSCRIPT) -M -nostdlib -m elf_i386
+## Assembler Options ##
+AS := nasm
 
-# Asm Source -> Bin (ELF Object) Files
+## Linker Options ##
+LinkerScript := kernel.ld
+LinkerMap := kernel.map
+LD := ld
+LDFLAGS := -m elf_i386
+LDFLAGS += -T $(LinkerScript)
+LDFLAGS += -nostdlib
+LDFLAGS += -M >$(LinkerMap)
+
+## Recipes ###
+
 %.bin: %.asm
-	$(ASM) $< -o $@ $(ASMFLAGS)
+	$(AS) -f elf $< -o $@
 
-# C Source -> ELF Object Files
 %.o: %.c
-	$(CC) $< -o $@ $(CFLAGS)
+	$(CC) $(CFLAGS) $< -o $@
 
-# Kernel ELF File
-kernel.elf: start.bin kmain.o console.o ps2.o pic.o cpu/idt.o cpu/isr.o \
-	irq.o kb.o kio.o panic.o mouse.o vga.o cpu/syscall.o boot.o \
-	klog.o asm/cpustat.o hexdump.o kerror.o cpu/gdt.o
-	$(LD) $^ ../libc/libc.a -o $@ $(LDFLAGS) 1> $(LDMAP)
+$(TargetElf) $(LinkerMap): $(LinkerScript) $(Dependencies)
+	$(LD) $(LDFLAGS) $(Dependencies) -o $(TargetElf)
 
-# Flatten Kernel ELF File
-kernel.bin: kernel.elf
-	objcopy -O binary -S $^ $@
+$(TargetBin): $(TargetElf)
+	objcopy -O binary -S $< $@
 
-# asm
+
+## Header-File Dependencies ##
+
 asm/cpustat.c: kio.h
 
-# cpu
 cpu/idt.c: cpu/idt.h
 cpu/isr.c: cpu/isr.h cpu/idt.h panic.h
 cpu/gdt.c: cpu/gdt.h

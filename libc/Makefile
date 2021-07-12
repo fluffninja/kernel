@@ -1,17 +1,29 @@
-CC		:= gcc
-CFLAGS		:= -nostdinc -m32 -std=c11 -Wall -Wextra -c -I ../include \
-		-fno-builtin -fno-stack-protector
+Target := libc.a
+Dependencies := \
+	ctype.o \
+	stdlib.o
 
-AR 		:= ar
-ARFLAGS		:= -rcs
+## C Compiler Options ##
+CC := gcc
+CFLAGS := -c
+CFLAGS += -std=c11 -masm=intel
+CFLAGS += -nostdinc -I ../include
+CFLAGS += -m32
+CFLAGS += -mno-red-zone
+CFLAGS += -fno-builtin
+CFLAGS += -fno-stack-protector
+CFLAGS += -fno-omit-frame-pointer
+CFLAGS += -fno-combine-stack-adjustments
+CFLAGS += -Wall -Wextra
 
-.PHONY: all
-all: libc.a
+## Archiver Options ##
+AR := ar
+ARFLAGS := -rcs
+
+## Recipes ##
 
 %.o: %.c
-	$(CC) $< -o $@ $(CFLAGS)
+	$(CC) $(CFLAGS) $< -o $@
 
-libc.a: ctype.o stdlib.o
+$(Target): $(Dependencies)
 	$(AR) $(ARFLAGS) $@ $^
-
-
